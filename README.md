@@ -1,22 +1,27 @@
-# Big Title
+# Site Editor
 
-Intro paragraph
+### Introduction
 
-## Smaller Title
+    Site Editor is intended to be a javascript application which implements basic file manipulation functionality for editing a website online.
 
-### Smaller Title Still?
+### Goals
 
-* Bullet 1
-* Bullet 2
-* Bullet 3
+    * Intuitive GUI
+    * Maximization of workspace
+    * Interface specifications to allow backend to be implemented however possible and in whatever language available
 
-This has **bold** text?
+### History
 
-Link to [Github](https://github.com/).
+`"I" refers to **Taplar**`
 
-`border enclose some text?`
+    Long long time ago I registered a free domain that provided perl access.  It was nice, but since it was free their webpage editor displayed ads.  I got annoyed with the ads and wrote a crude editor in perl.  Once I got that editor to a stable point I then used it to rewrite the perl editor.
 
-```html
-block enclose
-some stuff
-```
+    Then when I registered a named domain and started learning PHP I rewrote the editor in PHP and from there it went through atleast another revision.  The version of the editor at the time of writing this information was still written in PHP, used iframes, and could only edit one file at a time.
+
+    At some point I started desiring the ability to edit multiple files at a time.  At first I began down the path of a rewrite with a theme of associating and editing three files at a time (ex. index.html, index.css, index.js).  Fortunately, very early into the rewrite it occured to me I could implement it in a way that was more free flowing and could accomidate editing any number of files.  This led me to a rewrite that I was happy with and a co-worker suggested it might be an interesting open source project, so here we are.
+
+### Browser Compatibility
+
+    * Chrome - Not tested
+    * Firefox - OS: Linux, Version: Latest, Developer: Taplar
+        * Sub bullet?
