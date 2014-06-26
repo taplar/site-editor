@@ -4,11 +4,11 @@
 
 ### Validate authorization status
 Purpose: Determines on initial page load if user is already authorized.
-``` Request
+```Request
 Method: GET
 URL: ~/?auth/validate
 ```
-``` Response
+```Response
 {
 	responseCode: "AUTHORIZED"|"UNAUTHORIZED"
 }
