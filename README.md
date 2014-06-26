@@ -12,7 +12,7 @@ Site Editor is intended to be a javascript application which implements basic fi
 
 ### History
 
-`"I" refers to **Taplar**`
+`"I" refers to ***Taplar***`
 
 Long long time ago I registered a free domain that provided perl access.  It was nice, but since it was free their webpage editor displayed ads.  I got annoyed with the ads and wrote a crude editor in perl.  Once I got that editor to a stable point I then used it to rewrite the perl editor.
 
@@ -23,5 +23,6 @@ At some point I started desiring the ability to edit multiple files at a time.  
 ### Browser Compatibility
 
 * Chrome - Not tested
-* Firefox - OS: Linux, Version: Latest, Developer: Taplar
-    * Sub bullet?
+* Firefox
+	* Taplar
+		* Version: Latest
