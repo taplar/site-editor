@@ -2,6 +2,20 @@
 
 `"~" represents "http://<domain>/<path to editor>"`
 
+### Application start
+
+Purpose: Returns the start page for the editor.
+
+##### Request
+```
+Method: GET
+URL: ~/
+```
+##### Response
+```
+Raw webpage data
+```
+
 ### Validate authorization status
 
 Purpose: Determines on initial page load if user is already authorized.
