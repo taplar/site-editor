@@ -40,6 +40,10 @@
 
 			try {
 				if ($path) {
+					include_once 'private/services/authorizationService.php';
+
+					AuthorizationService::getInstance()->validate();
+
 					if (isset($this->roots[$path[0]])){
 						$this->roots[$path[0]]->resolve($path);
 					} else {

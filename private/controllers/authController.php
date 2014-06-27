@@ -14,7 +14,19 @@
 			return self::$instance;
 		}
 
-		public function resolve($path){}
+		public function resolve($request){
+			include_once 'private/services/authorizationService.php';
+
+			if (count($request) > 1){
+				if (strcasecmp($request[1], 'validate') == 0){
+					//validate should happen on every request
+					//skip if it is the actual request
+					return;
+				}
+			}
+			
+			ResponseService::getInstance()->pathIsUnknown();
+		}
 	}
 
 	if (defined('EDITOR_ONSITE')){

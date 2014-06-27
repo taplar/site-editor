@@ -32,11 +32,15 @@
 		}
 
 		public function pathIsUnknown(){
-			$this->responseCode('INVALID_REQUEST');
+			$this->requestWasInvalid();
 		}
 
 		public function rawData($data){
 			$this->addResponse('rawData', $data);
+		}
+
+		public function requestWasInvalid(){
+			$this->responseCode('INVALID_REQUEST');
 		}
 
 		private function responseCode($code){
@@ -49,6 +53,10 @@
 
 		public function userIsNotRecognised(){
 			$this->responseCode('UNAUTHORIZED');
+		}
+
+		public function userIsRecognised(){
+			$this->responseCode('AUTHORIZED');
 		}
 	}
 ?>
