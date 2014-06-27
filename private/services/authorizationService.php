@@ -25,6 +25,8 @@
 		}
 
 		public function validate(){
+			session_start();
+			
 			if (!isset($_SESSION['EDITOR_LOGGED_IN'])){
 				$_SESSION['EDITOR_LOGGED_IN'] = false;
 			}

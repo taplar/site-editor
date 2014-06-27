@@ -6,7 +6,7 @@ var AjaxService = {
 
 		return {
 			GET: function(url, args){
-				Require.all(args, 'fnSuccess');
+				Require.all(args, 'fnSuccess', 'fnFailure');
 
 				changeCursorToBusy();
 
@@ -15,9 +15,20 @@ var AjaxService = {
 					args.fnSuccess(data);
 				}).fail(function(){
 					changeCursorToDefault();
-					console.log('Fail call');
-				}).always(function(){
-					console.log('Always call');
+					args.fnFailure();
+				});
+			}
+			,POST: function(url, input, args){
+				Require.all(args, 'fnSuccess', 'fnFailure');
+
+				changeCursorToBusy();
+
+				$.post(url, input, function(data){
+					changeCursorToDefault();
+					args.fnSuccess(data);
+				}).fail(function(){
+					changeCursorToDefault();
+					args.fnFailure();
 				});
 			}
 		};

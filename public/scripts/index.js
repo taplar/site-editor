@@ -1,7 +1,17 @@
-$(document).ready(function(){
-	var ajaxService = AjaxService.getInstance();
+var EDITOR = {
+	initialize: function(ajaxService){
+		ajaxService.GET('?auth/validate', {
+			fnSuccess: EDITOR.processApplicationEntry
+			,fnFailure: EDITOR.unrecoverableError
+		});
+	}
+	,processApplicationEntry: function(jsonString){
+		console.log(jsonString);
+	}
+	,unrecoverableError: function(){
+		console.log('Unrecoverable error occured.  If this does not resolve itself, contact the site administrator for further assistance.');
+	}
+};
 
-	ajaxService.GET('?auth/validate', {
-		fnSuccess: function(data){ console.log(data); }
-	});
-});
+EDITOR.initialize(AjaxService.getInstance());
+EDITOR = null;
