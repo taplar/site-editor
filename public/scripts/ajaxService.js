@@ -6,14 +6,17 @@ var AjaxService = {
 
 		return {
 			GET: function(url, args){
+				Require.all(args, 'fnSuccess');
+
 				changeCursorToBusy();
 
 				$.get(url, function(data){
-					console.log('Success call');
+					changeCursorToDefault();
+					args.fnSuccess(data);
 				}).fail(function(){
+					changeCursorToDefault();
 					console.log('Fail call');
 				}).always(function(){
-					changeCursorToDefault();
 					console.log('Always call');
 				});
 			}
