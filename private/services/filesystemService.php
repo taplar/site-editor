@@ -1,10 +1,10 @@
 <?php
-	class FilesystemService {
-		public static $instance;
-		
+	final class FilesystemService {
+		private static $instance;
 
-		private function __construct(){
-		}
+
+		private function __clone(){}
+		private function __construct(){}
 		
 		public static function getInstance(){
 			if (!self::$instance){

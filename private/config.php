@@ -1,13 +1,12 @@
 <?php
-	class Config {
+	final class Config {
 		private static $instance;
-		public $EDITOR_DIRECTORY;
+		private final $EDITOR_DIRECTORY = './';
 		
 		
-		private function __construct(){
-			$this->EDITOR_DIRECTORY = './';
-		}
-		
+		private function __clone(){}
+		private function __construct(){}
+
 		public function getEditorDirectory(){
 			return $this->EDITOR_DIRECTORY;
 		}

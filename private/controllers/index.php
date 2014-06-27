@@ -1,10 +1,10 @@
 <?php
-	class Controllers {
+	final class Controllers {
 		private static $instance;
-		
 
-		private function __construct(){
-		}
+
+		private function __clone(){}
+		private function __construct(){}
 		
 		public static function getInstance(){
 			if (!self::$instance){

@@ -1,8 +1,10 @@
 <?php
-	class Router {
+	final class Router {
 		private static $instance;
 		private $roots;
 		
+
+		private function __clone(){}
 
 		private function __construct(){
 			$this->roots = array();
@@ -25,17 +27,21 @@
 
 			return null;
 		}
+
+		public function register($root, $variable){
+			$this->roots[$root] = $variable;
+		}
 		
 		public function resolve(){
-			include_once 'private/elements/response.php';
+			include_once 'private/services/responseService.php';
 
-			$response = Response::getInstance();
+			$response = ResponseService::getInstance();
 			$path = $this->getPath();
 
 			try {
 				if ($path) {
-					if (isset($this->$roots[$path[0]])){
-						$this->$roots[$path[0]]->resolve($path, $response);
+					if (isset($this->roots[$path[0]])){
+						$this->roots[$path[0]]->resolve($path);
 					} else {
 						$response->pathIsUnknown();
 					}
@@ -53,10 +59,5 @@
 
 			echo $response;
 		}
-/*
-		public static function register($root, $variable){
-			self::$roots[$root] = $variable;
-		}
-*/
 	}
 ?>
