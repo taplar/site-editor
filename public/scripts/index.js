@@ -29,6 +29,79 @@ var EDITOR = {
 			});
 		}
 	}
+	,buildFile: function($parent, path, file, ajaxService){
+		//var $delete = $('<i class="fa fa-times red" />');
+		var $li = $('<li><i class="fa fa-file" />&nbsp;</li>');
+		//var $newFile = $('<i class="fa fa-file gray" />');
+		//var $newFolder = $('<i class="fa fa-folder gray" />');
+		var $ul = $('<ul></ul>');
+		
+		//$newFile.click(THIS.actionNewFile(path, key));
+		//$newFolder.click(THIS.actionNewFolder(path, key));
+		//$delete.click(THIS.actionDeleteFolder(path, key));
+		//$li.click(THIS.actionToggleExpansion);
+		
+		$li.append(file)
+			//.append('&nbsp;').append($newFile)
+			//.append('&nbsp;').append($newFolder)
+			//.append('&nbsp;').append($delete)
+			.append($ul);
+		
+		$parent.append($li);
+	}
+	,buildFileList: function($parent, path, files, ajaxService){
+		for (key in files){
+			if (isNaN(key)){ //display folders first
+				EDITOR.buildFolder($parent, path, key, files[key], ajaxService);
+			}
+		}
+
+		for (key in files){
+			if (!isNaN(key)){
+				EDITOR.buildFile($parent, path, files[key], ajaxService);
+			}
+		}
+	}
+	,buildFolder: function($parent, path, folder, files, ajaxService){
+		//var $delete = $('<i class="fa fa-times red" />');
+		var $li = $('<li><i class="fa fa-folder subfolder" />&nbsp;</li>');
+		//var $newFile = $('<i class="fa fa-file gray" />');
+		//var $newFolder = $('<i class="fa fa-folder gray" />');
+		var $ul = $('<ul></ul>');
+		
+		//$newFile.click(THIS.actionNewFile(path, key));
+		//$newFolder.click(THIS.actionNewFolder(path, key));
+		//$delete.click(THIS.actionDeleteFolder(path, key));
+		//$li.click(THIS.actionToggleExpansion);
+		
+		$li.append(folder)
+			//.append('&nbsp;').append($newFile)
+			//.append('&nbsp;').append($newFolder)
+			//.append('&nbsp;').append($delete)
+			.append($ul);
+		
+		EDITOR.buildFileList($ul, path +':'+ folder, files, ajaxService);
+		
+		$parent.append($li);
+	}
+	,buildRootFolder: function($parent, ajaxService){
+		var $li = $('<li><i class="fa fa-folder" />&nbsp;</li>');
+		//var $newFile = $('<i class="fa fa-file gray" />');
+		//var $newFolder = $('<i class="fa fa-folder gray" />');
+		var $ul = $('<ul></ul>');
+		
+		//$newFile.click(THIS.actionNewFile(null, 'root'));
+		//$newFolder.click(THIS.actionNewFolder(null, 'root'));
+		
+		$li.append('root')
+			//.append('&nbsp;').append($newFile)
+			//.append('&nbsp;').append($newFolder)
+			.append($ul);
+		
+		$parent.append($li);
+		
+		return $ul;
+	}
 	,displayError: function(message){ EDITOR.displayMessage(message, 'error'); }
 	,displayInfo: function(message){ EDITOR.displayMessage(message, 'info'); }
 	,displayLogin: function(ajaxService){
@@ -38,13 +111,27 @@ var EDITOR = {
 		});		
 	}
 	,displayMenu: function(files, ajaxService){
-		console.log(files);
-		var $menu = $('<div class="menu"></div>');
+		var $menu = $(
+			'<div class="menu flexbox-v">'
+				+'<div class="content flexible-v"></div>'
+				+'<div class="control center inflexible"><i class="fa fa-angle-double-up fa-2x" /></div>'
+			+'</div>');
+		var $ul = $('<ul class="directoryStructure"></ul>');
 
-//		EDITOR.buildFileList(files, ajaxService);
+		$menu.find('.content').append($ul);
+
+		$ul = EDITOR.buildRootFolder($ul, ajaxService);
+
+		EDITOR.buildFileList($ul, 'root', files, ajaxService);
 
 		$('.menu').remove();
 		$('.container').append($menu);
+		$('.menuIndicator').hide();
+
+		$('.menu .control').click(function(){
+			$('.menu').remove();
+			$('.menuIndicator').show();
+		});
 	}
 	,displayMessage: function(message, clazz){
 		var $msg = $('<div class="'+ clazz +'">'+ message +'</div>');

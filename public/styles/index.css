@@ -6,6 +6,15 @@ body {
 	background: rgba(0, 0, 256, .75) url('http://res2.windows.microsoft.com/resbox/en/windows/main/ebf9f807-1f54-4b82-a3fe-862380833f9c_6.jpg') no-repeat;
 	font-family: 'Droid Serif', serif;
 	font-size: 12px;
+	overflow: hidden;
+}
+li {
+	color: rgb(255, 255, 255);
+	white-space: nowrap;
+}
+ul {
+	list-style-type: none;
+	padding-left: 19px;
 }
 .busy { cursor: wait; }
 .center { text-align: center; }
@@ -16,6 +25,11 @@ body {
 	min-width: 640px;
 	height: 100vh;
 	width: 100vw;
+}
+.directoryStructure {
+	margin-bottom: 4px;
+	margin-left: -14px;
+	margin-top: 4px;
 }
 .error, .info, .success {
 	min-width: 250px;
@@ -65,6 +79,25 @@ body {
 	font-size: 30px;
 	margin-bottom: 12px;
 }
+.menu {
+	position: absolute;
+	top: 0;
+	left: 0;
+	min-height: 100vh;
+	max-height: 100vh;
+	max-width: 300px;
+
+	background: rgba(16, 16, 16, 0.8);
+	border: 1px solid #000;
+	color: rgb(255, 255, 255);
+	font-family: 'Droid Sans Mono', monospace;
+	z-index: 2000;
+}
+.menu .content { overflow: auto; }
+.menu .control {
+	background-color: rgba(128, 128, 128, .5);
+	color: black;
+}
 .success { background-color: rgb(0, 128, 0); }
 .yellow { color: rgb(255, 255, 0); }
 
@@ -88,44 +121,15 @@ body {
 
 
 /*
-body > .menu {
-	position: absolute;
-	top: 0px;
-	left 0px;
-	
-	background: rgba(16, 16, 16, 0.8);
-	border: 1px solid #000;
-	border-bottom-right-radius: 12px;
-	padding: 6px;
-	z-index: 2000;
-}
-body > .menuIndicator {
-	position: absolute;
-	top: -3px;
-	left: 0;
-}
 .collapseFolder {
 	max-height: 0;
 	overflow: hidden;
 	display: none;
 }
-.directoryStructure {
-	margin-bottom: 4px;
-	margin-left: -15px;
-	margin-top: 2px;
-}
-.directoryStructure, .directoryStructure ul {
-	color: rgb(255, 255, 255);
-	list-style-type: none;
-	padding-left: 19px;
-}
-.directoryStructure li { font-family: 'Droid Sans Mono', monospace; }
-.directoryStructure li:hover { color: rgb(255, 255, 0); }
 .fa-pencil {
 	color: rgb(255, 255, 255);
 	margin-left: 6px;
 }
-.fa-rss { color: rgb(255, 255, 0); }
 .fa-times { margin-left: 2px; }
 .gray { color: rgb(128, 128, 128); }
 .openFile {
