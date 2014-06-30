@@ -53,7 +53,7 @@
 					include_once 'private/services/filesystemService.php';
 
 					$filesystem = FilesystemService::getInstance();
-					$indexFile = Config::getInstance()->getEditorDirectory() .'public/index.html';
+					$indexFile = Config::getInstance()->getEditorDirectory() .'public/views/index.html';
 
 					$response->rawData($filesystem->readFile($indexFile));
 				}

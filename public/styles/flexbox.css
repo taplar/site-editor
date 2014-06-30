@@ -1,0 +1,24 @@
+.flexbox, .flexbox-h, .flexbox-v {
+	display: flex;
+	flex-wrap: nowrap;
+}
+.flexbox-h { flex-direction: row; }
+.flexbox-v { flex-direction: column; }
+.flexible-h, .flexible-v {
+	flex-grow: 1;
+	overflow: hidden;
+	white-space: nowrap;
+}
+.flexible-h { width: 0; }
+.flexible-v { height: 0; }
+.inflexible { flex-grow: 0; }
+.max-flex-h { width: 100% !important; }
+.max-flex-v { height: 100% !important; }
+.transition-h {
+	-webkit-transition: width 2s;
+	transition: width 2s;
+}
+.transition-v {
+	-webkit-transition: height 2s;
+	transition: height 2s;
+}
