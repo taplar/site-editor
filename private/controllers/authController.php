@@ -22,6 +22,9 @@
 					//validate should happen on every request
 					//skip if it is the actual request
 					return;
+				} else if (strcasecmp($request[1], 'revoke') == 0){
+					AuthorizationService::getInstance()->revoke();
+					return;
 				}
 			}
 			

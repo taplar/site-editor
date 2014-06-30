@@ -24,6 +24,11 @@
 			return self::$instance;
 		}
 
+		public function revoke(){
+			$_SESSION['EDITOR_LOGGED_IN'] = false;
+			$this->validate();
+		}
+
 		public function validate(){
 			session_start();
 			

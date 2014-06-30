@@ -44,6 +44,8 @@
 
 					AuthorizationService::getInstance()->validate();
 
+					//TODO: Need to check if validation failed.  If so, and not going to validate, need to return to login page
+
 					if (isset($this->roots[$path[0]])){
 						$this->roots[$path[0]]->resolve($path);
 					} else {

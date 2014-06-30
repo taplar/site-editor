@@ -23,7 +23,7 @@ body {
 	transition: top 2s, right 2s;
 	
 	position: absolute;
-	top: 50%;
+	top: 35%;
 	right: 50%;
 	margin-top: -7px;
 	margin-right: -125px;
@@ -31,6 +31,15 @@ body {
 	
 	background-color: rgb(255, 0, 0);
 	padding: 6px;
+}
+.fa { cursor: default; }
+.fa-power-off {
+	position: absolute;
+	top: 0;
+	right: 0;
+
+	//background-color: rgb(0, 0, 0);
+	padding: 4px;
 }
 .fa-rss { color: rgb(255, 255, 0); }
 .info { background-color: rgb(255, 255, 0); }
@@ -59,7 +68,7 @@ body {
 	margin-bottom: 12px;
 }
 .success { background-color: rgb(0, 128, 0); }
-
+.yellow { color: rgb(255, 255, 0); }
 
 
 

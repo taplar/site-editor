@@ -6,6 +6,12 @@ var EDITOR = {
 		,isS: function(e){ return EDITOR.KeyTest.isCode(e, 83); }
 		,isTab: function(e){ return EDITOR.KeyTest.isCode(e, 9); }
 	}
+	,actionLogout: function(ajaxService){
+		ajaxService.GET('?auth/revoke', {
+			fnSuccess: function(){ EDITOR.displayLogin(ajaxService); }
+			,fnFailure: EDITOR.recoverableError
+		});
+	}
 	,actionSubmitLogin: function(e, ajaxService){
 		if (EDITOR.KeyTest.isEnter(e)){
 			ajaxService.POST('?auth/validate', {
@@ -98,6 +104,8 @@ var EDITOR = {
 	}
 	,processWorkspaceDisplay: function(data, ajaxService){
 		$('.container').html(data);
+
+		$('.logout').click(function(){ EDITOR.actionLogout(ajaxService); });
 	}
 	,recoverableError: function(){ EDITOR.displayError('Error occured.  Please try again.'); }
 	,unrecoverableError: function(){

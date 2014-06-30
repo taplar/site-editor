@@ -34,3 +34,21 @@ URL: ~/?auth/validate
 	* INTERNAL_ERROR - Expected when unexpected exception occurs
 	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
 	* UNAUTHORIZED - Expected when user is not recognised
+
+### Invalidate authorization status
+
+Purpose: Ends the user's validation.
+
+##### Request
+```
+Method: GET
+URL: ~/?auth/revoke
+```
+##### Response
+```
+{ responseCode: "INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED" }
+```
+* responseCode
+	* INTERNAL_ERROR - Expected when unexpected exception occurs
+	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
+	* UNAUTHORIZED - Expected when user is not recognised
