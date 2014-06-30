@@ -14,6 +14,22 @@
 			return self::$instance;
 		}
 
+		public function getDirectoryStructure($path){
+			$array = array();
+			
+			foreach(scandir($path) as $key => $value){
+				if (!($value == '.' || $value == '..')){
+					if (is_dir($path.$value)){
+						$array[$value] = $this->getDirectoryStructure($path.$value.'/');
+					} else {
+						array_push($array, $value);
+					}
+				}
+			}
+			
+			return $array;
+		}
+
 		public function readFile($path){
 			$line = NULL;
 			$result = array();

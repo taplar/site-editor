@@ -23,6 +23,10 @@
 			$this->array[$key] = $value;
 		}
 		
+		public function files($files){
+			$this->addResponse('files', $files);
+		}
+
 		public static function getInstance(){
 			if (!self::$instance){
 				self::$instance = new self();

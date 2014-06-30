@@ -6,6 +6,12 @@ var EDITOR = {
 		,isS: function(e){ return EDITOR.KeyTest.isCode(e, 83); }
 		,isTab: function(e){ return EDITOR.KeyTest.isCode(e, 9); }
 	}
+	,actionDisplayMenu: function(ajaxService){
+		ajaxService.GET('?menu/list', {
+			fnSuccess: function(data){ EDITOR.processMenuDisplay(data, ajaxService); }
+			,fnFailure: EDITOR.recoverableError
+		});
+	}
 	,actionLogout: function(ajaxService){
 		ajaxService.GET('?auth/revoke', {
 			fnSuccess: function(){ EDITOR.displayLogin(ajaxService); }
@@ -30,6 +36,15 @@ var EDITOR = {
 			fnSuccess: function(data){ EDITOR.processLoginDisplay(data, ajaxService); }
 			,fnFailure: EDITOR.unrecoverableError
 		});		
+	}
+	,displayMenu: function(files, ajaxService){
+		console.log(files);
+		var $menu = $('<div class="menu"></div>');
+
+//		EDITOR.buildFileList(files, ajaxService);
+
+		$('.menu').remove();
+		$('.container').append($menu);
 	}
 	,displayMessage: function(message, clazz){
 		var $msg = $('<div class="'+ clazz +'">'+ message +'</div>');
@@ -83,6 +98,7 @@ var EDITOR = {
 	,processLoginDisplay: function(data, ajaxService){
 		$('.container').html(data);
 		$('.login .input input').keyup(function(e){ EDITOR.actionSubmitLogin(e, ajaxService); });
+		$('.login .input input:first').focus();
 	}
 	,processLoginSubmit: function(jsonString, ajaxService){
 		try {
@@ -102,10 +118,29 @@ var EDITOR = {
 			EDITOR.recoverableError();
 		}
 	}
+	,processMenuDisplay: function(jsonString, ajaxService){
+		try {
+			var response = $.parseJSON(jsonString);
+
+			Require.all(response, 'files', 'responseCode');
+
+			if (response.responseCode == 'AUTHORIZED'){
+				EDITOR.displayMenu(response.files, ajaxService);
+			} else if (response.responseCode == 'UNAUTHORIZED'){
+				EDITOR.displayInfo('Authorization expired.');
+				EDITOR.displayLogin(ajaxService);
+			} else {
+				EDITOR.recoverableError();
+			}
+		} catch (e){
+			console.log(e);
+			EDITOR.recoverableError();
+		}
+	}
 	,processWorkspaceDisplay: function(data, ajaxService){
 		$('.container').html(data);
-
 		$('.logout').click(function(){ EDITOR.actionLogout(ajaxService); });
+		$('.menuIndicator').mouseover(function(){ EDITOR.actionDisplayMenu(ajaxService); });
 	}
 	,recoverableError: function(){ EDITOR.displayError('Error occured.  Please try again.'); }
 	,unrecoverableError: function(){

@@ -2,6 +2,7 @@
 	final class Config {
 		private static $instance;
 		private final $EDITOR_DIRECTORY = './';
+		private final $ROOT_DIRECTORY = '../';
 		
 		
 		private function __clone(){}
@@ -9,6 +10,10 @@
 
 		public function getEditorDirectory(){
 			return $this->EDITOR_DIRECTORY;
+		}
+		
+		public function getRootDirectory(){
+			return $this->ROOT_DIRECTORY;
 		}
 
 		public static function getInstance(){
