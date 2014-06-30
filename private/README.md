@@ -35,6 +35,32 @@ URL: ~/?auth/validate
 	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
 	* UNAUTHORIZED - Expected when user is not recognised
 
+### Authorization request
+
+Purpose: Validate authorization against provided input.
+
+##### Request
+```
+Method: POST
+URL: ~/?auth/validate
+```
+##### Request
+```
+{
+	userid: <string>
+	,password: <string>
+}
+```
+##### Response
+```
+{ responseCode: "AUTHORIZED"|"INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED" }
+```
+* responseCode
+	* AUTHORIZED - Expected when user is recognised
+	* INTERNAL_ERROR - Expected when unexpected exception occurs
+	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
+	* UNAUTHORIZED - Expected when user is not recognised
+
 ### Invalidate authorization status
 
 Purpose: Ends the user's validation.
