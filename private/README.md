@@ -30,7 +30,7 @@ URL: ~/?auth/validate
 { responseCode: "AUTHORIZED"|"INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED" }
 ```
 * responseCode
-	* AUTHORIZED - Expected when user is recognised
+	* AUTHORIZED - Expected when user is recognised; request successful
 	* INTERNAL_ERROR - Expected when unexpected exception occurs
 	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
 	* UNAUTHORIZED - Expected when user is not recognised
@@ -43,9 +43,6 @@ Purpose: Validate authorization against provided input.
 ```
 Method: POST
 URL: ~/?auth/validate
-```
-##### Request
-```
 {
 	userid: <string>
 	,password: <string>
@@ -56,7 +53,7 @@ URL: ~/?auth/validate
 { responseCode: "AUTHORIZED"|"INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED" }
 ```
 * responseCode
-	* AUTHORIZED - Expected when user is recognised
+	* AUTHORIZED - Expected when user is recognised; request successful
 	* INTERNAL_ERROR - Expected when unexpected exception occurs
 	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
 	* UNAUTHORIZED - Expected when user is not recognised
@@ -99,7 +96,31 @@ URL: ~/?menu/list
 	* Numeric keys - Object is a string representing a filename
 	* Non-numeric keys - Key is a string representing a directory and the Object is an array representing the directory contents in the same [key, object] relationship
 * responseCode
-	* AUTHORIZED - Expected when user is recognised
+	* AUTHORIZED - Expected when user is recognised; request successful
+	* INTERNAL_ERROR - Expected when unexpected exception occurs
+	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
+	* UNAUTHORIZED - Expected when user is not recognised
+
+### Create new file
+
+Purpose: Create a new file object.
+
+##### Request
+```
+Method: POST
+URL: ~/?file/create
+{ file: <array(<string>)> }
+```
+* file - Array of strings
+	* file[0] - 'root' expected
+	* file[1..n] - Existing directory path where file will be created
+	* file[n + 1] - Filename to be created
+##### Response
+```
+{ responseCode: "AUTHORIZED"|"INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED" }
+```
+* responseCode
+	* AUTHORIZED - Expected when user is recognised; request successful
 	* INTERNAL_ERROR - Expected when unexpected exception occurs
 	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
 	* UNAUTHORIZED - Expected when user is not recognised

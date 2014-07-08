@@ -6,6 +6,12 @@ var EDITOR = {
 		,isS: function(e){ return EDITOR.KeyTest.isCode(e, 83); }
 		,isTab: function(e){ return EDITOR.KeyTest.isCode(e, 9); }
 	}
+	,actionCreateFilePrompt: function(path, ajaxService){
+		ajaxService.GET('public/views/prompt.html', {
+			fnSuccess: function(data){ EDITOR.processFileCreatePrompt(data, path, ajaxService); }
+			,fnFailure: EDITOR.recoverableError
+		});
+	}
 	,actionDisplayMenu: function(ajaxService){
 		ajaxService.GET('?menu/list', {
 			fnSuccess: function(data){ EDITOR.processMenuDisplay(data, ajaxService); }
@@ -17,6 +23,34 @@ var EDITOR = {
 			fnSuccess: function(){ EDITOR.displayLogin(ajaxService); }
 			,fnFailure: EDITOR.recoverableError
 		});
+	}
+	,actionSubmitCreateFilePrompt: function(e, path, ajaxService){
+		if (EDITOR.KeyTest.isEnter(e)){
+			var filename = $('.prompt #filename').val();
+			var filenamePattern = /^[a-zA-Z][a-zA-Z0-9._-]*[.][a-zA-Z0-9]+$/;
+
+			if (filenamePattern.test(filename)){
+				path.push(filename);
+
+				ajaxService.POST('?file/create', { file: path }, {
+					fnSuccess: function(data){
+						EDITOR.displayInfo(data);
+
+
+
+
+
+
+
+
+						$('.prompt-container').remove();
+					}
+					,fnFailure: EDITOR.recoverableError
+				});
+			} else {
+				EDITOR.displayError("Invalid filename");
+			}
+		}
 	}
 	,actionSubmitLogin: function(e, ajaxService){
 		if (EDITOR.KeyTest.isEnter(e)){
@@ -31,7 +65,7 @@ var EDITOR = {
 	}
 	,buildFile: function($parent, path, file, ajaxService){
 		//var $delete = $('<i class="fa fa-times red" />');
-		var $li = $('<li><i class="fa fa-file" />&nbsp;</li>');
+		var $li = $('<li><i class="fa fa-file file-icon" /></li>');
 		//var $newFile = $('<i class="fa fa-file gray" />');
 		//var $newFolder = $('<i class="fa fa-folder gray" />');
 		var $ul = $('<ul></ul>');
@@ -40,6 +74,8 @@ var EDITOR = {
 		//$newFolder.click(THIS.actionNewFolder(path, key));
 		//$delete.click(THIS.actionDeleteFolder(path, key));
 		//$li.click(THIS.actionToggleExpansion);
+		
+		path.push(file);
 		
 		$li.append(file)
 			//.append('&nbsp;').append($newFile)
@@ -52,49 +88,49 @@ var EDITOR = {
 	,buildFileList: function($parent, path, files, ajaxService){
 		for (key in files){
 			if (isNaN(key)){ //display folders first
-				EDITOR.buildFolder($parent, path, key, files[key], ajaxService);
+				EDITOR.buildFolder($parent, path.slice(0), key, files[key], ajaxService);
 			}
 		}
 
 		for (key in files){
 			if (!isNaN(key)){
-				EDITOR.buildFile($parent, path, files[key], ajaxService);
+				EDITOR.buildFile($parent, path.slice(0), files[key], ajaxService);
 			}
 		}
 	}
 	,buildFolder: function($parent, path, folder, files, ajaxService){
 		//var $delete = $('<i class="fa fa-times red" />');
-		var $li = $('<li><i class="fa fa-folder subfolder" />&nbsp;</li>');
-		//var $newFile = $('<i class="fa fa-file gray" />');
+		var $li = $('<li><i class="fa fa-folder folder-icon subfolder" /></li>');
+		var $newFile = $('<span class="file-new-icon"><i class="fa fa-file" /><i class="fa fa-plus" /></span>');
 		//var $newFolder = $('<i class="fa fa-folder gray" />');
 		var $ul = $('<ul></ul>');
 		
-		//$newFile.click(THIS.actionNewFile(path, key));
+		path.push(folder);
+
+		$newFile.click(function(){ EDITOR.actionCreateFilePrompt(path, ajaxService); });
 		//$newFolder.click(THIS.actionNewFolder(path, key));
 		//$delete.click(THIS.actionDeleteFolder(path, key));
 		//$li.click(THIS.actionToggleExpansion);
 		
-		$li.append(folder)
-			//.append('&nbsp;').append($newFile)
+		$li.append(folder).append($newFile)
 			//.append('&nbsp;').append($newFolder)
 			//.append('&nbsp;').append($delete)
 			.append($ul);
 		
-		EDITOR.buildFileList($ul, path +':'+ folder, files, ajaxService);
+		EDITOR.buildFileList($ul, path, files, ajaxService);
 		
 		$parent.append($li);
 	}
 	,buildRootFolder: function($parent, ajaxService){
-		var $li = $('<li><i class="fa fa-folder" />&nbsp;</li>');
-		//var $newFile = $('<i class="fa fa-file gray" />');
+		var $li = $('<li><i class="fa fa-folder folder-icon" /></li>');
+		var $newFile = $('<span class="file-new-icon"><i class="fa fa-file" /><i class="fa fa-plus" /></span>');
 		//var $newFolder = $('<i class="fa fa-folder gray" />');
 		var $ul = $('<ul></ul>');
 		
 		//$newFile.click(THIS.actionNewFile(null, 'root'));
 		//$newFolder.click(THIS.actionNewFolder(null, 'root'));
 		
-		$li.append('root')
-			//.append('&nbsp;').append($newFile)
+		$li.append('root').append($newFile)
 			//.append('&nbsp;').append($newFolder)
 			.append($ul);
 		
@@ -105,32 +141,29 @@ var EDITOR = {
 	,displayError: function(message){ EDITOR.displayMessage(message, 'error'); }
 	,displayInfo: function(message){ EDITOR.displayMessage(message, 'info'); }
 	,displayLogin: function(ajaxService){
-		ajaxService.GET('public/views/login.html', {
+		ajaxService.GET('public/views/prompt.html', {
 			fnSuccess: function(data){ EDITOR.processLoginDisplay(data, ajaxService); }
 			,fnFailure: EDITOR.unrecoverableError
-		});		
+		});
 	}
 	,displayMenu: function(files, ajaxService){
-		var $menu = $(
-			'<div class="menu flexbox-v">'
-				+'<div class="content flexible-v"></div>'
-				+'<div class="control center inflexible"><i class="fa fa-angle-double-up fa-2x" /></div>'
-			+'</div>');
-		var $ul = $('<ul class="directoryStructure"></ul>');
+		ajaxService.GET('public/views/menu.html', {
+			fnSuccess: function(data){
+				var $menu = $(data);
+				var $ul = EDITOR.buildRootFolder($menu.find('.directoryStructure'), ajaxService);
 
-		$menu.find('.content').append($ul);
+				EDITOR.buildFileList($ul, ['root'], files, ajaxService);
 
-		$ul = EDITOR.buildRootFolder($ul, ajaxService);
+				$('.menu').remove();
+				$('.container').append($menu);
+				$('.menuIndicator').hide();
 
-		EDITOR.buildFileList($ul, 'root', files, ajaxService);
-
-		$('.menu').remove();
-		$('.container').append($menu);
-		$('.menuIndicator').hide();
-
-		$('.menu .control').click(function(){
-			$('.menu').remove();
-			$('.menuIndicator').show();
+				$('.menu .control').click(function(){
+					$('.menu').remove();
+					$('.menuIndicator').show();
+				});
+			}
+			,fnFailure: EDITOR.recoverableError
 		});
 	}
 	,displayMessage: function(message, clazz){
@@ -182,10 +215,37 @@ var EDITOR = {
 			EDITOR.unrecoverableError();
 		}
 	}
+	,processFileCreatePrompt: function(data, path, ajaxService){
+		var $prompt = $(data);
+		var $content = $prompt.find('.content');
+
+		$prompt.find('.title').html('New File');
+		$content.append(
+			'<div class="input center">'
+				+'<input type="text" placeholder="filename" id="filename" value="" />'
+			+'</div>');
+
+		$('.container').append($prompt);
+		$('.prompt .input input').keyup(function(e){ EDITOR.actionSubmitCreateFilePrompt(e, path, ajaxService); });
+		$('.prompt .input input:first').focus();
+	}
 	,processLoginDisplay: function(data, ajaxService){
-		$('.container').html(data);
-		$('.login .input input').keyup(function(e){ EDITOR.actionSubmitLogin(e, ajaxService); });
-		$('.login .input input:first').focus();
+		var $prompt = $(data);
+		var $content = $prompt.find('.content');
+
+		$prompt.find('.title').html('Login');
+		$content.append(
+			'<div class="input center">'
+				+'<input type="text" placeholder="userid" id="userid" value="" />'
+			+'</div>');
+		$content.append(
+			'<div class="input center">'
+				+'<input type="password" placeholder="password" id="password" value="" />'
+			+'</div>');
+
+		$('.container').html($prompt);
+		$('.prompt .input input').keyup(function(e){ EDITOR.actionSubmitLogin(e, ajaxService); });
+		$('.prompt .input input:first').focus();
 	}
 	,processLoginSubmit: function(jsonString, ajaxService){
 		try {
@@ -228,6 +288,8 @@ var EDITOR = {
 		$('.container').html(data);
 		$('.logout').click(function(){ EDITOR.actionLogout(ajaxService); });
 		$('.menuIndicator').mouseover(function(){ EDITOR.actionDisplayMenu(ajaxService); });
+
+		EDITOR.actionDisplayMenu(ajaxService);
 	}
 	,recoverableError: function(){ EDITOR.displayError('Error occured.  Please try again.'); }
 	,unrecoverableError: function(){
