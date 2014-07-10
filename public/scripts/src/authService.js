@@ -1,0 +1,5 @@
+var AuthService = {
+	getInstance: function(){
+
+	}
+};

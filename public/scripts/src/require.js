@@ -10,7 +10,7 @@ var Require = {
 					errors.push(new Error("Invalid argument passed.  Expected: array[,string[,string[,...]]]"));
 				} else {
 					if (typeof(args[arguments[i]]) == 'undefined'){
-						errors.push(new Error('Missing property: '+ arguments[i]));
+						errors.push(new Error('Missing Property: '+ arguments[i]));
 					}
 				}
 			}

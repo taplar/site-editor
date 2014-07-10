@@ -1,3 +1,13 @@
+new function(){
+	var authService = AuthService.getInstance();
+}();
+
+
+
+
+
+/*
+
 var EDITOR = {
 	KeyTest: {
 		isCode: function(e, keyCode){ return (e.keyCode == keyCode); }
@@ -299,3 +309,8 @@ var EDITOR = {
 };
 
 EDITOR.initialize(AjaxService.getInstance());
+
+
+
+
+*/
