@@ -3,13 +3,13 @@ var AuthService = {
 		var ajaxService = AjaxService.getInstance();
 		var loggingService = LoggingService.getInstance();
 
-		return {
+		var authService = {
 			actionSubmitLogin: function(event){
 			}
 			,displayLogin: function(){
 				ajaxService.GET({
 					url: 'public/views/prompt.html'
-					,fnSuccess: this.processDisplayLogin
+					,fnSuccess: authService.processDisplayLogin
 					,fnFailure: loggingService.unrecoverableError
 				});
 			}
@@ -23,8 +23,8 @@ var AuthService = {
 					var $userid = $('<div class="input center"><input type="text" placeholder="userid" id="userid" value="" /></div>');
 					var $password = $('<div class="input center"><input type="password" placeholder="password" id="password" value="" /></div>');
 
-					$userid.keyup(this.actionSubmitLogin);
-					$password.keyup(this.actionSubmitLogin);
+					$userid.keyup(authService.actionSubmitLogin);
+					$password.keyup(authService.actionSubmitLogin);
 
 					$prompt.find('.title').html('Login');
 					$prompt.find('.content').append($userid);
@@ -46,10 +46,10 @@ var AuthService = {
 
 					switch (jsonObject.responseCode){
 						case 'AUTHORIZED':
-							this.displayWorkspace();
+							authService.displayWorkspace();
 							break;
 						case 'UNAUTHORIZED':
-							this.displayLogin();
+							authService.displayLogin();
 							break;
 						case 'INVALID_REQUEST':
 							throw new Error('Invalid Request Occured');
@@ -65,10 +65,12 @@ var AuthService = {
 			,validate: function(){
 				ajaxService.GET({
 					url: '?auth/validate'
-					,fnSuccess: this.processValidate
+					,fnSuccess: authService.processValidate
 					,fnFailure: loggingService.unrecoverableError
 				});
 			}
 		};
+
+		return authService;
 	}
 };

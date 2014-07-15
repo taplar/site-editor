@@ -157,7 +157,7 @@ describe('AuthService', function(){
 			expect($('.container').html().length).toBeLessThan(1);
 		});
 
-		xit('Should build login and bind actions', function(){
+		it('Should build login and bind actions', function(){
 			var minimalPrompt = [
 				'<div class="prompt-container">'
 					,'<div class="prompt">'
@@ -166,6 +166,8 @@ describe('AuthService', function(){
 				,'</div></div>'
 			];
 
+			spyOn(authService, 'actionSubmitLogin');
+
 			authService.processDisplayLogin(minimalPrompt.join(''));
 
 			expect(loggingService.unrecoverableError.calls.any()).toBe(false);
@@ -173,8 +175,18 @@ describe('AuthService', function(){
 			expect($('.container .prompt-container #userid').length).toEqual(1);
 			expect($('.container .prompt-container #password').length).toEqual(1);
 
-			expect($('.container .prompt-container #userid').keyup).toEqual(authService.actionSubmitLogin);
-			expect($('.container .prompt-container #password').keyup).toEqual(authService.actionSubmitLogin);
+			expect(authService.actionSubmitLogin.calls.any()).toBe(false);
+			$('.container .prompt-container #userid').keyup();
+			expect(authService.actionSubmitLogin.calls.any()).toBe(true);
+
+			authService.actionSubmitLogin.calls.reset();
+
+			expect(authService.actionSubmitLogin.calls.any()).toBe(false);
+			$('.container .prompt-container #password').keyup();
+			expect(authService.actionSubmitLogin.calls.any()).toBe(true);
 		});
 	});
+
+	xdescribe('DisplayWorkspace', function(){});
+	xdescribe('ProcessDisplayWorkspace', function(){});
 });

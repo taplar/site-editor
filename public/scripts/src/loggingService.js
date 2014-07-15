@@ -19,7 +19,7 @@ var LoggingService = {
 			}, 1000);
 		};
 
-		return {
+		var loggingService = {
 			displayError: function(message){ displayMessage(message, 'error'); }
 			,unrecoverableError: function(error){
 				console.log('Unrecoverable error occured.  If this does not resolve itself, contact the site administrator for further assistance.');
@@ -28,8 +28,10 @@ var LoggingService = {
 					console.log(error);
 				}
 
-				this.displayError('Error occured.  Check console for more information.');
+				loggingService.displayError('Error occured.  Check console for more information.');
 			}
 		};
+
+		return loggingService;
 	}
 };
