@@ -1,79 +1,180 @@
 describe('AuthService', function(){
+	beforeEach(function(){
+		ajaxService = AjaxService.getInstance();
+		loggingService = LoggingService.getInstance();
+
+		spyOn(loggingService, 'unrecoverableError');
+		spyOn(AjaxService, 'getInstance').and.returnValue(ajaxService);
+		spyOn(LoggingService, 'getInstance').and.returnValue(loggingService);
+
+		authService = AuthService.getInstance();
+	});
+
 	describe('Validate', function(){
+		var expectations = function(jsonObject){
+			expect(loggingService.unrecoverableError.calls.any()).toBe(jsonObject.unrecoverableError);
+			expect(authService.processValidate.calls.any()).toBe(jsonObject.processValidate);
+
+			var arguments = ajaxService.GET.calls.argsFor(0)[0];
+
+			expect(arguments.url).toEqual('?auth/validate');
+		};
+
 		beforeEach(function(){
-			ajaxService = AjaxService.getInstance();
-			loggingService = LoggingService.getInstance();
-
-			spyOn(AjaxService, 'getInstance').and.returnValue(ajaxService);
-			spyOn(LoggingService, 'getInstance').and.returnValue(loggingService);
-
-			authService = AuthService.getInstance();
+			spyOn(authService, 'processValidate');
 		});
 
 		it('Should log unrecoverable error on failure', function(){
-			spyOn(loggingService, 'unrecoverableError');
-
 			spyOn(ajaxService, 'GET').and.callFake(function(args){
 				args.fnFailure();
 			});
 
 			authService.validate();
 
-			expect(loggingService.unrecoverableError.calls.any()).toBe(true);
+			expectations({ unrecoverableError: true, processValidate: false });
 		});
 
 		it('Should process response on success', function(){
-			spyOn(loggingService, 'unrecoverableError');
-			spyOn(authService, 'processValidate');
-
 			spyOn(ajaxService, 'GET').and.callFake(function(args){
 				args.fnSuccess();
 			});
 
 			authService.validate();
 
-			expect(loggingService.unrecoverableError.calls.any()).toBe(false);
-			expect(authService.processValidate.calls.any()).toBe(true);
+			expectations({ unrecoverableError: false, processValidate: true });
 		});
 	});
 
 	describe('ProcessValidate', function(){
+		var expectations = function(jsonObject){
+			expect(loggingService.unrecoverableError.calls.any()).toBe(jsonObject.unrecoverableError);
+			expect(authService.displayLogin.calls.any()).toBe(jsonObject.displayLogin);
+			expect(authService.displayWorkspace.calls.any()).toBe(jsonObject.displayWorkspace);
+		};
+
 		beforeEach(function(){
-			ajaxService = AjaxService.getInstance();
-			loggingService = LoggingService.getInstance();
-
-			spyOn(AjaxService, 'getInstance').and.returnValue(ajaxService);
-			spyOn(LoggingService, 'getInstance').and.returnValue(loggingService);
-
-			authService = AuthService.getInstance();
+			spyOn(authService, 'displayLogin');
+			spyOn(authService, 'displayWorkspace');
 		});
 
-		xit('Should throw error if', function(){
+		it('Should throw error if data is missing', function(){
+			authService.processValidate();
+
+			expectations({ unrecoverableError: true, displayLogin: false, displayWorkspace: false });
+		});
+
+		it('Should throw error if data is not json parsable', function(){
+			authService.processValidate("not json");
+
+			expectations({ unrecoverableError: true, displayLogin: false, displayWorkspace: false });
+		});
+
+		it('Should throw error if response code not returned', function(){
+			authService.processValidate("{}");
+
+			expectations({ unrecoverableError: true, displayLogin: false, displayWorkspace: false });
+		});
+
+		it('Should throw error if internal error occured', function(){
+			authService.processValidate('{"responseCode":"INTERNAL_ERROR"}');
+
+			expectations({ unrecoverableError: true, displayLogin: false, displayWorkspace: false });
+		});
+
+		it('Should throw error if invalid request occured', function(){
+			authService.processValidate('{"responseCode":"INVALID_REQUEST"}');
+
+			expectations({ unrecoverableError: true, displayLogin: false, displayWorkspace: false });
+		});
+
+		it('Should throw error if unexpected response code returned', function(){
+			authService.processValidate('{"responseCode":"CHUMBAWUMBA"}');
+
+			expectations({ unrecoverableError: true, displayLogin: false, displayWorkspace: false });
+		});
+
+		it('Should display login if unauthorized', function(){
+			authService.processValidate('{"responseCode":"UNAUTHORIZED"}');
+
+			expectations({ unrecoverableError: false, displayLogin: true, displayWorkspace: false });
+		});
+
+		it('Should display workspace if authorized', function(){
+			authService.processValidate('{"responseCode":"AUTHORIZED"}');
+
+			expectations({ unrecoverableError: false, displayLogin: false, displayWorkspace: true });
+		});
+	});
+
+	describe('DisplayLogin', function(){
+		var expectations = function(jsonObject){
+			expect(loggingService.unrecoverableError.calls.any()).toBe(jsonObject.unrecoverableError);
+			expect(authService.processDisplayLogin.calls.any()).toBe(jsonObject.processDisplayLogin);
+
+			var arguments = ajaxService.GET.calls.argsFor(0)[0];
+
+			expect(arguments.url).toEqual('public/views/prompt.html');
+		};
+
+		beforeEach(function(){
+			spyOn(authService, 'processDisplayLogin');
+		});
+
+		it('Should log unrecoverable error on failure', function(){
+			spyOn(ajaxService, 'GET').and.callFake(function(args){
+				args.fnFailure();
+			});
+
+			authService.displayLogin();
+
+			expectations({ unrecoverableError: true, processDisplayLogin: false });
+		});
+
+		it('Should process response on success', function(){
+			spyOn(ajaxService, 'GET').and.callFake(function(args){
+				args.fnSuccess();
+			});
+
+			authService.displayLogin();
+
+			expectations({ unrecoverableError: false, processDisplayLogin: true });
+		});
+	});
+
+	describe('ProcessDisplayLogin', function(){
+		beforeEach(function(){
+			$('body').append('<div class="container"></div>');
+		});
+
+		afterEach(function(){
+			$('.container').remove();
+		});
+
+		it('Should throw error if missing data', function(){
+			authService.processDisplayLogin();
+
+			expect(loggingService.unrecoverableError.calls.any()).toBe(true);
+			expect($('.container').html().length).toBeLessThan(1);
+		});
+
+		xit('Should build login and bind actions', function(){
+			var minimalPrompt = [
+				'<div class="prompt-container">'
+					,'<div class="prompt">'
+						,'<div class="title"></div>'
+						,'<div class="content"></div>'
+				,'</div></div>'
+			];
+
+			authService.processDisplayLogin(minimalPrompt.join(''));
+
+			expect(loggingService.unrecoverableError.calls.any()).toBe(false);
+			expect($('.container .prompt-container .title').html()).toEqual('Login');
+			expect($('.container .prompt-container #userid').length).toEqual(1);
+			expect($('.container .prompt-container #password').length).toEqual(1);
+
+			expect($('.container .prompt-container #userid').keyup).toEqual(authService.actionSubmitLogin);
+			expect($('.container .prompt-container #password').keyup).toEqual(authService.actionSubmitLogin);
 		});
 	});
 });
-
-
-
-/*
-### Validate authorization status
-
-Purpose: Determines on initial page load if user is already authorized.
-
-##### Request
-```
-Method: GET
-URL: ~/?auth/validate
-```
-##### Response
-```
-{ responseCode: "AUTHORIZED"|"INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED" }
-```
-* responseCode
-	* AUTHORIZED - Expected when user is recognised; request successful
-	* INTERNAL_ERROR - Expected when unexpected exception occurs
-	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
-	* UNAUTHORIZED - Expected when user is not recognised
-
-
-*/

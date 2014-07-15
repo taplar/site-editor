@@ -21,8 +21,13 @@ var LoggingService = {
 
 		return {
 			displayError: function(message){ displayMessage(message, 'error'); }
-			,unrecoverableError: function(){
+			,unrecoverableError: function(error){
 				console.log('Unrecoverable error occured.  If this does not resolve itself, contact the site administrator for further assistance.');
+
+				if (typeof(error) !== 'undefined'){
+					console.log(error);
+				}
+
 				this.displayError('Error occured.  Check console for more information.');
 			}
 		};
