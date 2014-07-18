@@ -5,6 +5,16 @@ var AuthService = {
 
 		var authService = {
 			actionSubmitLogin: function(event){
+				var data = {
+					userid: $('.prompt-container #userid').val()
+					,password: $('.prompt-container #password').val()
+				};
+
+				if (typeof(data.userid) === 'undefined'){
+					loggingService.unrecoverableError(new Error('Required field undefined: userid'));
+				} else if (typeof(data.password) === 'undefined'){
+					loggingService.unrecoverableError(new Error('Required field undefined: password'));
+				}
 			}
 			,displayLogin: function(){
 				ajaxService.GET({

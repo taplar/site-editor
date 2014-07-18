@@ -186,7 +186,117 @@ describe('AuthService', function(){
 			expect(authService.actionSubmitLogin.calls.any()).toBe(true);
 		});
 	});
+	
+	describe('ActionSubmitLogin', function(){
+		var expectations = function(jsonObject){
+			expect(loggingService.unrecoverableError.calls.any()).toBe(jsonObject.unrecoverableError);
+			//expect(authService.displayLogin.calls.any()).toBe(jsonObject.displayLogin);
+		};
+
+		beforeEach(function(){
+			var minimalPrompt = [
+				'<div class="prompt-container">'
+					,'<div class="prompt">'
+						,'<div class="title"></div>'
+						,'<div class="content"></div>'
+				,'</div></div>'
+			];
+
+			$('body').append('<div class="container"></div>');
+
+			spyOn(authService, 'actionSubmitLogin').and.callThrough();
+
+			authService.processDisplayLogin(minimalPrompt.join(''));
+
+			$userid = $('.prompt-container #userid');
+			$password = $('.prompt-container #password');
+		});
+
+		afterEach(function(){
+			$('.container').remove();
+		});
+
+		it('Should only have keyup event on userid', function(){
+			expect(authService.actionSubmitLogin.calls.any()).toBe(false);
+
+			$userid.keydown();
+			expect(authService.actionSubmitLogin.calls.any()).toBe(false);
+
+			$userid.keypress();
+			expect(authService.actionSubmitLogin.calls.any()).toBe(false);
+
+			$userid.keyup();
+			expect(authService.actionSubmitLogin.calls.any()).toBe(true);
+		});
+
+		it('Should only have keyup event on password', function(){
+			expect(authService.actionSubmitLogin.calls.any()).toBe(false);
+
+			$password.keydown();
+			expect(authService.actionSubmitLogin.calls.any()).toBe(false);
+
+			$password.keypress();
+			expect(authService.actionSubmitLogin.calls.any()).toBe(false);
+
+			$password.keyup();
+			expect(authService.actionSubmitLogin.calls.any()).toBe(true);
+		});
+
+		it('Should throw error if userid is not defined', function(){
+			$userid.remove();
+			$password.keyup();
+
+			expectations({ unrecoverableError: true });
+		});
+
+		it('Should throw error if password is not defined', function(){
+			$password.remove();
+			$userid.keyup();
+
+			expectations({ unrecoverableError: true });
+		});
+
+		xit('Should display message if userid is blank', function(){});
+		xit('Should display message if password is blank', function(){});
+		xit('Should not perform request if userid is blank', function(){});
+		xit('Should not perform request if password is blank', function(){});
+		xit('Should throw error if data is missing', function(){});
+		xit('Should throw error if data is not json parsable', function(){});
+		xit('Should throw error if response code not returned', function(){});
+		xit('Should throw error if internal error occured', function(){});
+		xit('Should throw error if invalid request occured', function(){});
+		xit('Should throw error if unexpected response code returned', function(){});
+		xit('Should display message if unauthorized', function(){});
+		xit('Should display workspace if authorized', function(){});
+	});
 
 	xdescribe('DisplayWorkspace', function(){});
 	xdescribe('ProcessDisplayWorkspace', function(){});
 });
+
+
+
+/*
+### Authorization request
+
+Purpose: Validate authorization against provided input.
+
+##### Request
+```
+Method: POST
+URL: ~/?auth/validate
+{
+	userid: <string>
+	,password: <string>
+}
+```
+##### Response
+```
+{ responseCode: "AUTHORIZED"|"INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED" }
+```
+* responseCode
+	* AUTHORIZED - Expected when user is recognised; request successful
+	* INTERNAL_ERROR - Expected when unexpected exception occurs
+	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
+	* UNAUTHORIZED - Expected when user is not recognised
+*/
