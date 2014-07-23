@@ -1,10 +1,12 @@
 describe('AuthService', function(){
 	beforeEach(function(){
 		ajaxService = AjaxService.getInstance();
+		keyService = KeyService.getInstance();
 		loggingService = LoggingService.getInstance();
 
 		spyOn(loggingService, 'unrecoverableError');
 		spyOn(AjaxService, 'getInstance').and.returnValue(ajaxService);
+		spyOn(KeyService, 'getInstance').and.returnValue(keyService);
 		spyOn(LoggingService, 'getInstance').and.returnValue(loggingService);
 
 		authService = AuthService.getInstance();
@@ -190,7 +192,11 @@ describe('AuthService', function(){
 	describe('ActionSubmitLogin', function(){
 		var expectations = function(jsonObject){
 			expect(loggingService.unrecoverableError.calls.any()).toBe(jsonObject.unrecoverableError);
-			//expect(authService.displayLogin.calls.any()).toBe(jsonObject.displayLogin);
+			expect(loggingService.requiredInput.calls.count()).toBe(jsonObject.requiredInput.length);
+
+			for (var i = 0; i < jsonObject.requiredInput.length; i++){
+				expect(loggingService.requiredInput).toHaveBeenCalledWith(jsonObject.requiredInput[i]);
+			}
 		};
 
 		beforeEach(function(){
@@ -205,6 +211,7 @@ describe('AuthService', function(){
 			$('body').append('<div class="container"></div>');
 
 			spyOn(authService, 'actionSubmitLogin').and.callThrough();
+			spyOn(loggingService, 'requiredInput').and.callThrough();
 
 			authService.processDisplayLogin(minimalPrompt.join(''));
 
@@ -246,19 +253,47 @@ describe('AuthService', function(){
 			$userid.remove();
 			$password.keyup();
 
-			expectations({ unrecoverableError: true });
+			expectations({ unrecoverableError: true, requiredInput: [] });
 		});
 
 		it('Should throw error if password is not defined', function(){
 			$password.remove();
 			$userid.keyup();
 
-			expectations({ unrecoverableError: true });
+			expectations({ unrecoverableError: true, requiredInput: [] });
 		});
 
-		xit('Should display message if userid is blank', function(){});
-		xit('Should display message if password is blank', function(){});
-		xit('Should not perform request if userid is blank', function(){});
+		it('Should not display messages if fields are blank and enter was not pressed', function(){
+			spyOn(keyService, 'isEnterPressed').and.returnValue(false);
+
+			$userid.keyup();
+
+			expectations({ unrecoverableError: false, requiredInput: [] });
+		});
+
+		it('Should display messages if fields are blank and enter was pressed', function(){
+			spyOn(keyService, 'isEnterPressed').and.returnValue(true);
+
+			$userid.keyup();
+
+			expectations({
+				unrecoverableError: false
+				,requiredInput: ['userid', 'password']
+			});
+		});
+
+		xit('Should not perform request if userid is blank', function(){
+			spyOn(keyService, 'isEnterPressed').and.returnValue(true);
+
+			$password.val('admin');
+			$password.keyup();
+
+			expectations({
+				unrecoverableError: false
+				,requiredInput: ['userid']
+			});
+		});
+
 		xit('Should not perform request if password is blank', function(){});
 		xit('Should throw error if data is missing', function(){});
 		xit('Should throw error if data is not json parsable', function(){});

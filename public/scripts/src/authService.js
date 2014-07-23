@@ -1,6 +1,7 @@
 var AuthService = {
 	getInstance: function(){
 		var ajaxService = AjaxService.getInstance();
+		var keyService = KeyService.getInstance();
 		var loggingService = LoggingService.getInstance();
 
 		var authService = {
@@ -14,6 +15,22 @@ var AuthService = {
 					loggingService.unrecoverableError(new Error('Required field undefined: userid'));
 				} else if (typeof(data.password) === 'undefined'){
 					loggingService.unrecoverableError(new Error('Required field undefined: password'));
+				}
+
+				if (keyService.isEnterPressed(event)){
+					data.userid = $.trim(data.userid);
+					data.password = $.trim(data.password);
+
+					if (data.userid.length > 0 && data.password.length > 0){
+					} else {
+						if (data.userid.length < 1) {
+							loggingService.requiredInput('userid');
+						}
+
+						if (data.password.length < 1) {
+							loggingService.requiredInput('password');
+						}
+					}
 				}
 			}
 			,displayLogin: function(){
