@@ -22,6 +22,12 @@ var AuthService = {
 					data.password = $.trim(data.password);
 
 					if (data.userid.length > 0 && data.password.length > 0){
+						ajaxService.POST({
+							url: '?auth/validate'
+							,input: data
+							,fnSuccess: authService.processLoginSubmit
+							,fnFailure: loggingService.unrecoverableError
+						});
 					} else {
 						if (data.userid.length < 1) {
 							loggingService.requiredInput('userid');
@@ -59,6 +65,17 @@ var AuthService = {
 
 					$('.container').html('');
 					$('.container').append($prompt);
+				} catch (error){
+					loggingService.unrecoverableError(error);
+				}
+			}
+			,processLoginSubmit: function(jsonString){
+				try {
+					Require.all(jsonString);
+
+					var jsonObject = $.parseJSON(jsonString);
+
+					Require.all(jsonObject, 'returnCode');
 				} catch (error){
 					loggingService.unrecoverableError(error);
 				}
