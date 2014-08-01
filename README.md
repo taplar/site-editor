@@ -27,3 +27,9 @@ At some point I started desiring the ability to edit multiple files at a time.  
 * Firefox
 	* Taplar
 		* Version: Latest
+
+### Demo Site
+
+I'll try to keep the demo site current with what is in this repo, but no guarentees.
+* Demo: http://siteeditor-taplar.rhcloud.com/site-editor
+* Tests: http://siteeditor-taplar.rhcloud.com/site-editor/tests.html
