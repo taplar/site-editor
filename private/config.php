@@ -1,8 +1,8 @@
 <?php
 	final class Config {
 		private static $instance;
-		private final $EDITOR_DIRECTORY = './';
-		private final $ROOT_DIRECTORY = '../';
+		private $EDITOR_DIRECTORY = './';
+		private $ROOT_DIRECTORY = '../';
 		
 		
 		private function __clone(){}
