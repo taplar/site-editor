@@ -65,6 +65,7 @@ var AuthService = {
 
 					$('.container').html('');
 					$('.container').append($prompt);
+					$('#userid').focus();
 				} catch (error){
 					loggingService.unrecoverableError(error);
 				}
