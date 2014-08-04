@@ -3,6 +3,7 @@ var AuthService = {
 		var ajaxService = AjaxService.getInstance();
 		var keyService = KeyService.getInstance();
 		var loggingService = LoggingService.getInstance();
+		var workspaceService = WorkspaceService.getInstance();
 
 		var authService = {
 			actionSubmitLogin: function(event){
@@ -46,8 +47,6 @@ var AuthService = {
 					,fnFailure: loggingService.unrecoverableError
 				});
 			}
-			,displayWorkspace: function(){
-			}
 			,processDisplayLogin: function(rawHtml){
 				try {
 					Require.all(rawHtml);
@@ -80,7 +79,7 @@ var AuthService = {
 
 					switch (jsonObject.responseCode){
 						case 'AUTHORIZED':
-							authService.displayWorkspace();
+							workspaceService.displayWorkspace();
 							break;
 						case 'UNAUTHORIZED':
 							loggingService.displayError('Invalid Credentials');
@@ -106,7 +105,7 @@ var AuthService = {
 
 					switch (jsonObject.responseCode){
 						case 'AUTHORIZED':
-							authService.displayWorkspace();
+							workspaceService.displayWorkspace();
 							break;
 						case 'UNAUTHORIZED':
 							authService.displayLogin();

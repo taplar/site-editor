@@ -3,11 +3,13 @@ describe('AuthService', function(){
 		ajaxService = AjaxService.getInstance();
 		keyService = KeyService.getInstance();
 		loggingService = LoggingService.getInstance();
+		workspaceService = WorkspaceService.getInstance();
 
 		spyOn(loggingService, 'unrecoverableError');
 		spyOn(AjaxService, 'getInstance').and.returnValue(ajaxService);
 		spyOn(KeyService, 'getInstance').and.returnValue(keyService);
 		spyOn(LoggingService, 'getInstance').and.returnValue(loggingService);
+		spyOn(WorkspaceService, 'getInstance').and.returnValue(workspaceService);
 
 		authService = AuthService.getInstance();
 	});
@@ -51,12 +53,12 @@ describe('AuthService', function(){
 		var expectations = function(jsonObject){
 			expect(loggingService.unrecoverableError.calls.any()).toBe(jsonObject.unrecoverableError);
 			expect(authService.displayLogin.calls.any()).toBe(jsonObject.displayLogin);
-			expect(authService.displayWorkspace.calls.any()).toBe(jsonObject.displayWorkspace);
+			expect(workspaceService.displayWorkspace.calls.any()).toBe(jsonObject.displayWorkspace);
 		};
 
 		beforeEach(function(){
 			spyOn(authService, 'displayLogin');
-			spyOn(authService, 'displayWorkspace');
+			spyOn(workspaceService, 'displayWorkspace');
 		});
 
 		it('Should throw error if data is missing', function(){
@@ -338,7 +340,7 @@ describe('AuthService', function(){
 	describe('ProcessLoginSubmit', function(){
 		var expectations = function(jsonObject){
 			expect(loggingService.unrecoverableError.calls.any()).toBe(jsonObject.unrecoverableError);
-			expect(authService.displayWorkspace.calls.any()).toBe(jsonObject.displayWorkspace);
+			expect(workspaceService.displayWorkspace.calls.any()).toBe(jsonObject.displayWorkspace);
 
 			expect(loggingService.displayError.calls.any()).toBe(jsonObject.displayError);
 
@@ -348,8 +350,8 @@ describe('AuthService', function(){
 		};
 
 		beforeEach(function(){
-			spyOn(authService, 'displayWorkspace');
 			spyOn(loggingService, 'displayError');
+			spyOn(workspaceService, 'displayWorkspace');
 		});
 
 		it('Should throw error if data is missing', function(){
@@ -400,7 +402,4 @@ describe('AuthService', function(){
 			expectations({ unrecoverableError: false, displayError: false, displayWorkspace: true });
 		});
 	});
-
-	xdescribe('DisplayWorkspace', function(){});
-	xdescribe('ProcessDisplayWorkspace', function(){});
 });

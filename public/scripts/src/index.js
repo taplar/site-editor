@@ -64,17 +64,6 @@ var EDITOR = {
 			}
 		}
 	}
-	,actionSubmitLogin: function(e, ajaxService){
-		if (EDITOR.KeyTest.isEnter(e)){
-			ajaxService.POST('?auth/validate', {
-				userid: $('#userid').val()
-				,password: $('#password').val()
-			}, {
-				fnSuccess: function(data){ EDITOR.processLoginSubmit(data, ajaxService); }
-				,fnFailure: function(){}
-			});
-		}
-	}
 	,buildFile: function($parent, path, file, ajaxService){
 		//var $delete = $('<i class="fa fa-times red" />');
 		var $li = $('<li><i class="fa fa-file file-icon" /></li>');
@@ -150,14 +139,6 @@ var EDITOR = {
 		
 		return $ul;
 	}
-	,displayError: function(message){ EDITOR.displayMessage(message, 'error'); }
-	,displayInfo: function(message){ EDITOR.displayMessage(message, 'info'); }
-	,displayLogin: function(ajaxService){
-		ajaxService.GET('public/views/prompt.html', {
-			fnSuccess: function(data){ EDITOR.processLoginDisplay(data, ajaxService); }
-			,fnFailure: EDITOR.unrecoverableError
-		});
-	}
 	,displayMenu: function(files, ajaxService){
 		ajaxService.GET('public/views/menu.html', {
 			fnSuccess: function(data){
@@ -178,25 +159,6 @@ var EDITOR = {
 			,fnFailure: EDITOR.recoverableError
 		});
 	}
-	,displayMessage: function(message, clazz){
-		var $msg = $('<div class="'+ clazz +'">'+ message +'</div>');
-		
-		$('body').append($msg);
-		
-		setTimeout(function(){
-			$msg.css('top', '7px');
-			$msg.css('right', '125px');
-			
-			setTimeout(function(){
-				$msg.css('top', '-50px');
-				
-				setTimeout(function(){
-					$msg.remove();
-				}, 4000);
-			}, 4000);
-		}, 1000);
-	}
-	,displaySuccess: function(message){ EDITOR.displayMessage(message, 'success'); }
 	,displayWorkspace: function(ajaxService){
 		ajaxService.GET('public/views/workspace.html', {
 			fnSuccess: function(data){ EDITOR.processWorkspaceDisplay(data, ajaxService); }
@@ -241,42 +203,6 @@ var EDITOR = {
 		$('.prompt .input input').keyup(function(e){ EDITOR.actionSubmitCreateFilePrompt(e, path, ajaxService); });
 		$('.prompt .input input:first').focus();
 	}
-	,processLoginDisplay: function(data, ajaxService){
-		var $prompt = $(data);
-		var $content = $prompt.find('.content');
-
-		$prompt.find('.title').html('Login');
-		$content.append(
-			'<div class="input center">'
-				+'<input type="text" placeholder="userid" id="userid" value="" />'
-			+'</div>');
-		$content.append(
-			'<div class="input center">'
-				+'<input type="password" placeholder="password" id="password" value="" />'
-			+'</div>');
-
-		$('.container').html($prompt);
-		$('.prompt .input input').keyup(function(e){ EDITOR.actionSubmitLogin(e, ajaxService); });
-		$('.prompt .input input:first').focus();
-	}
-	,processLoginSubmit: function(jsonString, ajaxService){
-		try {
-			var response = $.parseJSON(jsonString);
-
-			Require.all(response, 'responseCode');
-
-			if (response.responseCode == 'UNAUTHORIZED'){
-				EDITOR.displayInfo('Authorization Failed.');
-			} else if (response.responseCode == 'AUTHORIZED'){
-				EDITOR.displayWorkspace(ajaxService);
-			} else {
-				EDITOR.unrecoverableError();
-			}
-		} catch (e){
-			console.log(e);
-			EDITOR.recoverableError();
-		}
-	}
 	,processMenuDisplay: function(jsonString, ajaxService){
 		try {
 			var response = $.parseJSON(jsonString);
@@ -302,11 +228,6 @@ var EDITOR = {
 		$('.menuIndicator').mouseover(function(){ EDITOR.actionDisplayMenu(ajaxService); });
 
 		EDITOR.actionDisplayMenu(ajaxService);
-	}
-	,recoverableError: function(){ EDITOR.displayError('Error occured.  Please try again.'); }
-	,unrecoverableError: function(){
-		console.log('Unrecoverable error occured.  If this does not resolve itself, contact the site administrator for further assistance.');
-		EDITOR.displayError('Error occured.  Check console for more information.');
 	}
 };
 
