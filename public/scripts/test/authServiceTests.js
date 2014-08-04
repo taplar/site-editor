@@ -260,22 +260,14 @@ describe('AuthService', function(){
 			$userid.remove();
 			$password.keyup();
 
-			expectations({
-				unrecoverableError: true
-				,requiredInput: []
-				,postSubmitted: false
-			});
+			expectations({ unrecoverableError: true, requiredInput: [], postSubmitted: false });
 		});
 
 		it('Should throw error if password is not defined', function(){
 			$password.remove();
 			$userid.keyup();
 
-			expectations({
-				unrecoverableError: true
-				,requiredInput: []
-				,postSubmitted: false
-			});
+			expectations({ unrecoverableError: true, requiredInput: [], postSubmitted: false });
 		});
 
 		it('Should not display messages if fields are blank and enter was not pressed', function(){
@@ -283,11 +275,7 @@ describe('AuthService', function(){
 
 			$userid.keyup();
 
-			expectations({
-				unrecoverableError: false
-				,requiredInput: []
-				,postSubmitted: false
-			});
+			expectations({ unrecoverableError: false, requiredInput: [], postSubmitted: false });
 		});
 
 		it('Should display messages if fields are blank and enter was pressed', function(){
@@ -295,11 +283,7 @@ describe('AuthService', function(){
 
 			$userid.keyup();
 
-			expectations({
-				unrecoverableError: false
-				,requiredInput: ['userid', 'password']
-				,postSubmitted: false
-			});
+			expectations({ unrecoverableError: false, requiredInput: ['userid', 'password'], postSubmitted: false });
 		});
 
 		it('Should not perform request if userid is blank', function(){
@@ -308,11 +292,7 @@ describe('AuthService', function(){
 			$password.val('admin');
 			$password.keyup();
 
-			expectations({
-				unrecoverableError: false
-				,requiredInput: ['userid']
-				,postSubmitted: false
-			});
+			expectations({ unrecoverableError: false, requiredInput: ['userid'], postSubmitted: false });
 		});
 
 		it('Should not perform request if password is blank', function(){
@@ -321,11 +301,7 @@ describe('AuthService', function(){
 			$userid.val('admin');
 			$userid.keyup();
 
-			expectations({
-				unrecoverableError: false
-				,requiredInput: ['password']
-				,postSubmitted: false
-			});
+			expectations({ unrecoverableError: false, requiredInput: ['password'], postSubmitted: false });
 		});
 
 		it('Should perform request if fields are not blank and call success', function(){
@@ -340,17 +316,12 @@ describe('AuthService', function(){
 			$password.val('admin');
 			$userid.keyup();
 
-			expectations({
-				unrecoverableError: false
-				,requiredInput: []
-				,postSubmitted: true
-				,postSuccess: true
-			});
+			expectations({ unrecoverableError: false, requiredInput: [], postSubmitted: true, postSuccess: true });
 		});
 
 		it('Should perform request if fields are not blank and call failure', function(){
-			spyOn(keyService, 'isEnterPressed').and.returnValue(true);
 			spyOn(authService, "processLoginSubmit");
+			spyOn(keyService, 'isEnterPressed').and.returnValue(true);
 			
 			ajaxService.POST.and.callFake(function(args){
 				args.fnFailure();
@@ -360,89 +331,74 @@ describe('AuthService', function(){
 			$password.val('admin');
 			$userid.keyup();
 
-			expectations({
-				unrecoverableError: true
-				,requiredInput: []
-				,postSubmitted: true
-				,postSuccess: false
-			});
+			expectations({ unrecoverableError: true, requiredInput: [], postSubmitted: true, postSuccess: false });
 		});
 	});
 	
 	describe('ProcessLoginSubmit', function(){
 		var expectations = function(jsonObject){
 			expect(loggingService.unrecoverableError.calls.any()).toBe(jsonObject.unrecoverableError);
-			//expect(authService.displayLogin.calls.any()).toBe(jsonObject.displayLogin);
 			expect(authService.displayWorkspace.calls.any()).toBe(jsonObject.displayWorkspace);
+
+			expect(loggingService.displayError.calls.any()).toBe(jsonObject.displayError);
+
+			if (jsonObject.displayError){
+				expect(loggingService.displayError).toHaveBeenCalledWith(jsonObject.error);
+			}
 		};
 
 		beforeEach(function(){
-			//spyOn(authService, 'displayLogin');
 			spyOn(authService, 'displayWorkspace');
+			spyOn(loggingService, 'displayError');
 		});
 
 		it('Should throw error if data is missing', function(){
 			authService.processLoginSubmit();
 
-			expectations({ unrecoverableError: true, displayLogin: false, displayWorkspace: false });
+			expectations({ unrecoverableError: true, displayError: false, displayWorkspace: false });
 		});
 
 		it('Should throw error if data is not json parsable', function(){
 			authService.processLoginSubmit("not json");
 
-			expectations({ unrecoverableError: true, displayLogin: false, displayWorkspace: false });
+			expectations({ unrecoverableError: true, displayError: false, displayWorkspace: false });
 		});
 
 		it('Should throw error if response code not returned', function(){
 			authService.processLoginSubmit("{}");
 
-			expectations({ unrecoverableError: true, displayLogin: false, displayWorkspace: false });
+			expectations({ unrecoverableError: true, displayError: false, displayWorkspace: false });
 		});
 
 		it('Should throw error if internal error occured', function(){
 			authService.processLoginSubmit('{"responseCode":"INTERNAL_ERROR"}');
 
-			expectations({ unrecoverableError: true, displayLogin: false, displayWorkspace: false });
+			expectations({ unrecoverableError: true, displayError: false, displayWorkspace: false });
 		});
 
 		it('Should throw error if invalid request occured', function(){
 			authService.processLoginSubmit('{"responseCode":"INVALID_REQUEST"}');
 
-			expectations({ unrecoverableError: true, displayLogin: false, displayWorkspace: false });
+			expectations({ unrecoverableError: true, displayError: false, displayWorkspace: false });
 		});
 
 		it('Should throw error if unexpected response code returned', function(){
 			authService.processLoginSubmit('{"responseCode":"CHUMBAWUMBA"}');
 
-			expectations({ unrecoverableError: true, displayLogin: false, displayWorkspace: false });
+			expectations({ unrecoverableError: true, displayError: false, displayWorkspace: false });
 		});
 
-		xit('Should display login if unauthorized', function(){
-			authService.processValidate('{"responseCode":"UNAUTHORIZED"}');
+		it('Should display message if unauthorized', function(){
+			authService.processLoginSubmit('{"responseCode":"UNAUTHORIZED"}');
 
-			expectations({ unrecoverableError: false, displayLogin: true, displayWorkspace: false });
+			expectations({ unrecoverableError: false, displayError: true, error: 'Invalid Credentials', displayWorkspace: false });
 		});
 
-		xit('Should display workspace if authorized', function(){
-			authService.processValidate('{"responseCode":"AUTHORIZED"}');
+		it('Should display workspace if authorized', function(){
+			authService.processLoginSubmit('{"responseCode":"AUTHORIZED"}');
 
-			expectations({ unrecoverableError: false, displayLogin: false, displayWorkspace: true });
+			expectations({ unrecoverableError: false, displayError: false, displayWorkspace: true });
 		});
-
-
-
-
-
-
-
-		xit('Should throw error if data is missing', function(){});
-		xit('Should throw error if data is not json parsable', function(){});
-		xit('Should throw error if response code not returned', function(){});
-		xit('Should throw error if internal error occured', function(){});
-		xit('Should throw error if invalid request occured', function(){});
-		xit('Should throw error if unexpected response code returned', function(){});
-		xit('Should display message if unauthorized', function(){});
-		xit('Should display workspace if authorized', function(){});
 	});
 
 	xdescribe('DisplayWorkspace', function(){});

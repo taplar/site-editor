@@ -75,7 +75,22 @@ var AuthService = {
 
 					var jsonObject = $.parseJSON(jsonString);
 
-					Require.all(jsonObject, 'returnCode');
+					Require.all(jsonObject, 'responseCode');
+
+					switch (jsonObject.responseCode){
+						case 'AUTHORIZED':
+							authService.displayWorkspace();
+							break;
+						case 'UNAUTHORIZED':
+							loggingService.displayError('Invalid Credentials');
+							break;
+						case 'INVALID_REQUEST':
+							throw new Error('Invalid Request Occured');
+						case 'INTERNAL_ERROR':
+							throw new Error('Internal Error Occured');
+						default:
+							throw new Error('Unrecognised Response Code: '+ jsonObject.responseCode);
+					}
 				} catch (error){
 					loggingService.unrecoverableError(error);
 				}
