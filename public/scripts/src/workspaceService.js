@@ -6,6 +6,18 @@ var WorkspaceService = {
 
 		var workspaceService = {
 			displayWorkspace: function(){
+				ajaxService.GET({
+					url: 'public/views/workspace.html'
+					,fnSuccess: workspaceService.processDisplayWorkspace
+					,fnFailure: loggingService.unrecoverableError
+				});
+			}
+			,processDisplayWorkspace: function(rawHtml){
+				try {
+					Require.all(rawHtml);
+				} catch (error){
+					loggingService.unrecoverableError(error);
+				}
 			}
 		};
 
