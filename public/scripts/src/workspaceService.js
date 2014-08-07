@@ -1,6 +1,7 @@
 var WorkspaceService = {
 	getInstance: function(){
 		var ajaxService = AjaxService.getInstance();
+		var authService = AuthService.getInstance();
 		var keyService = KeyService.getInstance();
 		var loggingService = LoggingService.getInstance();
 

@@ -3,10 +3,14 @@ var AuthService = {
 		var ajaxService = AjaxService.getInstance();
 		var keyService = KeyService.getInstance();
 		var loggingService = LoggingService.getInstance();
-		var workspaceService = WorkspaceService.getInstance();
 
 		var authService = {
 			actionLogout: function(event){
+				ajaxService.GET({
+					url: '?auth/revoke'
+					,fnSuccess: authService.processLogout
+					,fnFailure: loggingService.unrecoverableError
+				});
 			}
 			,actionSubmitLogin: function(event){
 				var data = {
@@ -79,22 +83,35 @@ var AuthService = {
 
 					Require.all(jsonObject, 'responseCode');
 
-					switch (jsonObject.responseCode){
-						case 'AUTHORIZED':
-							workspaceService.displayWorkspace();
-							break;
-						case 'UNAUTHORIZED':
-							loggingService.displayError('Invalid Credentials');
-							break;
-						case 'INVALID_REQUEST':
-							throw new Error('Invalid Request Occured');
-						case 'INTERNAL_ERROR':
-							throw new Error('Internal Error Occured');
-						default:
-							throw new Error('Unrecognised Response Code: '+ jsonObject.responseCode);
-					}
+					var workspaceService = WorkspaceService.getInstance();
+
+					authService.processResponseCode({
+						responseCode: jsonObject.responseCode
+						,fnAuthorized: workspaceService.displayWorkspace
+						,fnUnauthorized: function(){ loggingService.displayError('Invalid Credentials'); }
+					});
 				} catch (error){
 					loggingService.unrecoverableError(error);
+				}
+			}
+			,processLogout: function(jsonString){
+			}
+			,processResponseCode: function(jsonObject){
+				Require.all(jsonObject, 'responseCode', 'fnAuthorized', 'fnUnauthorized');
+
+				switch (jsonObject.responseCode){
+					case 'AUTHORIZED':
+						jsonObject.fnAuthorized();
+						break;
+					case 'UNAUTHORIZED':
+						jsonObject.fnUnauthorized();
+						break;
+					case 'INVALID_REQUEST':
+						throw new Error('Invalid Request Occured');
+					case 'INTERNAL_ERROR':
+						throw new Error('Internal Error Occured');
+					default:
+						throw new Error('Unrecognised Response Code: '+ jsonObject.responseCode);
 				}
 			}
 			,processValidate: function(jsonString){
@@ -105,20 +122,13 @@ var AuthService = {
 
 					Require.all(jsonObject, 'responseCode');
 
-					switch (jsonObject.responseCode){
-						case 'AUTHORIZED':
-							workspaceService.displayWorkspace();
-							break;
-						case 'UNAUTHORIZED':
-							authService.displayLogin();
-							break;
-						case 'INVALID_REQUEST':
-							throw new Error('Invalid Request Occured');
-						case 'INTERNAL_ERROR':
-							throw new Error('Internal Error Occured');
-						default:
-							throw new Error('Unrecognised Response Code: '+ jsonObject.responseCode);
-					}
+					var workspaceService = WorkspaceService.getInstance();
+					
+					authService.processResponseCode({
+						responseCode: jsonObject.responseCode
+						,fnAuthorized: workspaceService.displayWorkspace
+						,fnUnauthorized: authService.displayLogin
+					});
 				} catch (error){
 					loggingService.unrecoverableError(error);
 				}

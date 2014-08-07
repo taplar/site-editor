@@ -404,9 +404,68 @@ describe('AuthService', function(){
 	});
 
 	describe('ActionLogout', function(){
+		var expectations = function(jsonObject){
+			expect(loggingService.unrecoverableError.calls.any()).toBe(jsonObject.unrecoverableError);
+			expect(authService.processLogout.calls.any()).toBe(jsonObject.processLogout);
+
+			var arguments = ajaxService.GET.calls.argsFor(0)[0];
+
+			expect(arguments.url).toEqual('?auth/revoke');
+		};
+
+		beforeEach(function(){
+			spyOn(ajaxService, 'GET').and.callThrough;
+			spyOn(authService, 'processLogout');
+		});
+
+		it('Should perform failure callback', function(){
+			ajaxService.GET.and.callFake(function(args){
+				args.fnFailure();
+			});
+
+			authService.actionLogout();
+
+			expectations({ unrecoverableError: true, processLogout: false });
+		});
+
+		it('Should execute success callback', function(){
+			ajaxService.GET.and.callFake(function(args){
+				args.fnSuccess();
+			});
+
+			authService.actionLogout();
+
+			expectations({ unrecoverableError: false, processLogout: true });
+		});
+	});
+
+	describe('ProcessLogout', function(){
 		beforeEach(function(){
 		});
 
-		xit('new test', function(){});
+		xit('new test', function(){
+		});
 	});
 });
+
+
+
+/*
+### Invalidate authorization status
+
+Purpose: Ends the user's validation.
+
+##### Request
+```
+Method: GET
+URL: ~/?auth/revoke
+```
+##### Response
+```
+{ responseCode: "INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED" }
+```
+* responseCode
+	* INTERNAL_ERROR - Expected when unexpected exception occurs
+	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
+	* UNAUTHORIZED - Expected when user is not recognised
+*/

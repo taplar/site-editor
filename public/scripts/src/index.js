@@ -11,14 +11,7 @@ new function(){
 /*
 
 var EDITOR = {
-	KeyTest: {
-		isCode: function(e, keyCode){ return (e.keyCode == keyCode); }
-		,isCtrl: function(e){ return EDITOR.KeyTest.isCode(e, 17); }
-		,isEnter: function(e){ return EDITOR.KeyTest.isCode(e, 13); }
-		,isS: function(e){ return EDITOR.KeyTest.isCode(e, 83); }
-		,isTab: function(e){ return EDITOR.KeyTest.isCode(e, 9); }
-	}
-	,actionCreateFilePrompt: function(path, ajaxService){
+	actionCreateFilePrompt: function(path, ajaxService){
 		ajaxService.GET('public/views/prompt.html', {
 			fnSuccess: function(data){ EDITOR.processFileCreatePrompt(data, path, ajaxService); }
 			,fnFailure: EDITOR.recoverableError

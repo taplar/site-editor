@@ -1,9 +1,9 @@
 describe('AjaxService', function(){
-	describe('GET', function(){
-		beforeEach(function(){
-			ajaxService = AjaxService.getInstance();
-		});
+	beforeEach(function(){
+		ajaxService = AjaxService.getInstance();
+	});
 
+	describe('GET', function(){
 		it('Should throw error if missing arguments', function(){
 			try {
 				ajaxService.GET();
@@ -85,10 +85,6 @@ describe('AjaxService', function(){
 	});
 
 	describe('POST', function(){
-		beforeEach(function(){
-			ajaxService = AjaxService.getInstance();
-		});
-
 		it('Should throw error if missing arguments', function(){
 			try {
 				ajaxService.POST();
