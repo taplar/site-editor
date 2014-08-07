@@ -1,11 +1,13 @@
 describe('WorkspaceService', function(){
 	beforeEach(function(){
 		ajaxService = AjaxService.getInstance();
+		authService = AuthService.getInstance();
 		keyService = KeyService.getInstance();
 		loggingService = LoggingService.getInstance();
 
 		spyOn(loggingService, 'unrecoverableError');
 		spyOn(AjaxService, 'getInstance').and.returnValue(ajaxService);
+		spyOn(AuthService, 'getInstance').and.returnValue(authService);
 		spyOn(KeyService, 'getInstance').and.returnValue(keyService);
 		spyOn(LoggingService, 'getInstance').and.returnValue(loggingService);
 
@@ -48,6 +50,11 @@ describe('WorkspaceService', function(){
 	});
 
 	describe('ProcessDisplayWorkspace', function(){
+		var expectations = function(jsonObject){
+			expect(loggingService.unrecoverableError.calls.any()).toBe(jsonObject.unrecoverableError);
+			expect($('.container').html()).toEqual(jsonObject.containerHtml);
+		};
+
 		beforeEach(function(){
 			$('body').append('<div class="container"></div>');
 		});
@@ -59,15 +66,36 @@ describe('WorkspaceService', function(){
 		it('Should throw error if missing data', function(){
 			workspaceService.processDisplayWorkspace();
 
-			expect(loggingService.unrecoverableError.calls.any()).toBe(true);
-			expect($('.container').html().length).toBeLessThan(1);
+			expectations({ unrecoverableError: true, containerHtml: '' });
 		});
 
 		it('Should clear page and build menu and logout options', function(){
 			var minimalWorkspace = [
-				'<i class="menuIndicator" />'
-				,'<i class="logout" />'
+				'<i class="menuIndicator"></i>'
+				,'<i class="logout"></i>'
 			];
+
+			spyOn(authService, 'actionLogout');
+			spyOn(workspaceService, 'actionDisplayMenu');
+
+			workspaceService.processDisplayWorkspace(minimalWorkspace.join(''));
+
+			expectations({ unrecoverableError: false, containerHtml: minimalWorkspace.join('') });
+
+			expect(workspaceService.actionDisplayMenu.calls.any()).toBe(false);
+			$('.container .menuIndicator').mouseover();
+			expect(workspaceService.actionDisplayMenu.calls.any()).toBe(true);
+
+			expect(authService.actionLogout.calls.any()).toBe(false);
+			$('.container .logout').click();
+			expect(authService.actionLogout.calls.any()).toBe(true);
 		});
+	});
+
+	describe('ActionDisplayMenu', function(){
+		beforeEach(function(){
+		});
+
+		xit('new test', function(){});
 	});
 });

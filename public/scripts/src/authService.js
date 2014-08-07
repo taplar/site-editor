@@ -6,7 +6,9 @@ var AuthService = {
 		var workspaceService = WorkspaceService.getInstance();
 
 		var authService = {
-			actionSubmitLogin: function(event){
+			actionLogout: function(event){
+			}
+			,actionSubmitLogin: function(event){
 				var data = {
 					userid: $('.prompt-container #userid').val()
 					,password: $('.prompt-container #password').val()

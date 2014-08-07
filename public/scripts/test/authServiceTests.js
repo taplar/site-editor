@@ -402,4 +402,11 @@ describe('AuthService', function(){
 			expectations({ unrecoverableError: false, displayError: false, displayWorkspace: true });
 		});
 	});
+
+	describe('ActionLogout', function(){
+		beforeEach(function(){
+		});
+
+		xit('new test', function(){});
+	});
 });
