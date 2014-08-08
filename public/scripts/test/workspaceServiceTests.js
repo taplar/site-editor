@@ -99,3 +99,35 @@ describe('WorkspaceService', function(){
 		xit('new test', function(){});
 	});
 });
+
+
+
+/*
+
+### Retrieve list of files and directories
+
+Purpose: Retrieve file tree for menu.
+
+##### Request
+```
+Method: GET
+URL: ~/?menu/list
+```
+##### Response
+```
+{
+	files: <array(key => <string|object>)>
+	,responseCode: "AUTHORIZED"|"INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED"
+}
+```
+* files - Array of objects
+	* Numeric keys - Object is a string representing a filename
+	* Non-numeric keys - Key is a string representing a directory and the Object is an array representing the directory contents in the same [key, object] relationship
+* responseCode
+	* AUTHORIZED - Expected when user is recognised; request successful
+	* INTERNAL_ERROR - Expected when unexpected exception occurs
+	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
+	* UNAUTHORIZED - Expected when user is not recognised
+
+
+*/

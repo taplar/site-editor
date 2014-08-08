@@ -440,32 +440,62 @@ describe('AuthService', function(){
 	});
 
 	describe('ProcessLogout', function(){
+		var expectations = function(jsonObject){
+			expect(loggingService.unrecoverableError.calls.any()).toBe(jsonObject.unrecoverableError);
+			expect(authService.displayLogin.calls.any()).toBe(jsonObject.displayLogin);
+
+			if (jsonObject.displayLogin){
+				var arguments = loggingService.displaySuccess.calls.argsFor(0);
+
+				expect(arguments[0]).toEqual('Logout Success');
+			}
+		};
+
 		beforeEach(function(){
+			spyOn(authService, 'displayLogin');
+			spyOn(loggingService, 'displaySuccess');
 		});
 
-		xit('new test', function(){
+		it('Should throw error if data is missing', function(){
+			authService.processLogout();
+
+			expectations({ unrecoverableError: true, displayLogin: false });
+		});
+
+		it('Should throw error if data is not json parsable', function(){
+			authService.processLogout("not json");
+
+			expectations({ unrecoverableError: true, displayLogin: false });
+		});
+
+		it('Should throw error if response code not returned', function(){
+			authService.processLogout("{}");
+
+			expectations({ unrecoverableError: true, displayLogin: false });
+		});
+
+		it('Should throw error if internal error occured', function(){
+			authService.processLogout('{"responseCode":"INTERNAL_ERROR"}');
+
+			expectations({ unrecoverableError: true, displayLogin: false });
+		});
+
+		it('Should throw error if invalid request occured', function(){
+			authService.processLogout('{"responseCode":"INVALID_REQUEST"}');
+
+			expectations({ unrecoverableError: true, displayLogin: false });
+		});
+
+		it('Should throw error if unexpected response code returned', function(){
+			authService.processLogout('{"responseCode":"CHUMBAWUMBA"}');
+
+			expectations({ unrecoverableError: true, displayLogin: false });
+		});
+
+		it('Should display login if unauthorized', function(){
+			authService.processLogout('{"responseCode":"UNAUTHORIZED"}');
+
+			expectations({ unrecoverableError: false, displayLogin: true });
 		});
 	});
 });
-
-
-
-/*
-### Invalidate authorization status
-
-Purpose: Ends the user's validation.
-
-##### Request
-```
-Method: GET
-URL: ~/?auth/revoke
-```
-##### Response
-```
-{ responseCode: "INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED" }
-```
-* responseCode
-	* INTERNAL_ERROR - Expected when unexpected exception occurs
-	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
-	* UNAUTHORIZED - Expected when user is not recognised
-*/

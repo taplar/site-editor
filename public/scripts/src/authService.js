@@ -95,6 +95,24 @@ var AuthService = {
 				}
 			}
 			,processLogout: function(jsonString){
+				try {
+					Require.all(jsonString);
+
+					var jsonObject = $.parseJSON(jsonString);
+
+					Require.all(jsonObject, 'responseCode');
+
+					authService.processResponseCode({
+						responseCode: jsonObject.responseCode
+						,fnAuthorized: function(){ /* should not happen */ }
+						,fnUnauthorized: function(){
+							authService.displayLogin();
+							loggingService.displaySuccess('Logout Success');
+						}
+					});
+				} catch (error){
+					loggingService.unrecoverableError(error);
+				}
 			}
 			,processResponseCode: function(jsonObject){
 				Require.all(jsonObject, 'responseCode', 'fnAuthorized', 'fnUnauthorized');

@@ -21,6 +21,7 @@ var LoggingService = {
 
 		var loggingService = {
 			displayError: function(message){ displayMessage(message, 'error'); }
+			,displaySuccess: function(message){ displayMessage(message, 'success'); }
 			,requiredInput: function(field){ loggingService.displayError('Required Input: '+ field); }
 			,unrecoverableError: function(error){
 				console.log('Unrecoverable error occured.  If this does not resolve itself, contact the site administrator for further assistance.');
