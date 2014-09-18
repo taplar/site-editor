@@ -17,10 +17,10 @@
 		public function listDirectoryStructure(){
 			include_once 'private/services/filesystemService.php';
 
-			$response = ResponseService::getInstance();
+			$response = Router::getInstanceOfClass('ResponseService', null);
 			$rootDirectory = Config::getInstance()->getRootDirectory();
 
-			$response->files(FilesystemService::getInstance()->getDirectoryStructure($rootDirectory));
+			$response->files(Router::getInstanceOfClass('FilesystemService', null)->getDirectoryStructure($rootDirectory));
 		}
 	}
 ?>

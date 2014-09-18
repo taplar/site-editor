@@ -15,20 +15,14 @@
 		}
 
 		public function resolve($request){
-			include_once 'private/services/menuService.php';
-
 			if (count($request) > 1){
 				if (strcasecmp($request[1], 'list') == 0){
-					MenuService::getInstance()->listDirectoryStructure();
+					Router::getInstanceOfClass('MenuService', null)->listDirectoryStructure();
 					return;
 				}
 			}
 			
-			ResponseService::getInstance()->pathIsUnknown();
+			Router::getInstanceOfClass('ResponseService', null)->pathIsUnknown();
 		}
-	}
-
-	if (defined('EDITOR_ONSITE')){
-		Router::getInstance()->register('menu', MenuController::getInstance());
 	}
 ?>

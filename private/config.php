@@ -8,20 +8,20 @@
 		private function __clone(){}
 		private function __construct(){}
 
-		public function getEditorDirectory(){
-			return $this->EDITOR_DIRECTORY;
-		}
-		
-		public function getRootDirectory(){
-			return $this->ROOT_DIRECTORY;
-		}
-
 		public static function getInstance(){
 			if (!self::$instance){
 				self::$instance = new self();
 			}
 			
 			return self::$instance;
+		}
+
+		public function getEditorDirectory(){
+			return $this->EDITOR_DIRECTORY;
+		}
+		
+		public function getRootDirectory(){
+			return $this->ROOT_DIRECTORY;
 		}
 	}
 ?>

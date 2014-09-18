@@ -15,7 +15,7 @@
 		}
 
 		public function createFile(){
-			$response = ResponseService::getInstance();
+			$response = Router::getInstanceOfClass('ResponseService', null);
 			$file = $_POST['file'];
 
 			if ($this->rootPathExists($file) && $this->fileDoesNotExist($file)){
@@ -25,7 +25,7 @@
 		}
 
 		public function fileDoesNotExist($pathArray){
-			$response = ResponseService::getInstance();
+			$response = Router::getInstanceOfClass('ResponseService', null);
 			$response->rawData('File Does Not Exist check unimplemented.');
 			return false;
 		}

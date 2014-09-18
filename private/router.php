@@ -1,14 +1,10 @@
 <?php
 	final class Router {
 		private static $instance;
-		private $roots;
 		
 
 		private function __clone(){}
-
-		private function __construct(){
-			$this->roots = array();
-		}
+		private function __construct(){}
 		
 		public static function getInstance(){
 			if (!self::$instance){
@@ -18,6 +14,40 @@
 			return self::$instance;
 		}
 		
+		public static function getInstanceOfClass($className, $params){
+			if (!ctype_alpha($className)){
+				throw new Exception('Invalid Class Name');
+			}
+			
+			$reversedString = strrev(strtolower($className));
+			
+			if (substr($reversedString, 0, 10) == 'rellortnoc'){
+				$relativePath = 'private/controllers/';
+			} else if (substr($reversedString, 0, 7) == 'ecivres'){
+				$relativePath = 'private/services/';
+			} else {
+				throw new Exception('Unknown Object Type');
+			}
+			
+			$lowercaseClassName = $className;
+			$lowercaseClassName{0} = strtolower($lowercaseClassName{0});
+			$filePath = Config::getInstance()->getEditorDirectory() . $relativePath . $lowercaseClassName .'.php';
+			
+			if (file_exists($filePath)){
+				include_once $filePath;
+				
+				$callable = array($className, 'getInstance');
+				
+				if (!isset($params)){
+					return call_user_func($callable);
+				} else {
+					return call_user_func_array($callable, $params);
+				}
+			} else {
+				throw new Exception('Class Does Not Exist');
+			}
+		}
+
 		private function getPath(){
 			$keys = array_keys($_GET);
 
@@ -27,43 +57,32 @@
 
 			return null;
 		}
-
-		public function register($root, $variable){
-			$this->roots[$root] = $variable;
-		}
 		
 		public function resolve(){
-			include_once 'private/services/responseService.php';
-
-			$response = ResponseService::getInstance();
+			$response = self::getInstanceOfClass('ResponseService', null);
 			$path = $this->getPath();
-
+			
 			try {
-				if ($path) {
-					include_once 'private/services/authorizationService.php';
+				if ($path && count($path) > 0){
+					self::getInstanceOfClass('AuthorizationService', null)->validate();
 
-					AuthorizationService::getInstance()->validate();
+					$className = ucwords(strtolower($path[0]) .'Controller');
 
-					//TODO: Need to check if validation failed.  If so, and not going to validate, need to return to login page
-
-					if (isset($this->roots[$path[0]])){
-						$this->roots[$path[0]]->resolve($path);
-					} else {
-						$response->pathIsUnknown();
-					}
+					self::getInstanceOfClass($className, null)->resolve($path, $response);
 				} else {
-					include_once 'private/services/filesystemService.php';
-
-					$filesystem = FilesystemService::getInstance();
-					$indexFile = Config::getInstance()->getEditorDirectory() .'public/views/index.html';
-
-					$response->rawData($filesystem->readFile($indexFile));
+					$this->resolveInvalidPath($response);
 				}
 			} catch (Exception $e){
 				$response->unexpectedExceptionOccured();
 			}
-
+			
 			echo $response;
+		}
+		
+		private function resolveInvalidPath($response){
+			$filesystem = self::getInstanceOfClass('FilesystemService', null);
+			$indexFile = Config::getInstance()->getEditorDirectory() .'public/views/index.html';
+			$response->rawData($filesystem->readFile($indexFile));
 		}
 	}
 ?>

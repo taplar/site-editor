@@ -15,20 +15,14 @@
 		}
 
 		public function resolve($request){
-			include_once 'private/services/filesystemService.php';
-
 			if (count($request) > 1){
 				if (strcasecmp($request[1], 'create') == 0){
-					FilesystemService::getInstance()->createFile();
+					Router::getInstanceOfClass('FilesystemService', null)->createFile();
 					return;
 				}
 			}
 			
-			ResponseService::getInstance()->pathIsUnknown();
+			Router::getInstanceOfClass('ResponseService', null)->pathIsUnknown();
 		}
-	}
-
-	if (defined('EDITOR_ONSITE')){
-		Router::getInstance()->register('file', FileController::getInstance());
 	}
 ?>

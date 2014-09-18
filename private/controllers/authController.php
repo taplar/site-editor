@@ -15,24 +15,18 @@
 		}
 
 		public function resolve($request){
-			include_once 'private/services/authorizationService.php';
-
 			if (count($request) > 1){
 				if (strcasecmp($request[1], 'validate') == 0){
 					//validate should happen on every request
 					//skip if it is the actual request
 					return;
 				} else if (strcasecmp($request[1], 'revoke') == 0){
-					AuthorizationService::getInstance()->revoke();
+					Router::getInstanceOfClass('AuthorizationService', null)->revoke();
 					return;
 				}
 			}
 			
-			ResponseService::getInstance()->pathIsUnknown();
+			Router::getInstanceOfClass('ResponseService', null)->pathIsUnknown();
 		}
-	}
-
-	if (defined('EDITOR_ONSITE')){
-		Router::getInstance()->register('auth', AuthController::getInstance());
 	}
 ?>

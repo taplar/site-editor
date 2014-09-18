@@ -5,16 +5,6 @@
 
 		private function __clone(){}
 		private function __construct(){}
-		
-		public function authorize(){
-			/* For the purpose of the repository, authorize will use a static userid and password
-			   It is most likely better that this be replaced with a different implementation. */
-			if (isset($_POST['userid']) && isset($_POST['password'])){
-				$_SESSION['EDITOR_LOGGED_IN'] = ($_POST['userid'] == 'admin' && $_POST['password'] == 'admin');
-			} else if (isset($_POST['userid']) xor isset($_POST['password'])){
-				ResponseService::getInstance()->requestWasInvalid();
-			}
-		}
 
 		public static function getInstance(){
 			if (!self::$instance){
@@ -22,6 +12,16 @@
 			}
 			
 			return self::$instance;
+		}
+		
+		public function authorize(){
+			/* For the purpose of the repository, authorize will use a static userid and password
+			   It is most likely better that this be replaced with a different implementation. */
+			if (isset($_POST['userid']) && isset($_POST['password'])){
+				$_SESSION['EDITOR_LOGGED_IN'] = ($_POST['userid'] == 'admin' && $_POST['password'] == 'admin');
+			} else if (isset($_POST['userid']) xor isset($_POST['password'])){
+				Router::getInstanceOfClass('ResponseService', null)->requestWasInvalid();
+			}
 		}
 
 		public function revoke(){
@@ -37,7 +37,7 @@
 			}
 
 			$this->authorize();
-			$response = ResponseService::getInstance();
+			$response = Router::getInstanceOfClass('ResponseService', null);
 
 			if ($_SESSION['EDITOR_LOGGED_IN']){
 				$response->userIsRecognised();

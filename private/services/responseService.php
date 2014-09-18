@@ -18,14 +18,6 @@
 				return $this->array['rawData'];
 			}
 		}
-		
-		private function addResponse($key, $value){
-			$this->array[$key] = $value;
-		}
-		
-		public function files($files){
-			$this->addResponse('files', $files);
-		}
 
 		public static function getInstance(){
 			if (!self::$instance){
@@ -33,6 +25,14 @@
 			}
 			
 			return self::$instance;
+		}
+		
+		private function addResponse($key, $value){
+			$this->array[$key] = $value;
+		}
+		
+		public function files($files){
+			$this->addResponse('files', $files);
 		}
 
 		public function pathIsUnknown(){
