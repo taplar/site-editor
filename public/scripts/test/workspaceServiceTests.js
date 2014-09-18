@@ -76,15 +76,15 @@ describe('WorkspaceService', function(){
 			];
 
 			spyOn(authService, 'actionLogout');
-			spyOn(workspaceService, 'actionDisplayMenu');
+			spyOn(workspaceService, 'displayMenu');
 
 			workspaceService.processDisplayWorkspace(minimalWorkspace.join(''));
 
 			expectations({ unrecoverableError: false, containerHtml: minimalWorkspace.join('') });
 
-			expect(workspaceService.actionDisplayMenu.calls.any()).toBe(false);
+			expect(workspaceService.displayMenu.calls.any()).toBe(false);
 			$('.container .menuIndicator').mouseover();
-			expect(workspaceService.actionDisplayMenu.calls.any()).toBe(true);
+			expect(workspaceService.displayMenu.calls.any()).toBe(true);
 
 			expect(authService.actionLogout.calls.any()).toBe(false);
 			$('.container .logout').click();
@@ -92,12 +92,111 @@ describe('WorkspaceService', function(){
 		});
 	});
 
-	describe('ActionDisplayMenu', function(){
+	describe('DisplayMenu', function(){
+		var expectations = function(jsonObject){
+			expect(loggingService.unrecoverableError.calls.any()).toBe(false);
+			expect(loggingService.recoverableError.calls.any()).toBe(jsonObject.recoverableError);
+			expect(workspaceService.processDisplayMenu.calls.any()).toBe(jsonObject.processDisplayMenu);
+		};
+
 		beforeEach(function(){
+			spyOn(loggingService, "recoverableError");
+			spyOn(workspaceService, "processDisplayMenu");
 		});
 
-		xit('new test', function(){});
+		it('Should log recoverable error on failure', function(){
+			spyOn(ajaxService, 'GET').and.callFake(function(args){
+				args.fnFailure();
+			});
+
+			workspaceService.displayMenu();
+
+			expectations({ recoverableError: true, processDisplayMenu: false });
+		});
+
+		it('Should process response on success', function(){
+			spyOn(ajaxService, 'GET').and.callFake(function(args){
+				args.fnSuccess();
+			});
+
+			workspaceService.displayMenu();
+
+			expectations({ recoverableError: false, processDisplayMenu: true });
+		});
 	});
+
+	describe('ProcessDisplayMenu', function(){
+		var expectations = function(jsonObject){
+			expect(loggingService.unrecoverableError.calls.any()).toBe(false);
+			expect(loggingService.recoverableError.calls.any()).toBe(jsonObject.recoverableError);
+			expect(authService.displayLogin.calls.any()).toBe(jsonObject.displayLogin);
+
+			if (jsonObject.displayLogin){
+				var arguments = loggingService.displayInfo.calls.argsFor(0);
+
+				expect(arguments[0]).toEqual('Session Expired');
+			}
+
+			expect(workspaceService.buildMenu.calls.any()).toBe(jsonObject.buildMenu);
+		};
+
+		beforeEach(function(){
+			spyOn(authService, 'displayLogin');
+			spyOn(loggingService, 'displayInfo');
+			spyOn(loggingService, 'recoverableError');
+			spyOn(workspaceService, 'buildMenu');
+		});
+
+		it('Should throw error if data is missing', function(){
+			workspaceService.processDisplayMenu();
+
+			expectations({ recoverableError: true, displayLogin: false, buildMenu: false });
+		});
+
+		it('Should throw error if data is not json parsable', function(){
+			workspaceService.processDisplayMenu("not json");
+
+			expectations({ recoverableError: true, displayLogin: false, buildMenu: false });
+		});
+
+		it('Should throw error if response code not returned', function(){
+			workspaceService.processDisplayMenu("{}");
+
+			expectations({ recoverableError: true, displayLogin: false, buildMenu: false });
+		});
+
+		it('Should throw error if internal error occured', function(){
+			workspaceService.processDisplayMenu('{"responseCode":"INTERNAL_ERROR", "files":[]}');
+
+			expectations({ recoverableError: true, displayLogin: false, buildMenu: false });
+		});
+
+		it('Should throw error if invalid request occured', function(){
+			workspaceService.processDisplayMenu('{"responseCode":"INVALID_REQUEST", "files":[]}');
+
+			expectations({ recoverableError: true, displayLogin: false, buildMenu: false });
+		});
+
+		it('Should throw error if unexpected response code returned', function(){
+			workspaceService.processDisplayMenu('{"responseCode":"CHUMBAWUMBA", "files":[]}');
+
+			expectations({ recoverableError: true, displayLogin: false, buildMenu: false });
+		});
+
+		it('Should display login if unauthorized', function(){
+			workspaceService.processDisplayMenu('{"responseCode":"UNAUTHORIZED", "files":[]}');
+
+			expectations({ recoverableError: false, displayLogin: true, buildMenu: false });
+		});
+
+		it('Should build menu if authorized', function(){
+			workspaceService.processDisplayMenu('{"responseCode":"AUTHORIZED", "files":[]}');
+
+			expectations({ recoverableError: false, displayLogin: false, buildMenu: true });
+		});
+	});
+
+	xdescribe('BuildMenu', function(){});
 });
 
 

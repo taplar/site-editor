@@ -21,7 +21,17 @@ var LoggingService = {
 
 		var loggingService = {
 			displayError: function(message){ displayMessage(message, 'error'); }
+			,displayInfo: function(message){ displayMessage(message, 'info'); }
 			,displaySuccess: function(message){ displayMessage(message, 'success'); }
+			,recoverableError: function(error){
+				console.log('Error occured.  Please try again.  If error persists, try logging in again.   If unresolved, please contact the site administrator for further assistance.');
+
+				if (typeof(error) !== 'undefined'){
+					console.log(error);
+				}
+
+				loggingService.displayError('Error occured.  Please try again or check console for more information.');
+			}
 			,requiredInput: function(field){ loggingService.displayError('Required Input: '+ field); }
 			,unrecoverableError: function(error){
 				console.log('Unrecoverable error occured.  If this does not resolve itself, contact the site administrator for further assistance.');
