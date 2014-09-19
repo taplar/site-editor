@@ -196,7 +196,46 @@ describe('WorkspaceService', function(){
 		});
 	});
 
-	xdescribe('BuildMenu', function(){});
+	describe('BuildMenu', function(){
+		beforeEach(function(){
+			$('body').append('<div class="container"></div>');
+		});
+
+		afterEach(function(){
+			$('.container').remove();
+		});
+
+		it('Should display menu', function(){
+			var minimalWorkspace = [
+				'<i class="menuIndicator"></i>'
+				,'<i class="logout"></i>'
+			];
+			
+			var response = {
+				"responseCode": "AUTHORIZED"
+				,"files": {
+					"0": "file0.0"
+					,"1": "file0.1"
+					,"folder1": {
+						"0": "file1.1"
+						,"1": "file2.1"
+					}
+					,"folder2": {
+						"0": "file2.1"
+						,"1": "file2.2"
+						,"folder3": {
+							"0": "file3.1"
+						}
+					}
+				}
+			};
+
+			workspaceService.processDisplayWorkspace(minimalWorkspace.join(''));
+			workspaceService.processDisplayMenu(JSON.stringify(response));
+
+			console.log($('.container').html());
+		});
+	});
 });
 
 
