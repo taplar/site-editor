@@ -1,63 +1,63 @@
 var WorkspaceService = {
-	getInstance: function(){
+	getInstance: function() {
 		var ajaxService = AjaxService.getInstance();
 		var authService = AuthService.getInstance();
 		var keyService = KeyService.getInstance();
 		var loggingService = LoggingService.getInstance();
 
 		var workspaceService = {
-			buildMenu: function(jsonFiles){
-				console.log(jsonFiles);
+			buildMenu: function( jsonFiles ) {
+				console.log( jsonFiles );
 			}
-			,displayMenu: function(){
+			, displayMenu: function() {
 				ajaxService.GET({
-					url: '?menu/list'
-					,fnSuccess: workspaceService.processDisplayMenu
-					,fnFailure: loggingService.recoverableError
+					url: "?menu/list"
+					, fnSuccess: workspaceService.processDisplayMenu
+					, fnFailure: loggingService.recoverableError
 				});
 			}
-			,displayWorkspace: function(){
+			, displayWorkspace: function() {
 				ajaxService.GET({
-					url: 'public/views/workspace.html'
-					,fnSuccess: workspaceService.processDisplayWorkspace
-					,fnFailure: loggingService.unrecoverableError
+					url: "public/views/workspace.html"
+					, fnSuccess: workspaceService.processDisplayWorkspace
+					, fnFailure: loggingService.unrecoverableError
 				});
 			}
-			,processDisplayMenu: function(jsonString){
+			, processDisplayMenu: function( jsonString ) {
 				try {
-					Require.all(jsonString);
+					Require.all( jsonString );
 
-					var jsonObject = $.parseJSON(jsonString);
+					var jsonObject = $.parseJSON( jsonString );
 
-					Require.all(jsonObject, 'files', 'responseCode');
+					Require.all( jsonObject, "files", "responseCode" );
 
-					var fnBuildMenu = function(){
-						workspaceService.buildMenu(jsonObject.files);
+					var fnBuildMenu = function() {
+						workspaceService.buildMenu( jsonObject.files );
 					};
 
-					var fnRedirectToLogin = function(){
+					var fnRedirectToLogin = function() {
 						authService.displayLogin();
-						loggingService.displayInfo('Session Expired');
+						loggingService.displayInfo( "Session Expired" );
 					};
 
 					authService.processResponseCode({
 						responseCode: jsonObject.responseCode
-						,fnAuthorized: fnBuildMenu
-						,fnUnauthorized: fnRedirectToLogin
+						, fnAuthorized: fnBuildMenu
+						, fnUnauthorized: fnRedirectToLogin
 					});
-				} catch (error){
-					loggingService.recoverableError(error);
+				} catch ( error ) {
+					loggingService.recoverableError( error );
 				}
 			}
-			,processDisplayWorkspace: function(rawHtml){
+			, processDisplayWorkspace: function( rawHtml ) {
 				try {
-					Require.all(rawHtml);
+					Require.all( rawHtml );
 
-					$('.container').html(rawHtml);
-					$('.container .menuIndicator').mouseover(workspaceService.displayMenu);
-					$('.container .logout').click(authService.actionLogout);
-				} catch (error){
-					loggingService.unrecoverableError(error);
+					$( ".container" ).html( rawHtml );
+					$( ".container .menuIndicator" ).mouseover( workspaceService.displayMenu );
+					$( ".container .logout" ).click( authService.actionLogout );
+				} catch ( error ) {
+					loggingService.unrecoverableError( error );
 				}
 			}
 		};

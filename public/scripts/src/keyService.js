@@ -1,9 +1,11 @@
 var KeyService = {
-	getInstance: function(){
-		var isCode = function(e, keyCode){ return (e.keyCode == keyCode); };
+	getInstance: function() {
+		var isCode = function( e, keyCode ) {
+			return ( e.keyCode == keyCode );
+		};
 
 		var keyService = {
-			isEnterPressed: function(e){ return isCode(e, 13); }
+			isEnterPressed: function( e ) { return isCode( e, 13 ); }
 		};
 
 		return keyService;

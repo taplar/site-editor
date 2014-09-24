@@ -1,185 +1,218 @@
-describe('AjaxService', function(){
-	beforeEach(function(){
+describe( "AjaxService", function() {
+	var expectations = function( jsonObject ) {
+		expect( jsonObject.errors[ 0 ].message ).toEqual( jsonObject.message );
+	};
+
+	var fail = function () {
+		expect( false ).toBe( true );
+	};
+
+	beforeEach(function() {
 		ajaxService = AjaxService.getInstance();
 	});
 
-	describe('GET', function(){
-		it('Should throw error if missing arguments', function(){
+	describe( "GET", function() {
+		it( "Should throw error if missing arguments", function() {
 			try {
 				ajaxService.GET();
-				expect(false).toBe(true);
-			} catch (e){
-				expect(e[0].message).toEqual("Argument 'args' is undefined");
+				fail();
+			} catch ( e ) {
+				expectations({
+					errors: e
+					, message: "Argument 'args' is undefined"
+				});
 			}
-		});
+		} );
 
-		it('Should throw error if missing url', function(){
+		it( "Should throw error if missing url", function() {
 			try {
 				ajaxService.GET({
 					fnSuccess: null
-					,fnFailure: null
+					, fnFailure: null
 				});
-				expect(false).toBe(true);
-			} catch (e){
-				expect(e[0].message).toEqual("Missing Property: url");
+				fail();
+			} catch ( e ) {
+				expectations({
+					errors: e
+					, message: "Missing Property: url"
+				});
 			}
-		});
+		} );
 
-		it('Should throw error if missing success callback', function(){
+		it( "Should throw error if missing success callback", function() {
 			try {
 				ajaxService.GET({
-					url: 'about:blank'
-					,fnFailure: null
+					url: "about:blank"
+					, fnFailure: null
 				});
-				expect(false).toBe(true);
-			} catch (e){
-				expect(e[0].message).toEqual("Missing Property: fnSuccess");
+				fail();
+			} catch ( e ) {
+				expectations({
+					errors: e
+					, message: "Missing Property: fnSuccess"
+				});
 			}
-		});
+		} );
 
-		it('Should throw error if missing failure callback', function(){
+		it( "Should throw error if missing failure callback", function() {
 			try {
 				ajaxService.GET({
-					url: 'about:blank'
-					,fnSuccess: null
+					url: "about:blank"
+					, fnSuccess: null
 				});
-				expect(false).toBe(true);
-			} catch (e){
-				expect(e[0].message).toEqual("Missing Property: fnFailure");
+				fail();
+			} catch ( e ) {
+				expectations({
+					errors: e
+					, message: "Missing Property: fnFailure"
+				});
 			}
-		});
+		} );
 
-		it('Should execute failure callback', function(){
+		it( "Should execute failure callback", function() {
 			var obj = {
-				url: ''
-				,fnSuccess: jasmine.createSpy()
-				,fnFailure: jasmine.createSpy()
+				url: ""
+				, fnSuccess: jasmine.createSpy()
+				, fnFailure: jasmine.createSpy()
 			};
 
-			spyOn($, 'ajax').and.callFake(function(args){
+			spyOn( $, "ajax" ).and.callFake( function( args ) {
 				args.error();
-			});
+			} );
 
-			ajaxService.GET(obj);
+			ajaxService.GET( obj );
 
-			expect(obj.fnSuccess.calls.any()).toBe(false);
-			expect(obj.fnFailure.calls.any()).toBe(true);
-		});
+			expect( obj.fnSuccess.calls.any() ).toBe( false );
+			expect( obj.fnFailure.calls.any() ).toBe( true );
+		} );
 
-		it('Should execute success callback', function(){
+		it( "Should execute success callback", function() {
 			var obj = {
-				url: ''
-				,fnSuccess: jasmine.createSpy()
-				,fnFailure: jasmine.createSpy()
+				url: ""
+				, fnSuccess: jasmine.createSpy()
+				, fnFailure: jasmine.createSpy()
 			};
 
-			spyOn($, 'ajax').and.callFake(function(args){
+			spyOn( $, "ajax" ).and.callFake( function( args ) {
 				args.success();
-			});
+			} );
 
-			ajaxService.GET(obj);
+			ajaxService.GET( obj );
 
-			expect(obj.fnSuccess.calls.any()).toBe(true);
-			expect(obj.fnFailure.calls.any()).toBe(false);
-		});
-	});
+			expect( obj.fnSuccess.calls.any() ).toBe( true );
+			expect( obj.fnFailure.calls.any() ).toBe( false );
+		} );
+	} );
 
-	describe('POST', function(){
-		it('Should throw error if missing arguments', function(){
+	describe( "POST", function() {
+		it( "Should throw error if missing arguments", function() {
 			try {
 				ajaxService.POST();
-				expect(false).toBe(true);
-			} catch (e){
-				expect(e[0].message).toEqual("Argument 'args' is undefined");
+				fail();
+			} catch ( e ) {
+				expectations({
+					errors: e
+					, message: "Argument 'args' is undefined"
+				});
 			}
-		});
+		} );
 
-		it('Should throw error if missing url', function(){
+		it( "Should throw error if missing url", function() {
 			try {
 				ajaxService.POST({
 					input: null
-					,fnSuccess: null
-					,fnFailure: null
+					, fnSuccess: null
+					, fnFailure: null
 				});
-				expect(false).toBe(true);
-			} catch (e){
-				expect(e[0].message).toEqual("Missing Property: url");
+				fail();
+			} catch ( e ) {
+				expectations({
+					errors: e
+					, message: "Missing Property: url"
+				});
 			}
-		});
+		} );
 
-		it('Should throw error if missing input', function(){
+		it( "Should throw error if missing input", function() {
 			try {
 				ajaxService.POST({
 					url: null
-					,fnSuccess: null
-					,fnFailure: null
+					, fnSuccess: null
+					, fnFailure: null
 				});
-				expect(false).toBe(true);
-			} catch (e){
-				expect(e[0].message).toEqual("Missing Property: input");
+				fail();
+			} catch ( e ) {
+				expectations({
+					errors: e
+					, message: "Missing Property: input"
+				});
 			}
-		});
+		} );
 
-		it('Should throw error if missing success callback', function(){
+		it( "Should throw error if missing success callback", function() {
 			try {
 				ajaxService.POST({
-					url: 'about:blank'
-					,input: null
-					,fnFailure: null
+					url: "about:blank"
+					, input: null
+					, fnFailure: null
 				});
-				expect(false).toBe(true);
-			} catch (e){
-				expect(e[0].message).toEqual("Missing Property: fnSuccess");
+				fail();
+			} catch ( e ) {
+				expectations({
+					errors: e, message: "Missing Property: fnSuccess"
+				});
 			}
-		});
+		} );
 
-		it('Should throw error if missing failure callback', function(){
+		it( "Should throw error if missing failure callback", function() {
 			try {
 				ajaxService.POST({
-					url: 'about:blank'
-					,input: null
-					,fnSuccess: null
+					url: "about:blank"
+					, input: null
+					, fnSuccess: null
 				});
-				expect(false).toBe(true);
-			} catch (e){
-				expect(e[0].message).toEqual("Missing Property: fnFailure");
+				fail();
+			} catch ( e ) {
+				expectations({
+					errors: e, message: "Missing Property: fnFailure"
+				});
 			}
-		});
+		} );
 
-		it('Should execute failure callback', function(){
+		it( "Should execute failure callback", function() {
 			var obj = {
-				url: ''
-				,input: ''
-				,fnSuccess: jasmine.createSpy()
-				,fnFailure: jasmine.createSpy()
+				url: ""
+				, input: ""
+				, fnSuccess: jasmine.createSpy()
+				, fnFailure: jasmine.createSpy()
 			};
 
-			spyOn($, 'ajax').and.callFake(function(args){
+			spyOn( $, "ajax" ).and.callFake( function( args ) {
 				args.error();
-			});
+			} );
 
-			ajaxService.POST(obj);
+			ajaxService.POST( obj );
 
-			expect(obj.fnSuccess.calls.any()).toBe(false);
-			expect(obj.fnFailure.calls.any()).toBe(true);
-		});
+			expect( obj.fnSuccess.calls.any() ).toBe( false );
+			expect( obj.fnFailure.calls.any() ).toBe( true );
+		} );
 
-		it('Should execute success callback', function(){
+		it( "Should execute success callback", function() {
 			var obj = {
-				url: ''
-				,input: ''
-				,fnSuccess: jasmine.createSpy()
-				,fnFailure: jasmine.createSpy()
+				url: ""
+				, input: ""
+				, fnSuccess: jasmine.createSpy()
+				, fnFailure: jasmine.createSpy()
 			};
 
-			spyOn($, 'ajax').and.callFake(function(args){
+			spyOn( $, "ajax" ).and.callFake( function( args ) {
 				args.success();
-			});
+			} );
 
-			ajaxService.POST(obj);
+			ajaxService.POST( obj );
 
-			expect(obj.fnSuccess.calls.any()).toBe(true);
-			expect(obj.fnFailure.calls.any()).toBe(false);
+			expect( obj.fnSuccess.calls.any() ).toBe( true );
+			expect( obj.fnFailure.calls.any() ).toBe( false );
 		});
 	});
 });

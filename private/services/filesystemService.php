@@ -1,88 +1,94 @@
 <?php
-	final class FilesystemService {
-		private static $instance;
+
+final class FilesystemService {
+	private static $instance;
 
 
-		private function __clone(){}
-		private function __construct(){}
-		
-		public static function getInstance(){
-			if (!self::$instance){
-				self::$instance = new self();
-			}
-			
-			return self::$instance;
+	private function __clone() {
+	}
+
+	private function __construct() {
+	}
+
+	public static function getInstance() {
+		if ( !self::$instance ) {
+			self::$instance = new self();
 		}
 
-		public function createFile(){
-			$response = Router::getInstanceOfClass('ResponseService', null);
-			$file = $_POST['file'];
+		return self::$instance;
+	}
 
-			if ($this->rootPathExists($file) && $this->fileDoesNotExist($file)){
-			} else {
-				$response->requestWasInvalid();
+	public function createFile() {
+		$response = Router::getInstanceOfClass( "ResponseService", NULL );
+		$file = $_POST[ "file" ];
+
+		if ( $this->rootPathExists( $file ) && $this->fileDoesNotExist( $file ) ) {
+		} else {
+			$response->requestWasInvalid();
+		}
+	}
+
+	public function fileDoesNotExist( $pathArray ) {
+		$response = Router::getInstanceOfClass( "ResponseService", NULL );
+		$response->rawData( "File Does Not Exist check unimplemented." );
+
+		return false;
+	}
+
+	public function getDirectoryStructure( $path ) {
+		$array = array();
+
+		foreach( scandir( $path ) as $key => $value ) {
+			if ( $value[ 0 ] != "." ) {
+				if ( is_dir( $path.$value ) ) {
+					$array[ $value ] = $this->getDirectoryStructure( $path.$value ."/" );
+				} else {
+					array_push( $array, $value );
+				}
 			}
 		}
 
-		public function fileDoesNotExist($pathArray){
-			$response = Router::getInstanceOfClass('ResponseService', null);
-			$response->rawData('File Does Not Exist check unimplemented.');
+		return $array;
+	}
+
+	public function readFile( $path ) {
+		$line = NULL;
+		$result = array();
+
+		if ( $objFile = @fopen( $path, "r" ) ) {
+			for ( $i = 0; $line = fgets( $objFile ); $i++ ) {
+				$result[ $i ] = $line;
+			}
+
+			fclose( $objFile );
+		}
+
+		return implode( "", $result );
+	}
+
+	private function rootPathExists( $pathArray ) {
+		if ( !is_array( $pathArray ) ) {
 			return false;
 		}
 
-		public function getDirectoryStructure($path){
-			$array = array();
-			
-			foreach(scandir($path) as $key => $value){
-				if ($value[0] != '.'){
-					if (is_dir($path.$value)){
-						$array[$value] = $this->getDirectoryStructure($path.$value.'/');
-					} else {
-						array_push($array, $value);
-					}
-				}
+		$fullPath = Config::getInstance()->getRootDirectory();
+		$pathExists = ( $pathArray[ 0 ] == "root" );
+
+		for ( $i = 0; $i < count( $pathArray ) - 1 && $pathExists; $i++ ) {
+			if ( $this->stringContainsPotentialDirectoryShift( $pathArray[ $i ], ".." ) ) {
+				$pathExists = false;
+			} else {
+				$fullPath .= $pathArray[ i ] ."/";
+				$pathExists = is_dir( $fullPath );
 			}
-			
-			return $array;
 		}
 
-		public function readFile($path){
-			$line = NULL;
-			$result = array();
-			
-			if ($objFile = @fopen($path, "r")){
-				for ($i = 0; $line = fgets($objFile); $i++){
-					$result[$i] = $line;
-				}
-				
-				fclose($objFile);
-			}
-			
-			return implode("", $result);
-		}
-
-		private function rootPathExists($pathArray){
-			if (!is_array($pathArray)){
-				return false;
-			}
-
-			$fullPath = Config::getInstance()->getRootDirectory();
-			$pathExists = ($pathArray[0] == 'root');
-
-			for ($i = 0; $i < count($pathArray) - 1 && $pathExists; $i++){
-				if ($this->stringContainsPotentialDirectoryShift($pathArray[$i], '..')){
-					$pathExists = false;
-				} else {
-					$fullPath .= $pathArray[i].'/';
-					$pathExists = is_dir($fullPath);
-				}
-			}
-
-			return $pathExists;
-		}
-
-		private function stringContainsPotentialDirectoryShift($string){
-			return strpos($string, '..');
-		}
+		return $pathExists;
 	}
+
+	private function stringContainsPotentialDirectoryShift( $string ) {
+		return strpos( $string, ".." );
+	}
+}
+
 ?>
