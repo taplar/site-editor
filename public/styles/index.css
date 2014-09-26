@@ -49,6 +49,9 @@ ul {
 .fa {
 	cursor: default;
 }
+.fa-file, .fa-folder {
+	margin-right: 4px;
+}
 .fa-power-off {
 	position: absolute;
 	top: 0;
@@ -90,17 +93,16 @@ ul {
 
 /********** MENU **********/
 .directoryStructure {
-	margin-bottom: 4px;
-	margin-left: -14px;
-	margin-top: 4px;
+	margin: 4px;
+	margin-left: -12px;
 }
 .menu {
 	position: absolute;
 	top: 0;
 	left: 0;
+	min-width: 300px;
 	min-height: 600px;
 	max-height: 99.7vh;
-	max-width: 300px;
 	height: 99.7vh;
 
 	background: rgba(16, 16, 16, 0.8);
@@ -109,12 +111,19 @@ ul {
 	font-family: 'Droid Sans Mono', monospace;
 }
 .menu .content {
+	height: auto;
 	overflow: auto;
 	padding-right: 6px;
 }
 .menu .control {
 	background-color: rgba(128, 128, 128, .5);
 	color: black;
+	font-size: 24px;
+	font-weight: bold;
+	height: 25px;
+
+	padding-top: 3px;
+	padding-bottom: 3px;
 }
 
 /********** MESSAGES **********/

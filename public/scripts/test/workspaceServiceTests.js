@@ -259,6 +259,7 @@ describe( "WorkspaceService", function() {
 	describe( "BuildMenu", function() {
 		beforeEach( function() {
 			$( "body" ).append($( "<div>", { class: "container" } ) );
+			spyOn( workspaceService, "addFolderToMenu" );
 		} );
 
 		afterEach( function() {
@@ -273,11 +274,11 @@ describe( "WorkspaceService", function() {
 			var response = {
 				"responseCode": "AUTHORIZED"
 				,"files": {
-					"0": "file0.0"
-					,"1": "file0.1"
+					"0": "file0.1"
+					,"1": "file0.2"
 					,"folder1": {
 						"0": "file1.1"
-						,"1": "file2.1"
+						,"1": "file1.2"
 					}
 					,"folder2": {
 						"0": "file2.1"
@@ -292,7 +293,86 @@ describe( "WorkspaceService", function() {
 			workspaceService.processDisplayWorkspace( minimalWorkspace );
 			workspaceService.processDisplayMenu( JSON.stringify( response ) );
 
-			console.log( $( ".container" ).html() );
+			var $node = $( ".container .menu" );
+
+			expect( $node.size() ).toBe( 1 );
+			expect( $node.children().size() ).toBe( 2 );
+			$node = $node.children().last();
+			expect( $node.hasClass( "control" ) ).toBe( true );
+			expect( $node.hasClass( "center" ) ).toBe( true );
+			expect( $node.html() ).toBe( "^" );
+			$node = $node.parent().children().first();
+			expect( $node.hasClass( "content" ) ).toBe( true );
+			$node = $node.children().first();
+			expect( $node.size() ).toBe( 1 );
+			expect( $node.hasClass( "directoryStructure" ) ).toBe( true );
+			expect( $node.children().size() ).toBe( 1 );
+			$node = $node.children().first();
+			expect( $node.children().size() ).toBe( 3 );
+			$node = $node.children().first();
+			expect( $node.hasClass( "fa-folder" ) ).toBe( true );
+			expect( $node.next().html() ).toBe( "root" );
+
+			expect( workspaceService.addFolderToMenu.calls.any() ).toBe( true );
+		} );
+	} );
+
+	describe( "AddFolderToMenu", function() {
+		beforeEach( function() {
+			jsonObject = {};
+		} );
+
+		it( "Should add a single file", function() {
+			var $list = $( "<ul>" );
+			jsonObject[ "0" ] = "file1";
+
+			workspaceService.addFolderToMenu( jsonObject, $list );
+
+			expect( $list.find( "li:first" ).children().size() ).toBe( 2 );
+			expect( $list.find( "li:first i.fa-file" ).size() ).toBe( 1 );
+			expect( $list.find( "li:first span" ).html() ).toBe( "file1" );
+		} );
+
+		it( "Should add a single folder", function() {
+			var $list = $( "<ul>" );
+			jsonObject[ "folder1" ] = {};
+
+			spyOn( workspaceService, "addFolderToMenu" ).and.callThrough();
+
+			workspaceService.addFolderToMenu( jsonObject, $list );
+
+			expect( $list.find( "li:first" ).children().size() ).toBe( 3 );
+			expect( $list.find( "li:first i.fa-folder" ).size() ).toBe( 1 );
+			expect( $list.find( "li:first i.fa-folder" ).hasClass( "subfolder" ) ).toBe( true );
+			expect( $list.find( "li:first span" ).html() ).toBe( "folder1" );
+			expect( $list.find( "li:first ul" ).size() ).toBe( 1 );
+
+			var secondCallArguments = workspaceService.addFolderToMenu.calls.argsFor( 1 );
+
+			expect( secondCallArguments[0][0] ).toEqual( jsonObject["folder1"][0] );
+			expect( secondCallArguments[1][0] ).toEqual( $list.find( "li:first ul" )[0] );
+		} );
+
+		it( "Should add files below folders", function() {
+			var $list = $( "<ul>" );
+			jsonObject[ "folder1" ] = {};
+			jsonObject[ "0" ] = "file0";
+			jsonObject[ "1" ] = "file1";
+
+			workspaceService.addFolderToMenu( jsonObject, $list );
+
+			expect( $list.find( "li:first" ).children().size() ).toBe( 3 );
+			expect( $list.find( "li:first i.fa-folder" ).size() ).toBe( 1 );
+			expect( $list.find( "li:first span" ).html() ).toBe( "folder1" );
+			expect( $list.find( "li:first ul" ).size() ).toBe( 1 );
+
+			expect( $list.find( "li:nth(1)" ).children().size() ).toBe( 2 );
+			expect( $list.find( "li:nth(1) i.fa-file" ).size() ).toBe( 1 );
+			expect( $list.find( "li:nth(1) span" ).html() ).toBe( "file0" );
+
+			expect( $list.find( "li:nth(2)" ).children().size() ).toBe( 2 );
+			expect( $list.find( "li:nth(2) i.fa-file" ).size() ).toBe( 1 );
+			expect( $list.find( "li:nth(2) span" ).html() ).toBe( "file1" );
 		} );
 	} );
 } );
