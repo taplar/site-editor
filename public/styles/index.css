@@ -15,8 +15,18 @@ ul {
 	list-style-type: none;
 	padding-left: 16px;
 }
-.busy { cursor: wait; }
-.center { text-align: center; }
+
+/********** ALIGNMENT **********/
+.center {
+	text-align: center;
+}
+
+/********** COLORS **********/
+.yellow {
+	color: rgb(255, 255, 0);
+}
+
+/********** CONTAINERS **********/
 .container, .prompt-container {
 	position: absolute;
 	top: 0;
@@ -29,26 +39,16 @@ ul {
 	height: 100vh;
 	width: 100vw;
 }
-.directoryStructure {
-	margin-bottom: 4px;
-	margin-left: -14px;
-	margin-top: 4px;
+
+/********** CURSOR **********/
+.busy {
+	cursor: wait;
 }
-.error, .info, .success {
-	min-width: 250px;
-	overflow: hidden;
-	transition: top 2s, right 2s;
-	
-	position: absolute;
-	top: 35%;
-	right: 50%;
-	margin-top: -7px;
-	margin-right: -125px;
-	
-	background-color: rgb(255, 0, 0);
-	padding: 6px;
+
+/********** FONT AWESOME **********/
+.fa {
+	cursor: default;
 }
-.fa { cursor: default; }
 .fa-power-off {
 	position: absolute;
 	top: 0;
@@ -56,15 +56,44 @@ ul {
 
 	padding: 4px;
 }
-.fa-power-off:hover { color: rgb(255, 0, 0); }
-.file-icon, .folder-icon { margin-right: 4px; }
-.file-new-icon { margin-left: 4px; }
+.fa-power-off:hover {
+	color: rgb(255, 0, 0);
+}
+.file-icon, .folder-icon {
+	margin-right: 4px;
+}
+.file-new-icon {
+	margin-left: 4px;
+}
 .file-new-icon .fa-plus {
 	color: rgb(0, 0, 0);
 	font-size: 0.7em;
 	margin-left: -8px;
 }
-.info { background-color: rgb(255, 255, 0); }
+
+/********** LAYERS **********/
+.logout {
+	z-index: 104;
+}
+.error, .info, .success {
+	z-index: 103;
+}
+.prompt-container {
+	z-index: 102;
+}
+.menu {
+	z-index: 101;
+}
+.container {
+	z-index: 100;
+}
+
+/********** MENU **********/
+.directoryStructure {
+	margin-bottom: 4px;
+	margin-left: -14px;
+	margin-top: 4px;
+}
 .menu {
 	position: absolute;
 	top: 0;
@@ -87,13 +116,42 @@ ul {
 	background-color: rgba(128, 128, 128, .5);
 	color: black;
 }
+
+/********** MESSAGES **********/
+.error, .info, .success {
+	min-width: 250px;
+	overflow: hidden;
+	transition: top 2s, right 2s;
+	
+	position: absolute;
+	top: 35%;
+	right: 50%;
+	margin-top: -7px;
+	margin-right: -125px;
+	
+	padding: 6px;
+	border-radius: 6px;
+}
+.error {
+	background-color: rgba(255, 0, 0, 0.5);
+}
+.info {
+	background-color: rgba(255, 255, 0, 0.5);
+}
+.success {
+	background-color: rgba(0, 128, 0, 0.5);
+}
+
+/********** PROMPT **********/
 .prompt {
 	background: rgba(16, 16, 16, 0.65);
 	border: 1px solid #000;
 	border-radius: 12px;
 	padding: 6px;
 }
-.prompt > .content { margin-bottom: 36px; }
+.prompt > .content {
+	margin-bottom: 36px;
+}
 .prompt .input input {
 	background: rgba(0, 0, 0, 0.5);
 	border-width: 0;
@@ -110,17 +168,6 @@ ul {
 	font-size: 30px;
 	margin-bottom: 12px;
 }
-.success { background-color: rgb(0, 128, 0); }
-.yellow { color: rgb(255, 255, 0); }
-
-.container { z-index: 100; }
-.menu { z-index: 101; }
-.prompt-container { z-index: 102; }
-.error, .info, .success { z-index: 103; }
-.logout { z-index: 104; }
-
-
-
 
 
 

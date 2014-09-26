@@ -1,216 +1,275 @@
-describe('WorkspaceService', function(){
-	beforeEach(function(){
+describe( "WorkspaceService", function() {
+	beforeEach( function() {
 		ajaxService = AjaxService.getInstance();
 		authService = AuthService.getInstance();
 		keyService = KeyService.getInstance();
 		loggingService = LoggingService.getInstance();
 
-		spyOn(loggingService, 'unrecoverableError');
-		spyOn(AjaxService, 'getInstance').and.returnValue(ajaxService);
-		spyOn(AuthService, 'getInstance').and.returnValue(authService);
-		spyOn(KeyService, 'getInstance').and.returnValue(keyService);
-		spyOn(LoggingService, 'getInstance').and.returnValue(loggingService);
+		spyOn( loggingService, "unrecoverableError" );
+		spyOn( AjaxService, "getInstance" ).and.returnValue( ajaxService );
+		spyOn( AuthService, "getInstance" ).and.returnValue( authService );
+		spyOn( KeyService, "getInstance" ).and.returnValue( keyService );
+		spyOn( LoggingService, "getInstance" ).and.returnValue( loggingService );
 
 		workspaceService = WorkspaceService.getInstance();
-	});
+	} );
 
-	describe('DisplayWorkspace', function(){
-		var expectations = function(jsonObject){
-			expect(loggingService.unrecoverableError.calls.any()).toBe(jsonObject.unrecoverableError);
-			expect(workspaceService.processDisplayWorkspace.calls.any()).toBe(jsonObject.processDisplayWorkspace);
+	describe( "DisplayWorkspace", function() {
+		var expectations = function( jsonObject ) {
+			expect( loggingService.unrecoverableError.calls.any() ).toBe( jsonObject.unrecoverableError );
+			expect( workspaceService.processDisplayWorkspace.calls.any() ).toBe( jsonObject.processDisplayWorkspace );
 
-			var arguments = ajaxService.GET.calls.argsFor(0)[0];
+			var arguments = ajaxService.GET.calls.argsFor( 0 )[ 0 ];
 
-			expect(arguments.url).toEqual('public/views/workspace.html');
+			expect( arguments.url ).toEqual( "public/views/workspace.html" );
 		};
 
-		beforeEach(function(){
-			spyOn(workspaceService, 'processDisplayWorkspace');
-		});
+		beforeEach( function() {
+			spyOn( workspaceService, "processDisplayWorkspace" );
+		} );
 
-		it('Should log unrecoverable error on failure', function(){
-			spyOn(ajaxService, 'GET').and.callFake(function(args){
+		it( "Should log unrecoverable error on failure", function() {
+			spyOn( ajaxService, "GET" ).and.callFake( function(args) {
 				args.fnFailure();
-			});
+			} );
 
 			workspaceService.displayWorkspace();
 
-			expectations({ unrecoverableError: true, processDisplayWorkspace: false });
-		});
+			expectations({
+				unrecoverableError: true,
+				processDisplayWorkspace: false
+			});
+		} );
 
-		it('Should process response on success', function(){
-			spyOn(ajaxService, 'GET').and.callFake(function(args){
+		it( "Should process response on success", function() {
+			spyOn( ajaxService, "GET" ).and.callFake( function( args ) {
 				args.fnSuccess();
-			});
+			} );
 
 			workspaceService.displayWorkspace();
 
-			expectations({ unrecoverableError: false, processDisplayWorkspace: true });
-		});
-	});
+			expectations({
+				unrecoverableError: false,
+				processDisplayWorkspace: true
+			});
+		} );
+	} );
 
-	describe('ProcessDisplayWorkspace', function(){
-		var expectations = function(jsonObject){
-			expect(loggingService.unrecoverableError.calls.any()).toBe(jsonObject.unrecoverableError);
-			expect($('.container').html()).toEqual(jsonObject.containerHtml);
+	describe( "ProcessDisplayWorkspace", function() {
+		var expectations = function( jsonObject ) {
+			expect( loggingService.unrecoverableError.calls.any() ).toBe( jsonObject.unrecoverableError );
+			expect( $( ".container" ).html() ).toEqual( jsonObject.containerHtml );
 		};
 
-		beforeEach(function(){
-			$('body').append('<div class="container"></div>');
-		});
+		beforeEach( function() {
+			$( "body" ).append($( "<div>", { class: "container" } ) );
+		} );
 
-		afterEach(function(){
-			$('.container').remove();
-		});
+		afterEach( function() {
+			$( ".container" ).remove();
+		} );
 
-		it('Should throw error if missing data', function(){
+		it( "Should throw error if missing data", function() {
 			workspaceService.processDisplayWorkspace();
 
-			expectations({ unrecoverableError: true, containerHtml: '' });
+			expectations({
+				unrecoverableError: true,
+				containerHtml: ""
+			});
 		});
 
-		it('Should clear page and build menu and logout options', function(){
-			var minimalWorkspace = [
-				'<i class="menuIndicator"></i>'
-				,'<i class="logout"></i>'
-			];
+		it( "Should clear page and build menu and logout options", function() {
+			var minimalWorkspace = $( "<span>" )
+				.append( $( "<i>", { class: "menuIndicator" } ) )
+				.append( $( "<i>", { class: "logout"} ) ).html();
 
-			spyOn(authService, 'actionLogout');
-			spyOn(workspaceService, 'displayMenu');
+			spyOn( authService, "actionLogout" );
+			spyOn( workspaceService, "displayMenu" );
 
-			workspaceService.processDisplayWorkspace(minimalWorkspace.join(''));
+			workspaceService.processDisplayWorkspace( minimalWorkspace );
 
-			expectations({ unrecoverableError: false, containerHtml: minimalWorkspace.join('') });
+			expectations({
+				unrecoverableError: false,
+				containerHtml: minimalWorkspace
+			});
 
-			expect(workspaceService.displayMenu.calls.any()).toBe(false);
-			$('.container .menuIndicator').mouseover();
-			expect(workspaceService.displayMenu.calls.any()).toBe(true);
+			expect( workspaceService.displayMenu.calls.any() ).toBe( false );
+			$( ".container .menuIndicator" ).mouseover();
+			expect( workspaceService.displayMenu.calls.any() ).toBe( true );
 
-			expect(authService.actionLogout.calls.any()).toBe(false);
-			$('.container .logout').click();
-			expect(authService.actionLogout.calls.any()).toBe(true);
-		});
-	});
+			expect( authService.actionLogout.calls.any() ).toBe( false );
+			$( ".container .logout" ).click();
+			expect( authService.actionLogout.calls.any() ).toBe( true );
+		} );
+	} );
 
-	describe('DisplayMenu', function(){
-		var expectations = function(jsonObject){
-			expect(loggingService.unrecoverableError.calls.any()).toBe(false);
-			expect(loggingService.recoverableError.calls.any()).toBe(jsonObject.recoverableError);
-			expect(workspaceService.processDisplayMenu.calls.any()).toBe(jsonObject.processDisplayMenu);
+	describe( "DisplayMenu", function() {
+		var expectations = function( jsonObject ) {
+			expect( loggingService.unrecoverableError.calls.any() ).toBe( false );
+			expect( loggingService.recoverableError.calls.any() ).toBe( jsonObject.recoverableError );
+			expect( workspaceService.processDisplayMenu.calls.any() ).toBe( jsonObject.processDisplayMenu );
 		};
 
-		beforeEach(function(){
-			spyOn(loggingService, "recoverableError");
-			spyOn(workspaceService, "processDisplayMenu");
-		});
+		beforeEach( function() {
+			spyOn( loggingService, "recoverableError" );
+			spyOn( workspaceService, "processDisplayMenu" );
+		} );
 
-		it('Should log recoverable error on failure', function(){
-			spyOn(ajaxService, 'GET').and.callFake(function(args){
+		it( "Should log recoverable error on failure", function() {
+			spyOn( ajaxService, "GET" ).and.callFake( function( args ) {
 				args.fnFailure();
-			});
+			} );
 
 			workspaceService.displayMenu();
 
-			expectations({ recoverableError: true, processDisplayMenu: false });
-		});
+			expectations({
+				recoverableError: true,
+				processDisplayMenu: false
+			});
+		} );
 
-		it('Should process response on success', function(){
-			spyOn(ajaxService, 'GET').and.callFake(function(args){
+		it( "Should process response on success", function() {
+			spyOn( ajaxService, "GET" ).and.callFake( function( args ) {
 				args.fnSuccess();
-			});
+			} );
 
 			workspaceService.displayMenu();
 
-			expectations({ recoverableError: false, processDisplayMenu: true });
-		});
-	});
+			expectations({
+				recoverableError: false,
+				processDisplayMenu: true
+			});
+		} );
+	} );
 
-	describe('ProcessDisplayMenu', function(){
-		var expectations = function(jsonObject){
-			expect(loggingService.unrecoverableError.calls.any()).toBe(false);
-			expect(loggingService.recoverableError.calls.any()).toBe(jsonObject.recoverableError);
-			expect(authService.displayLogin.calls.any()).toBe(jsonObject.displayLogin);
+	describe( "ProcessDisplayMenu", function() {
+		var expectations = function( jsonObject ) {
+			expect( loggingService.unrecoverableError.calls.any() ).toBe( false );
+			expect( loggingService.recoverableError.calls.any() ).toBe( jsonObject.recoverableError );
+			expect( authService.displayLogin.calls.any() ).toBe( jsonObject.displayLogin );
 
-			if (jsonObject.displayLogin){
-				var arguments = loggingService.displayInfo.calls.argsFor(0);
+			if ( jsonObject.displayLogin ) {
+				var arguments = loggingService.displayInfo.calls.argsFor( 0 );
 
-				expect(arguments[0]).toEqual('Session Expired');
+				expect( arguments[ 0 ] ).toEqual( "Session Expired" );
 			}
 
-			expect(workspaceService.buildMenu.calls.any()).toBe(jsonObject.buildMenu);
+			expect( workspaceService.buildMenu.calls.any() ).toBe( jsonObject.buildMenu );
 		};
 
-		beforeEach(function(){
-			spyOn(authService, 'displayLogin');
-			spyOn(loggingService, 'displayInfo');
-			spyOn(loggingService, 'recoverableError');
-			spyOn(workspaceService, 'buildMenu');
-		});
+		beforeEach( function() {
+			spyOn( authService, "displayLogin" );
+			spyOn( loggingService, "displayInfo" );
+			spyOn( loggingService, "recoverableError" );
+			spyOn( workspaceService, "buildMenu" );
+			jsonObject = { files: [] };
+		} );
 
-		it('Should throw error if data is missing', function(){
+		it( "Should throw error if data is missing", function() {
 			workspaceService.processDisplayMenu();
 
-			expectations({ recoverableError: true, displayLogin: false, buildMenu: false });
-		});
+			expectations({
+				recoverableError: true,
+				displayLogin: false,
+				buildMenu: false
+			});
+		} );
 
-		it('Should throw error if data is not json parsable', function(){
-			workspaceService.processDisplayMenu("not json");
+		it( "Should throw error if data is not json parsable", function() {
+			workspaceService.processDisplayMenu( "not json" );
 
-			expectations({ recoverableError: true, displayLogin: false, buildMenu: false });
-		});
+			expectations({
+				recoverableError: true,
+				displayLogin: false,
+				buildMenu: false
+			});
+		} );
 
-		it('Should throw error if response code not returned', function(){
-			workspaceService.processDisplayMenu("{}");
+		it( "Should throw error if response code not returned", function() {
+			workspaceService.processDisplayMenu( JSON.stringify( jsonObject ) );
 
-			expectations({ recoverableError: true, displayLogin: false, buildMenu: false });
-		});
+			expectations({
+				recoverableError: true,
+				displayLogin: false,
+				buildMenu: false
+			});
+		} );
 
-		it('Should throw error if internal error occured', function(){
-			workspaceService.processDisplayMenu('{"responseCode":"INTERNAL_ERROR", "files":[]}');
+		it( "Should throw error if internal error occured", function() {
+			jsonObject.responseCode = "INTERNAL_ERROR";
 
-			expectations({ recoverableError: true, displayLogin: false, buildMenu: false });
-		});
+			workspaceService.processDisplayMenu( JSON.stringify( jsonObject ) );
 
-		it('Should throw error if invalid request occured', function(){
-			workspaceService.processDisplayMenu('{"responseCode":"INVALID_REQUEST", "files":[]}');
+			expectations({
+				recoverableError: true,
+				displayLogin: false,
+				buildMenu: false
+			});
+		} );
 
-			expectations({ recoverableError: true, displayLogin: false, buildMenu: false });
-		});
+		it( "Should throw error if invalid request occured", function() {
+			jsonObject.responseCode = "INVALID_REQUEST";
 
-		it('Should throw error if unexpected response code returned', function(){
-			workspaceService.processDisplayMenu('{"responseCode":"CHUMBAWUMBA", "files":[]}');
+			workspaceService.processDisplayMenu( JSON.stringify( jsonObject ) );
 
-			expectations({ recoverableError: true, displayLogin: false, buildMenu: false });
-		});
+			expectations({
+				recoverableError: true,
+				displayLogin: false,
+				buildMenu: false
+			});
+		} );
 
-		it('Should display login if unauthorized', function(){
-			workspaceService.processDisplayMenu('{"responseCode":"UNAUTHORIZED", "files":[]}');
+		it( "Should throw error if unexpected response code returned", function() {
+			jsonObject.responseCode = "CHUMBAWUMBA";
 
-			expectations({ recoverableError: false, displayLogin: true, buildMenu: false });
-		});
+			workspaceService.processDisplayMenu( JSON.stringify( jsonObject ) );
 
-		it('Should build menu if authorized', function(){
-			workspaceService.processDisplayMenu('{"responseCode":"AUTHORIZED", "files":[]}');
+			expectations({
+				recoverableError: true,
+				displayLogin: false,
+				buildMenu: false
+			});
+		} );
 
-			expectations({ recoverableError: false, displayLogin: false, buildMenu: true });
-		});
-	});
+		it( "Should display login if unauthorized", function() {
+			jsonObject.responseCode = "UNAUTHORIZED";
 
-	describe('BuildMenu', function(){
-		beforeEach(function(){
-			$('body').append('<div class="container"></div>');
-		});
+			workspaceService.processDisplayMenu( JSON.stringify( jsonObject ) );
 
-		afterEach(function(){
-			$('.container').remove();
-		});
+			expectations({
+				recoverableError: false,
+				displayLogin: true,
+				buildMenu: false
+			});
+		} );
 
-		it('Should display menu', function(){
-			var minimalWorkspace = [
-				'<i class="menuIndicator"></i>'
-				,'<i class="logout"></i>'
-			];
-			
+		it( "Should build menu if authorized", function() {
+			jsonObject.responseCode = "AUTHORIZED";
+
+			workspaceService.processDisplayMenu( JSON.stringify( jsonObject ) );
+
+			expectations({
+				recoverableError: false,
+				displayLogin: false,
+				buildMenu: true
+			});
+		} );
+	} );
+
+	describe( "BuildMenu", function() {
+		beforeEach( function() {
+			$( "body" ).append($( "<div>", { class: "container" } ) );
+		} );
+
+		afterEach( function() {
+			$( ".container" ).remove();
+		} );
+
+		it( "Should display menu", function() {
+			var minimalWorkspace = $( "<span>" )
+				.append( $( "<i>", { class: "menuIndicator" } ) )
+				.append( $( "<i>", { class: "logout"} ) ).html();
+
 			var response = {
 				"responseCode": "AUTHORIZED"
 				,"files": {
@@ -230,13 +289,13 @@ describe('WorkspaceService', function(){
 				}
 			};
 
-			workspaceService.processDisplayWorkspace(minimalWorkspace.join(''));
-			workspaceService.processDisplayMenu(JSON.stringify(response));
+			workspaceService.processDisplayWorkspace( minimalWorkspace );
+			workspaceService.processDisplayMenu( JSON.stringify( response ) );
 
-			console.log($('.container').html());
-		});
-	});
-});
+			console.log( $( ".container" ).html() );
+		} );
+	} );
+} );
 
 
 
