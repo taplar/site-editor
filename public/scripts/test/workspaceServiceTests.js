@@ -295,25 +295,51 @@ describe( "WorkspaceService", function() {
 
 			var $node = $( ".container .menu" );
 
-			expect( $node.size() ).toBe( 1 );
-			expect( $node.children().size() ).toBe( 2 );
+			expect( $node.length ).toBe( 1 );
+			expect( $node.children().length ).toBe( 2 );
 			$node = $node.children().last();
 			expect( $node.hasClass( "control" ) ).toBe( true );
 			expect( $node.hasClass( "center" ) ).toBe( true );
-			expect( $node.html() ).toBe( "^" );
+			expect( $node.children().length ).toBe( 1 );
+			expect( $node.children().first().hasClass( "fa-angle-double-up" ) ).toBe( true );
 			$node = $node.parent().children().first();
 			expect( $node.hasClass( "content" ) ).toBe( true );
 			$node = $node.children().first();
-			expect( $node.size() ).toBe( 1 );
+			expect( $node.length ).toBe( 1 );
 			expect( $node.hasClass( "directoryStructure" ) ).toBe( true );
-			expect( $node.children().size() ).toBe( 1 );
+			expect( $node.children().length ).toBe( 1 );
 			$node = $node.children().first();
-			expect( $node.children().size() ).toBe( 3 );
+			expect( $node.children().length ).toBe( 3 );
 			$node = $node.children().first();
 			expect( $node.hasClass( "fa-folder" ) ).toBe( true );
 			expect( $node.next().html() ).toBe( "root" );
 
 			expect( workspaceService.addFolderToMenu.calls.any() ).toBe( true );
+		} );
+
+		it( "Close indicator should remove menu", function() {
+			var minimalWorkspace = $( "<span>" )
+				.append( $( "<i>", { class: "menuIndicator" } ) )
+				.append( $( "<i>", { class: "logout"} ) ).html();
+
+			var response = {
+				"responseCode": "AUTHORIZED"
+				,"files": {
+					"0": "file0.1"
+					,"1": "file0.2"
+				}
+			};
+
+			workspaceService.processDisplayWorkspace( minimalWorkspace );
+			workspaceService.processDisplayMenu( JSON.stringify( response ) );
+
+			var $node = $( ".container .menu" );
+
+			expect( $node.length ).toBe( 1 );
+
+			$node.find( ".control" ).click();
+
+			expect( $( ".container .menu" ).length ).toBe( 0 );
 		} );
 	} );
 
@@ -328,8 +354,8 @@ describe( "WorkspaceService", function() {
 
 			workspaceService.addFolderToMenu( jsonObject, $list );
 
-			expect( $list.find( "li:first" ).children().size() ).toBe( 2 );
-			expect( $list.find( "li:first i.fa-file" ).size() ).toBe( 1 );
+			expect( $list.find( "li:first" ).children().length ).toBe( 2 );
+			expect( $list.find( "li:first i.fa-file" ).length ).toBe( 1 );
 			expect( $list.find( "li:first span" ).html() ).toBe( "file1" );
 		} );
 
@@ -341,11 +367,11 @@ describe( "WorkspaceService", function() {
 
 			workspaceService.addFolderToMenu( jsonObject, $list );
 
-			expect( $list.find( "li:first" ).children().size() ).toBe( 3 );
-			expect( $list.find( "li:first i.fa-folder" ).size() ).toBe( 1 );
+			expect( $list.find( "li:first" ).children().length ).toBe( 3 );
+			expect( $list.find( "li:first i.fa-folder" ).length ).toBe( 1 );
 			expect( $list.find( "li:first i.fa-folder" ).hasClass( "subfolder" ) ).toBe( true );
 			expect( $list.find( "li:first span" ).html() ).toBe( "folder1" );
-			expect( $list.find( "li:first ul" ).size() ).toBe( 1 );
+			expect( $list.find( "li:first ul" ).length ).toBe( 1 );
 
 			var secondCallArguments = workspaceService.addFolderToMenu.calls.argsFor( 1 );
 
@@ -361,17 +387,17 @@ describe( "WorkspaceService", function() {
 
 			workspaceService.addFolderToMenu( jsonObject, $list );
 
-			expect( $list.find( "li:first" ).children().size() ).toBe( 3 );
-			expect( $list.find( "li:first i.fa-folder" ).size() ).toBe( 1 );
+			expect( $list.find( "li:first" ).children().length ).toBe( 3 );
+			expect( $list.find( "li:first i.fa-folder" ).length ).toBe( 1 );
 			expect( $list.find( "li:first span" ).html() ).toBe( "folder1" );
-			expect( $list.find( "li:first ul" ).size() ).toBe( 1 );
+			expect( $list.find( "li:first ul" ).length ).toBe( 1 );
 
-			expect( $list.find( "li:nth(1)" ).children().size() ).toBe( 2 );
-			expect( $list.find( "li:nth(1) i.fa-file" ).size() ).toBe( 1 );
+			expect( $list.find( "li:nth(1)" ).children().length ).toBe( 2 );
+			expect( $list.find( "li:nth(1) i.fa-file" ).length ).toBe( 1 );
 			expect( $list.find( "li:nth(1) span" ).html() ).toBe( "file0" );
 
-			expect( $list.find( "li:nth(2)" ).children().size() ).toBe( 2 );
-			expect( $list.find( "li:nth(2) i.fa-file" ).size() ).toBe( 1 );
+			expect( $list.find( "li:nth(2)" ).children().length ).toBe( 2 );
+			expect( $list.find( "li:nth(2) i.fa-file" ).length ).toBe( 1 );
 			expect( $list.find( "li:nth(2) span" ).html() ).toBe( "file1" );
 		} );
 	} );

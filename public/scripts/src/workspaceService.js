@@ -52,6 +52,9 @@ var WorkspaceService = {
 
 				$( ".container .menu" ).remove();
 				$( ".container" ).append($menu);
+				$( ".container .menu .control" ).click( function() {
+					$( ".container .menu" ).remove();
+				} );
 			}
 			, displayMenu: function() {
 				ajaxService.GET({
