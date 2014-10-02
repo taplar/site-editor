@@ -295,21 +295,16 @@ describe( "WorkspaceService", function() {
 
 			var $node = $( ".container .menu" );
 
-			expect( $node.length ).toBe( 1 );
-			expect( $node.children().length ).toBe( 2 );
-			$node = $node.children().last();
-			expect( $node.hasClass( "control" ) ).toBe( true );
+			$node = $node.find( ".search" );
+			expect( $node.find( "div > div > .fa-search" ).length > 0 ).toBe( true );
+			expect( $node.find( "div > div > .pattern" ).length > 0 ).toBe( true );
+			$node = $node.parent().find( ".control" );
 			expect( $node.hasClass( "center" ) ).toBe( true );
-			expect( $node.children().length ).toBe( 1 );
 			expect( $node.children().first().hasClass( "fa-angle-double-up" ) ).toBe( true );
-			$node = $node.parent().children().first();
-			expect( $node.hasClass( "content" ) ).toBe( true );
+			$node = $node.parent().find( ".content" );
 			$node = $node.children().first();
-			expect( $node.length ).toBe( 1 );
 			expect( $node.hasClass( "directoryStructure" ) ).toBe( true );
-			expect( $node.children().length ).toBe( 1 );
 			$node = $node.children().first();
-			expect( $node.children().length ).toBe( 3 );
 			$node = $node.children().first();
 			expect( $node.hasClass( "fa-folder" ) ).toBe( true );
 			expect( $node.next().html() ).toBe( "root" );

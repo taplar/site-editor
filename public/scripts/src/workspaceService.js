@@ -32,8 +32,20 @@ var WorkspaceService = {
 			}
 			, buildMenu: function( jsonObject ) {
 				var $menu = $( "<div> ", { class: "menu flexbox-v" } )
+					.append( $( "<div>", { class: "search" } ) )
 					.append( $( "<div>", { class: "content flexible-v" } ) )
 					.append( $( "<div>", { class: "control center inflexible" } ) );
+
+				$menu.find( ".search" )
+					.append( $( "<div>" ) )
+					.find( ":last-child" )
+						.append( $( "<div>", { class: "search-container" } ) )
+						.find( "> :last-child" )
+							.append( $( "<i>", { class: "fa fa-search" } ) )
+							.end()
+						.append( $( "<div>", { class: "pattern-container" } ) )
+						.find( "> :last-child" )
+							.append( $( "<input>", { class: "pattern" } ) );
 
 				$menu.find( ".content" )
 					.append( $( "<ul>", { class: "directoryStructure" } ));
