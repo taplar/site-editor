@@ -362,9 +362,9 @@ describe( "WorkspaceService", function() {
 
 			workspaceService.addFolderToMenu( jsonObject, $list );
 
-			expect( $list.find( "li:first" ).children().length ).toBe( 3 );
-			expect( $list.find( "li:first i.fa-folder" ).length ).toBe( 1 );
-			expect( $list.find( "li:first i.fa-folder" ).hasClass( "subfolder" ) ).toBe( true );
+			expect( $list.find( "li:first" ).children().length ).toBe( 4 );
+			expect( $list.find( "li:first i.fa-folder" ).length ).toBe( 2 );
+			expect( $list.find( "li:first i.fa-folder:first" ).hasClass( "subfolder" ) ).toBe( true );
 			expect( $list.find( "li:first span" ).html() ).toBe( "folder1" );
 			expect( $list.find( "li:first ul" ).length ).toBe( 1 );
 
@@ -382,8 +382,8 @@ describe( "WorkspaceService", function() {
 
 			workspaceService.addFolderToMenu( jsonObject, $list );
 
-			expect( $list.find( "li:first" ).children().length ).toBe( 3 );
-			expect( $list.find( "li:first i.fa-folder" ).length ).toBe( 1 );
+			expect( $list.find( "li:first" ).children().length ).toBe( 4 );
+			expect( $list.find( "li:first i.fa-folder" ).length ).toBe( 2 );
 			expect( $list.find( "li:first span" ).html() ).toBe( "folder1" );
 			expect( $list.find( "li:first ul" ).length ).toBe( 1 );
 

@@ -76,6 +76,17 @@ input:focus, select:focus, textarea:focus, button:focus {
 	font-size: 0.7em;
 	margin-left: -8px;
 }
+.new-folder {
+	margin-left: 4px;
+}
+.new-folder .fa-plus {
+	position: relative;
+	left: -13px;
+	top: -1px;
+
+	color: rgb(0, 0, 0);
+	font-size: 8px;
+}
 
 /********** LAYERS **********/
 .logout {

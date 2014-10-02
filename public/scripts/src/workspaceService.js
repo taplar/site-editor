@@ -65,6 +65,11 @@ var WorkspaceService = {
 						$( "<li>" )
 							.append( $("<i>", { class: "fa fa-folder subfolder" } ) )
 							.append( $( "<span>", { html: key } ) )
+							.append( $( "<span>", { class: "new-folder" } ) )
+							.find( ".new-folder" )
+								.append( $( "<i>", { class: "fa fa-folder" } ) )
+								.append( $( "<i>", { class: "fa fa-plus" } ) )
+							.end()
 							.append( $sublist )
 							.appendTo( $list );
 
@@ -108,7 +113,12 @@ var WorkspaceService = {
 					.append( $( "<li>", { class: "root" } ) )
 					.find( ":last-child" )
 						.append( $( "<i>", { class: "fa fa-folder" } ) )
-						.append( "<span>root</span>" )
+						.append( $( "<span>", { html: "root" } ) )
+						.append( $( "<span>", { class: "new-folder" } ) )
+						.find( ".new-folder" )
+							.append( $( "<i>", { class: "fa fa-folder" } ) )
+							.append( $( "<i>", { class: "fa fa-plus" } ) )
+						.end()
 						.append( $( "<ul>" ) );
 
 				workspaceService.addFolderToMenu( jsonObject, $menu.find( ".directoryStructure li ul" ) );
