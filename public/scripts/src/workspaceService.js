@@ -6,7 +6,36 @@ var WorkspaceService = {
 		var loggingService = LoggingService.getInstance();
 
 		var workspaceService = {
-			addFolderToMenu: function( jsonObject, $list ) {
+			actionFilterMenu: function( event ) {
+				var $filter = $(this);
+				var pattern = $filter.val().trim().replace( /[%*]/g, "[\\S]*" ).replace( /[_]/g, "[\\S]" );
+				var $menu = $( ".container .menu .content .directoryStructure .root > ul" );
+
+				try {
+					var matcher = new RegExp( pattern );
+
+					$menu.find( "li" ).show();
+
+					if ( pattern.length > 0 ) {
+						$menu.find( "li" ).hide();
+
+						$menu.find( ".fa-file" ).next().each( function() {
+							if ( matcher.test( $( this ).html() ) ) {
+								var $parent = $( this ).parent();
+
+								do {
+									$parent.show();
+
+									$parent = $parent.parent().parent();
+								} while ( $parent.prop( "tagName" ) == "LI" );
+							}
+						} );
+					}
+				} catch ( e ) {
+					$menu.find( "li" ).hide();
+				}
+			}
+			, addFolderToMenu: function( jsonObject, $list ) {
 				for ( key in jsonObject ) {
 					if ( isNaN( key ) ) {
 						var $sublist = $( "<ul>" );
@@ -54,7 +83,7 @@ var WorkspaceService = {
 					.append( $( "<i>", { class: "fa fa-angle-double-up" } ));
 
 				$menu.find( ".directoryStructure" )
-					.append( $( "<li>" ) )
+					.append( $( "<li>", { class: "root" } ) )
 					.find( ":last-child" )
 						.append( $( "<i>", { class: "fa fa-folder" } ) )
 						.append( "<span>root</span>" )
@@ -67,6 +96,7 @@ var WorkspaceService = {
 				$( ".container .menu .control" ).click( function() {
 					$( ".container .menu" ).remove();
 				} );
+				$( ".container .menu .search input" ).keyup( workspaceService.actionFilterMenu );
 			}
 			, displayMenu: function() {
 				ajaxService.GET({

@@ -396,36 +396,157 @@ describe( "WorkspaceService", function() {
 			expect( $list.find( "li:nth(2) span" ).html() ).toBe( "file1" );
 		} );
 	} );
+
+	describe( "ActionFilterMenu", function() {
+		beforeEach( function() {
+			$( "body" ).append($( "<div>", { class: "container" } ) );
+
+			var minimalWorkspace = $( "<span>" )
+				.append( $( "<i>", { class: "menuIndicator" } ) )
+				.append( $( "<i>", { class: "logout"} ) ).html();
+
+			var response = {
+				"responseCode": "AUTHORIZED"
+				,"files": {
+					"0": "index.php"
+					,"1": "menu.php"
+					,"scripts": {
+						"0": "index.js"
+						,"1": "menu.js"
+						,"2": "menu2.js"
+					}
+					,"styles": {
+						"0": "index.css"
+						,"1": "menu.css"
+						,"2": "menu2.css"
+					}
+				}
+			};
+
+			workspaceService.processDisplayWorkspace( minimalWorkspace );
+			workspaceService.processDisplayMenu( JSON.stringify( response ) );
+		} );
+
+		afterEach( function() {
+			$( ".container" ).remove();
+		} );
+
+		it( "Should hide all but specific file", function() {
+			var $input = $( ".container .menu .search input" );
+			var $menu = $( ".container .menu .content .directoryStructure" );
+
+			$input.val( "   menu.php   " );
+			$input.keyup();
+
+			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( true );
+		} );
+
+		it( "Should hide all but file with wildcarded name", function() {
+			var $input = $( ".container .menu .search input" );
+			var $menu = $( ".container .menu .content .directoryStructure" );
+
+			$input.val( "   %.php   " );
+			$input.keyup();
+
+			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( true );
+		} );
+
+		it( "Should hide all but file with partially wildcarded name", function() {
+			var $input = $( ".container .menu .search input" );
+			var $menu = $( ".container .menu .content .directoryStructure" );
+
+			$input.val( "   _enu.php   " );
+			$input.keyup();
+
+			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( true );
+		} );
+
+		it( "Should hide all but file with wildcarded extension", function() {
+			var $input = $( ".container .menu .search input" );
+			var $menu = $( ".container .menu .content .directoryStructure" );
+
+			$input.val( "   index.p%   " );
+			$input.keyup();
+
+			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( false );
+		} );
+
+		it( "Should hide all but file with partially wildcarded extension", function() {
+			var $input = $( ".container .menu .search input" );
+			var $menu = $( ".container .menu .content .directoryStructure" );
+
+			$input.val( "   index.p%   " );
+			$input.keyup();
+
+			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( false );
+		} );
+
+		it( "Should not hide wildcarded nested file", function() {
+			var $input = $( ".container .menu .search input" );
+			var $menu = $( ".container .menu .content .directoryStructure" );
+
+			$input.val( "   _enu%.%   " );
+			$input.keyup();
+
+			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(1)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(2)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(1) > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(1) > ul > li:nth(1)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(1) > ul > li:nth(2)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( true );
+		} );
+
+		it( "Should hide nothing if blank", function() {
+			var $input = $( ".container .menu .search input" );
+			var $menu = $( ".container .menu .content .directoryStructure" );
+
+			$input.val( "blah.dat" );
+			$input.keyup();
+
+			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( false );
+
+			$input.val( "" );
+			$input.keyup();
+
+			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( true );
+		} );
+
+		it( "Should hide everything if invalid RegExp", function() {
+			var $input = $( ".container .menu .search input" );
+			var $menu = $( ".container .menu .content .directoryStructure" );
+
+			$input.val( "\\" );
+			$input.keyup();
+
+			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( false );
+		} );
+	} );
 } );
-
-
-
-/*
-
-### Retrieve list of files and directories
-
-Purpose: Retrieve file tree for menu.
-
-##### Request
-```
-Method: GET
-URL: ~/?menu/list
-```
-##### Response
-```
-{
-	files: <array(key => <string|object>)>
-	,responseCode: "AUTHORIZED"|"INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED"
-}
-```
-* files - Array of objects
-	* Numeric keys - Object is a string representing a filename
-	* Non-numeric keys - Key is a string representing a directory and the Object is an array representing the directory contents in the same [key, object] relationship
-* responseCode
-	* AUTHORIZED - Expected when user is recognised; request successful
-	* INTERNAL_ERROR - Expected when unexpected exception occurs
-	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
-	* UNAUTHORIZED - Expected when user is not recognised
-
-
-*/
