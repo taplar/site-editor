@@ -414,6 +414,9 @@ describe( "WorkspaceService", function() {
 						"0": "index.js"
 						,"1": "menu.js"
 						,"2": "menu2.js"
+						,"vendor": {
+							"0": "blah.js"
+						}
 					}
 					,"styles": {
 						"0": "index.css"
@@ -505,14 +508,33 @@ describe( "WorkspaceService", function() {
 
 			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( true );
 			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(1)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
 			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(2)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(3)" ).is( ":visible" ) ).toBe( true );
 			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( true );
 			expect( $menu.find( "> li > ul > li:nth(1) > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
 			expect( $menu.find( "> li > ul > li:nth(1) > ul > li:nth(1)" ).is( ":visible" ) ).toBe( true );
 			expect( $menu.find( "> li > ul > li:nth(1) > ul > li:nth(2)" ).is( ":visible" ) ).toBe( true );
 			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
 			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( true );
+		} );
+
+		it( "Should hide all but wildcarded folder and nested files and folders", function() {
+			var $input = $( ".container .menu .search input" );
+			var $menu = $( ".container .menu .content .directoryStructure" );
+
+			$input.val( "   vendor   " );
+			$input.keyup();
+
+			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(0)" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(0) > ul > li" ).is( ":visible" ) ).toBe( true );
+			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(3)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
+			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( false );
 		} );
 
 		it( "Should hide nothing if blank", function() {

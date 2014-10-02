@@ -7,21 +7,43 @@ var WorkspaceService = {
 
 		var workspaceService = {
 			actionFilterMenu: function( event ) {
-				var $filter = $(this);
-				var pattern = $filter.val().trim().replace( /[%*]/g, "[\\S]*" ).replace( /[_]/g, "[\\S]" );
+				var $filter = $( this );
+				var pattern = $filter.val().trim().replace( /[%]/g, "[\\S]*" ).replace( /[_]/g, "[\\S]" );
 				var $menu = $( ".container .menu .content .directoryStructure .root > ul" );
 
 				try {
-					var matcher = new RegExp( pattern );
-
 					$menu.find( "li" ).show();
 
 					if ( pattern.length > 0 ) {
+						if ( pattern.charAt( 0 ) != "^" ) {
+							pattern = "^"+ pattern;
+						}
+
+						if ( pattern.charAt( pattern.length - 1 ) != "$" ) {
+							pattern += "$";
+						}
+
+						var matcher = new RegExp( pattern );
+
 						$menu.find( "li" ).hide();
 
 						$menu.find( ".fa-file" ).next().each( function() {
 							if ( matcher.test( $( this ).html() ) ) {
 								var $parent = $( this ).parent();
+
+								do {
+									$parent.show();
+
+									$parent = $parent.parent().parent();
+								} while ( $parent.prop( "tagName" ) == "LI" );
+							}
+						} );
+
+						$menu.find( ".fa-folder" ).next().each( function() {
+							if ( matcher.test( $( this ).html() ) ) {
+								var $parent = $( this ).parent();
+
+								$parent.find( "li" ).show();
 
 								do {
 									$parent.show();
