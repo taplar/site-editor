@@ -229,6 +229,18 @@ input:focus, select:focus, textarea:focus, button:focus {
 	margin-bottom: 12px;
 }
 
+/********** TIPS **********/
+.tip-search {
+	background-color: rgba(0, 0, 0, 0.95);
+	border-radius: 10px;
+	color: rgb(255, 255, 0);
+	padding: 8px;
+	
+	position: absolute;
+	top: 29px;
+	left: 0;
+	z-index: 201;
+}
 
 
 

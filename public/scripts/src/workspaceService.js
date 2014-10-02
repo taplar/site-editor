@@ -119,6 +119,12 @@ var WorkspaceService = {
 					$( ".container .menu" ).remove();
 				} );
 				$( ".container .menu .search input" ).keyup( workspaceService.actionFilterMenu );
+				$( ".container .menu .search-container ").mouseover( function() {
+					$( ".tip-search" ).show();
+				} );
+				$( ".container .menu .search-container ").mouseout( function() {
+					$( ".tip-search" ).hide();
+				} );
 			}
 			, displayMenu: function() {
 				ajaxService.GET({
