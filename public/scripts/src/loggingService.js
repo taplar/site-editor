@@ -1,16 +1,21 @@
 var LoggingService = {
 	getInstance: function() {
-		var displayMessage = function( message, clazz ) {
-			var $msg = $( "<div>", { class: clazz, html: message} );
+		var displayMessage = function( message, messageClass ) {
+			var $msg = $( "<div>", {
+				class: messageClass
+				, html: message
+			} );
 
-			$( "body" ).append($msg);
+			$( "body" ).append( $msg );
 
 			setTimeout( function() {
-				$msg.css( "top", "7px" );
-				$msg.css( "right", "125px" );
+				$msg
+					.css( "top", "7px" )
+					.css( "right", "125px" );
 
 				setTimeout( function() {
 					$msg.css( "top", "-50px" );
+					
 					setTimeout( function() {
 						$msg.remove();
 					}, 4000 );

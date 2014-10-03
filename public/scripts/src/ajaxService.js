@@ -1,6 +1,7 @@
 var AjaxService = {
 	getInstance: function() {
 		var $body = $( "body" );
+		
 		var fnChangeCursorToBusy = function() {
 			$body.addClass( "busy" );
 		};
@@ -9,15 +10,15 @@ var AjaxService = {
 			$body.removeClass( "busy" );
 		};
 
-		var request = function( type, args ) {
-			if ( type === "GET") {
+		var request = function( requestType, args ) {
+			if ( requestType === "GET") {
 				Require.all( args, "url", "fnSuccess", "fnFailure" );
 			} else {
 				Require.all( args, "url", "input", "fnSuccess", "fnFailure" );
 			}
 
 			var params = {
-				type: type
+				type: requestType
 				, url: args.url
 				, success: function( data ) {
 					fnChangeCursorToDefault();
@@ -29,7 +30,7 @@ var AjaxService = {
 				}
 			};
 
-			if ( type === "POST" ) {
+			if ( requestType === "POST" ) {
 				params.data = args.input;
 			}
 

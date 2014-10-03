@@ -344,18 +344,6 @@ describe( "AuthService", function() {
 			});
 		} );
 
-		it( "Should display messages if fields are blank and enter was pressed", function() {
-			spyOn( keyService, "isEnterPressed" ).and.returnValue( true );
-
-			$userid.keyup();
-
-			expectations({
-				unrecoverableError: false,
-				requiredInput: [ "userid", "password" ],
-				postSubmitted: false
-			});
-		} );
-
 		it( "Should not perform request if userid is blank", function() {
 			spyOn( keyService, "isEnterPressed" ).and.returnValue( true );
 
@@ -532,7 +520,7 @@ describe( "AuthService", function() {
 		} );
 	} );
 
-	describe( "ActionLogout", function() {
+	describe( "Logout", function() {
 		var expectations = function( jsonObject ) {
 			expect( loggingService.unrecoverableError.calls.any() ).toBe( jsonObject.unrecoverableError );
 			expect( authService.processLogout.calls.any() ).toBe( jsonObject.processLogout );
@@ -552,7 +540,7 @@ describe( "AuthService", function() {
 				args.fnFailure();
 			} );
 
-			authService.actionLogout();
+			authService.logout();
 
 			expectations({
 				unrecoverableError: true,
@@ -565,7 +553,7 @@ describe( "AuthService", function() {
 				args.fnSuccess();
 			} );
 
-			authService.actionLogout();
+			authService.logout();
 
 			expectations({
 				unrecoverableError: false,

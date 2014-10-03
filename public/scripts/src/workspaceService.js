@@ -6,58 +6,7 @@ var WorkspaceService = {
 		var loggingService = LoggingService.getInstance();
 
 		var workspaceService = {
-			actionFilterMenu: function( event ) {
-				var $filter = $( this );
-				var pattern = $filter.val().trim().replace( /[%]/g, "[\\S]*" ).replace( /[_]/g, "[\\S]" );
-				var $menu = $( ".container .menu .content .directoryStructure .root > ul" );
-
-				try {
-					$menu.find( "li" ).show();
-
-					if ( pattern.length > 0 ) {
-						if ( pattern.charAt( 0 ) != "^" ) {
-							pattern = "^"+ pattern;
-						}
-
-						if ( pattern.charAt( pattern.length - 1 ) != "$" ) {
-							pattern += "$";
-						}
-
-						var matcher = new RegExp( pattern );
-
-						$menu.find( "li" ).hide();
-
-						$menu.find( ".fa-file" ).next().each( function() {
-							if ( matcher.test( $( this ).html() ) ) {
-								var $parent = $( this ).parent();
-
-								do {
-									$parent.show();
-
-									$parent = $parent.parent().parent();
-								} while ( $parent.prop( "tagName" ) == "LI" );
-							}
-						} );
-
-						$menu.find( ".fa-folder" ).next().each( function() {
-							if ( matcher.test( $( this ).html() ) ) {
-								var $parent = $( this ).parent();
-
-								$parent.find( "li" ).show();
-
-								do {
-									$parent.show();
-
-									$parent = $parent.parent().parent();
-								} while ( $parent.prop( "tagName" ) == "LI" );
-							}
-						} );
-					}
-				} catch ( e ) {
-					$menu.find( "li" ).hide();
-				}
-			}
-			, addFolderToMenu: function( jsonObject, $list ) {
+			addFolderToMenu: function( jsonObject, $list ) {
 				for ( key in jsonObject ) {
 					if ( isNaN( key ) ) {
 						var $sublist = $( "<ul>" );
@@ -128,18 +77,28 @@ var WorkspaceService = {
 				$( ".container .menu .control" ).click( function() {
 					$( ".container .menu" ).remove();
 				} );
-				$( ".container .menu .search input" ).keyup( workspaceService.actionFilterMenu );
+				$( ".container .menu .search input" ).keyup( workspaceService.filterMenu );
 				$( ".container .menu .search-container ").mouseover( function() {
 					$( ".tip-search" ).show();
 				} );
 				$( ".container .menu .search-container ").mouseout( function() {
 					$( ".tip-search" ).hide();
 				} );
+				$( ".container .menu .new-folder" ).click( workspaceService.displayNewFolder );
 			}
 			, displayMenu: function() {
 				ajaxService.GET({
 					url: "?menu/list"
 					, fnSuccess: workspaceService.processDisplayMenu
+					, fnFailure: loggingService.recoverableError
+				});
+			}
+			, displayNewFolder: function() {
+				var thiz = this;
+
+				ajaxService.GET({
+					url: "public/views/prompt.html"
+					, fnSuccess: function( rawHtml ) { workspaceService.processDisplayNewDirectory( thiz, rawHtml ); }
 					, fnFailure: loggingService.recoverableError
 				});
 			}
@@ -149,6 +108,57 @@ var WorkspaceService = {
 					, fnSuccess: workspaceService.processDisplayWorkspace
 					, fnFailure: loggingService.unrecoverableError
 				});
+			}
+			, filterMenu: function( event ) {
+				var $filter = $( this );
+				var pattern = $filter.val().trim().replace( /[%]/g, "[\\S]*" ).replace( /[_]/g, "[\\S]" );
+				var $menu = $( ".container .menu .content .directoryStructure .root > ul" );
+
+				try {
+					$menu.find( "li" ).show();
+
+					if ( pattern.length > 0 ) {
+						if ( pattern.charAt( 0 ) != "^" ) {
+							pattern = "^"+ pattern;
+						}
+
+						if ( pattern.charAt( pattern.length - 1 ) != "$" ) {
+							pattern += "$";
+						}
+
+						var matcher = new RegExp( pattern );
+
+						$menu.find( "li" ).hide();
+
+						$menu.find( ".fa-file" ).next().each( function() {
+							if ( matcher.test( $( this ).html() ) ) {
+								var $parent = $( this ).parent();
+
+								do {
+									$parent.show();
+
+									$parent = $parent.parent().parent();
+								} while ( $parent.prop( "tagName" ) == "LI" );
+							}
+						} );
+
+						$menu.find( ".fa-folder" ).next().each( function() {
+							if ( matcher.test( $( this ).html() ) ) {
+								var $parent = $( this ).parent();
+
+								$parent.find( "li" ).show();
+
+								do {
+									$parent.show();
+
+									$parent = $parent.parent().parent();
+								} while ( $parent.prop( "tagName" ) == "LI" );
+							}
+						} );
+					}
+				} catch ( e ) {
+					$menu.find( "li" ).hide();
+				}
 			}
 			, processDisplayMenu: function( jsonString ) {
 				try {
@@ -182,9 +192,39 @@ var WorkspaceService = {
 
 					$( ".container" ).html( rawHtml );
 					$( ".container .menuIndicator" ).mouseover( workspaceService.displayMenu );
-					$( ".container .logout" ).click( authService.actionLogout );
+					$( ".container .logout" ).click( authService.logout );
 				} catch ( error ) {
 					loggingService.unrecoverableError( error );
+				}
+			}
+			, processDisplayNewDirectory: function( object, rawHtml ) {
+				try {
+					Require.all( rawHtml );
+
+					var $relatedDirectory = $( object ).parent();
+					var $parent = $( "<div>", { class: "existing-directory center" } );
+					var $directoryInput = $( "<div class='input center'><input type='text' placeholder='new directory' id='directory' value='' /></div>" );
+					var directories = new Array();
+
+					while ( $relatedDirectory.find( "> .fa-folder" ).length ) {
+						directories.push( $relatedDirectory.find( "> .fa-folder" ).next().html() );
+						$relatedDirectory = $relatedDirectory.parent().parent();
+					}
+
+					var $prompt = $( rawHtml );
+					$prompt.addClass( "prompt-container-overlay" );
+					$prompt.find( ".title" ).append( $( "<i>", { class: "fa fa-times close" } ) );
+					$prompt.find( ".content" ).append( $( "<div>", { class: "existing-directory center" } ) );
+					$prompt.find( ".content" ).append( $directoryInput );
+
+					$( ".container" ).append( $prompt );
+					$directoryInput.find( "#directory" ).focus();
+
+					$prompt.find( ".close" ).click( function() {
+						$prompt.remove();
+					} );
+				} catch ( error ) {
+					loggingService.recoverableError( error );
 				}
 			}
 		};
@@ -192,3 +232,146 @@ var WorkspaceService = {
 		return workspaceService;
 	}
 };
+
+
+
+
+
+
+/*
+
+var EDITOR = {
+	actionCreateFilePrompt: function(path, ajaxService){
+		ajaxService.GET('public/views/prompt.html', {
+			fnSuccess: function(data){ EDITOR.processFileCreatePrompt(data, path, ajaxService); }
+			,fnFailure: EDITOR.recoverableError
+		});
+	}
+	,actionSubmitCreateFilePrompt: function(e, path, ajaxService){
+		if (EDITOR.KeyTest.isEnter(e)){
+			var filename = $('.prompt #filename').val();
+			var filenamePattern = /^[a-zA-Z][a-zA-Z0-9._-]*[.][a-zA-Z0-9]+$/;
+
+			if (filenamePattern.test(filename)){
+				path.push(filename);
+
+				ajaxService.POST('?file/create', { file: path }, {
+					fnSuccess: function(data){
+						EDITOR.displayInfo(data);
+
+
+
+
+
+
+
+
+						$('.prompt-container').remove();
+					}
+					,fnFailure: EDITOR.recoverableError
+				});
+			} else {
+				EDITOR.displayError("Invalid filename");
+			}
+		}
+	}
+	,buildFile: function($parent, path, file, ajaxService){
+		//var $delete = $('<i class="fa fa-times red" />');
+		var $li = $('<li><i class="fa fa-file file-icon" /></li>');
+		//var $newFile = $('<i class="fa fa-file gray" />');
+		//var $newFolder = $('<i class="fa fa-folder gray" />');
+		var $ul = $('<ul></ul>');
+		
+		//$newFile.click(THIS.actionNewFile(path, key));
+		//$newFolder.click(THIS.actionNewFolder(path, key));
+		//$delete.click(THIS.actionDeleteFolder(path, key));
+		//$li.click(THIS.actionToggleExpansion);
+		
+		path.push(file);
+		
+		$li.append(file)
+			//.append('&nbsp;').append($newFile)
+			//.append('&nbsp;').append($newFolder)
+			//.append('&nbsp;').append($delete)
+			.append($ul);
+		
+		$parent.append($li);
+	}
+	,buildFolder: function($parent, path, folder, files, ajaxService){
+		//var $delete = $('<i class="fa fa-times red" />');
+		var $li = $('<li><i class="fa fa-folder folder-icon subfolder" /></li>');
+		var $newFile = $('<span class="file-new-icon"><i class="fa fa-file" /><i class="fa fa-plus" /></span>');
+		//var $newFolder = $('<i class="fa fa-folder gray" />');
+		var $ul = $('<ul></ul>');
+		
+		path.push(folder);
+
+		$newFile.click(function(){ EDITOR.actionCreateFilePrompt(path, ajaxService); });
+		//$newFolder.click(THIS.actionNewFolder(path, key));
+		//$delete.click(THIS.actionDeleteFolder(path, key));
+		//$li.click(THIS.actionToggleExpansion);
+		
+		$li.append(folder).append($newFile)
+			//.append('&nbsp;').append($newFolder)
+			//.append('&nbsp;').append($delete)
+			.append($ul);
+		
+		EDITOR.buildFileList($ul, path, files, ajaxService);
+		
+		$parent.append($li);
+	}
+	,buildRootFolder: function($parent, ajaxService){
+		var $li = $('<li><i class="fa fa-folder folder-icon" /></li>');
+		var $newFile = $('<span class="file-new-icon"><i class="fa fa-file" /><i class="fa fa-plus" /></span>');
+		//var $newFolder = $('<i class="fa fa-folder gray" />');
+		var $ul = $('<ul></ul>');
+		
+		//$newFile.click(THIS.actionNewFile(null, 'root'));
+		//$newFolder.click(THIS.actionNewFolder(null, 'root'));
+		
+		$li.append('root').append($newFile)
+			//.append('&nbsp;').append($newFolder)
+			.append($ul);
+		
+		$parent.append($li);
+		
+		return $ul;
+	}
+	,processApplicationEntry: function(jsonString, ajaxService){
+		try {
+			var response = $.parseJSON(jsonString);
+
+			Require.all(response, 'responseCode');
+
+			if (response.responseCode == 'UNAUTHORIZED'){
+				EDITOR.displayLogin(ajaxService);
+			} else if (response.responseCode == 'AUTHORIZED'){
+				EDITOR.displayWorkspace(ajaxService);
+			} else {
+				EDITOR.unrecoverableError();
+			}
+		} catch (e){
+			console.log(e);
+			EDITOR.unrecoverableError();
+		}
+	}
+	,processFileCreatePrompt: function(data, path, ajaxService){
+		var $prompt = $(data);
+		var $content = $prompt.find('.content');
+
+		$prompt.find('.title').html('New File');
+		$content.append(
+			'<div class="input center">'
+				+'<input type="text" placeholder="filename" id="filename" value="" />'
+			+'</div>');
+
+		$('.container').append($prompt);
+		$('.prompt .input input').keyup(function(e){ EDITOR.actionSubmitCreateFilePrompt(e, path, ajaxService); });
+		$('.prompt .input input:first').focus();
+	}
+};
+
+
+
+
+*/

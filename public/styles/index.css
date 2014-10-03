@@ -42,6 +42,20 @@ input:focus, select:focus, textarea:focus, button:focus {
 	height: 100vh;
 	width: 100vw;
 }
+.prompt-container-overlay {
+	background-color: rgba(0, 0, 0, 0.25);
+}
+.prompt-container-overlay .close {
+	position: absolute;
+	top: 0;
+	right: 0;
+
+	color: rgb(255, 0, 0);
+	font-size: 12px;
+}
+.prompt-container-overlay .content {
+	margin-bottom: 12px !important;
+}
 
 /********** CURSOR **********/
 .busy {
@@ -213,6 +227,12 @@ input:focus, select:focus, textarea:focus, button:focus {
 	background-color: rgba(0, 128, 0, 0.5);
 }
 
+/********** NEW DIRECTORY **********/
+.prompt-container-overlay .existing-directory {
+	color: rgb(192, 192, 192);
+	font-weight: bold;
+}
+
 /********** PROMPT **********/
 .prompt {
 	background: rgba(16, 16, 16, 0.65);
@@ -235,6 +255,8 @@ input:focus, select:focus, textarea:focus, button:focus {
 	width: 160px;
 }
 .prompt > .title {
+	position: relative;
+
 	color: rgb(255, 255, 255);
 	font-size: 30px;
 	margin-bottom: 12px;

@@ -83,7 +83,7 @@ describe( "WorkspaceService", function() {
 				.append( $( "<i>", { class: "menuIndicator" } ) )
 				.append( $( "<i>", { class: "logout"} ) ).html();
 
-			spyOn( authService, "actionLogout" );
+			spyOn( authService, "logout" );
 			spyOn( workspaceService, "displayMenu" );
 
 			workspaceService.processDisplayWorkspace( minimalWorkspace );
@@ -97,9 +97,9 @@ describe( "WorkspaceService", function() {
 			$( ".container .menuIndicator" ).mouseover();
 			expect( workspaceService.displayMenu.calls.any() ).toBe( true );
 
-			expect( authService.actionLogout.calls.any() ).toBe( false );
+			expect( authService.logout.calls.any() ).toBe( false );
 			$( ".container .logout" ).click();
-			expect( authService.actionLogout.calls.any() ).toBe( true );
+			expect( authService.logout.calls.any() ).toBe( true );
 		} );
 	} );
 
@@ -397,7 +397,7 @@ describe( "WorkspaceService", function() {
 		} );
 	} );
 
-	describe( "ActionFilterMenu", function() {
+	describe( "FilterMenu", function() {
 		beforeEach( function() {
 			$( "body" ).append($( "<div>", { class: "container" } ) );
 
