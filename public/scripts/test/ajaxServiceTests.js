@@ -8,8 +8,51 @@ describe( "AjaxService", function() {
 	};
 
 	beforeEach(function() {
-		ajaxService = AjaxService.getInstance();
+		ajaxService = AjaxService.getTestInstance();
 	});
+
+	it( "TestInstance should affect calls", function() {
+		spyOn( ajaxService.privateFunctions, "request" ).and.callFake( function() {
+			throw [new Error( "Magic" )];
+		} );
+
+		try {
+			ajaxService.GET();
+			fail();
+		} catch ( e ) {
+			expectations({
+				errors: e
+				, message: "Magic"
+			});
+		}
+	} );
+
+	it( "TestInstance should not affect real instance", function() {
+		var realAjaxService = AjaxService.getInstance();
+
+		spyOn( ajaxService.privateFunctions, "request" ).and.callFake( function() {
+			throw [ new Error( "Magic" ) ];
+		} );
+
+		try {
+			ajaxService.GET();
+			fail();
+		} catch ( e ) {
+			expectations({
+				errors: e
+				, message: "Magic"
+			});
+		}
+
+		try {
+			realAjaxService.GET();
+		} catch ( e ) {
+			expectations({
+				errors: e
+				, message: "Argument 'args' is undefined"
+			});
+		}
+	} );
 
 	describe( "GET", function() {
 		it( "Should throw error if missing arguments", function() {

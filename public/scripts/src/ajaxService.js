@@ -1,16 +1,22 @@
-var AjaxService = {
-	getInstance: function() {
-		var $body = $( "body" );
-		
-		var fnChangeCursorToBusy = function() {
-			$body.addClass( "busy" );
-		};
+var AjaxService = new function() {
+	var instance = null;
+	var cloneFunctions = function() {
+		var result = {};
 
-		var fnChangeCursorToDefault = function() {
-			$body.removeClass( "busy" );
-		};
+		for (key in functions) {
+			result[ key ] = functions[ key ];
+		}
 
-		var request = function( requestType, args ) {
+		return result;
+	};
+	var functions = {
+		changeCursorToBusy: function() {
+			$( "body" ).addClass( "busy" );
+		}
+		, changeCursorToDefault: function() {
+			$( "body" ).removeClass( "busy" );
+		}
+		, request: function( requestType, args, functions ) {
 			if ( requestType === "GET") {
 				Require.all( args, "url", "fnSuccess", "fnFailure" );
 			} else {
@@ -21,12 +27,12 @@ var AjaxService = {
 				type: requestType
 				, url: args.url
 				, success: function( data ) {
-					fnChangeCursorToDefault();
+					functions.changeCursorToDefault();
 					args.fnSuccess( data );
 				}
 				, error: function( data ) {
-					fnChangeCursorToDefault();
-					args.fnFailure(data);
+					functions.changeCursorToDefault();
+					args.fnFailure( data );
 				}
 			};
 
@@ -34,17 +40,40 @@ var AjaxService = {
 				params.data = args.input;
 			}
 
-			fnChangeCursorToBusy();
+			functions.changeCursorToBusy();
 			$.ajax( params );
-		};
+		}
+	};
+	var buildApi = function( functionsReference ) {
+		var functions = functionsReference;
 
 		return {
 			GET: function( args ) {
-				request( "GET", args );
+				functions.request( "GET", args, functions );
 			}
 			, POST: function( args ) {
-				request( "POST", args );
+				functions.request( "POST", args, functions );
 			}
 		};
-	}
-};
+	};
+
+	return {
+		getInstance: function() {
+			if ( instance != null ) {
+				return instance;
+			}
+
+			instance = buildApi( functions );
+
+			return instance;
+		}
+		, getTestInstance: function() {
+			var functions = cloneFunctions();
+			var instance = buildApi( functions );
+
+			instance.privateFunctions = functions;
+			
+			return instance;
+		}
+	};
+}();
