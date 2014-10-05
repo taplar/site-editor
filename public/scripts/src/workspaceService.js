@@ -1,237 +1,291 @@
-var WorkspaceService = {
-	getInstance: function() {
-		var ajaxService = AjaxService.getInstance();
-		var authService = AuthService.getInstance();
-		var keyService = KeyService.getInstance();
-		var loggingService = LoggingService.getInstance();
+var WorkspaceService = new function() {
+	var instance = null;
+	var ajaxService = null;
+	var authService = null;
+	var loggingService = null;
 
-		var workspaceService = {
-			addFolderToMenu: function( jsonObject, $list ) {
-				for ( key in jsonObject ) {
-					if ( isNaN( key ) ) {
-						var $sublist = $( "<ul>" );
+	var functions = {
+		addFolderToMenu: function( jsonObject, $list ) {
+			for ( key in jsonObject ) {
+				if ( isNaN( key ) ) {
+					var $sublist = $( "<ul>" );
 
-						$( "<li>" )
-							.append( $("<i>", { class: "fa fa-folder subfolder" } ) )
-							.append( $( "<span>", { html: key } ) )
-							.append( $( "<span>", { class: "new-folder" } ) )
-							.find( ".new-folder" )
-								.append( $( "<i>", { class: "fa fa-folder" } ) )
-								.append( $( "<i>", { class: "fa fa-plus" } ) )
-							.end()
-							.append( $sublist )
-							.appendTo( $list );
-
-						workspaceService.addFolderToMenu( jsonObject[ key ], $sublist );
-					}
-				}
-
-				for ( key in jsonObject ) {
-					if ( !isNaN( key ) ) {
-						$( "<li>" )
-							.append( $( "<i>", { class: "fa fa-file" } ) )
-							.append( $( "<span>", { html: jsonObject[ key ] } ) )
-							.appendTo( $list );
-					}
-				}
-			}
-			, buildMenu: function( jsonObject ) {
-				var $menu = $( "<div> ", { class: "menu flexbox-v" } )
-					.append( $( "<div>", { class: "search" } ) )
-					.append( $( "<div>", { class: "content flexible-v" } ) )
-					.append( $( "<div>", { class: "control center inflexible" } ) );
-
-				$menu.find( ".search" )
-					.append( $( "<div>" ) )
-					.find( ":last-child" )
-						.append( $( "<div>", { class: "search-container" } ) )
-						.find( "> :last-child" )
-							.append( $( "<i>", { class: "fa fa-search" } ) )
-							.end()
-						.append( $( "<div>", { class: "pattern-container" } ) )
-						.find( "> :last-child" )
-							.append( $( "<input>", { class: "pattern" } ) );
-
-				$menu.find( ".content" )
-					.append( $( "<ul>", { class: "directoryStructure" } ));
-
-				$menu.find( ".control" )
-					.append( $( "<i>", { class: "fa fa-angle-double-up" } ));
-
-				$menu.find( ".directoryStructure" )
-					.append( $( "<li>", { class: "root" } ) )
-					.find( ":last-child" )
-						.append( $( "<i>", { class: "fa fa-folder" } ) )
-						.append( $( "<span>", { html: "root" } ) )
+					$( "<li>" )
+						.append( $("<i>", { class: "fa fa-folder subfolder" } ) )
+						.append( $( "<span>", { html: key } ) )
 						.append( $( "<span>", { class: "new-folder" } ) )
 						.find( ".new-folder" )
 							.append( $( "<i>", { class: "fa fa-folder" } ) )
 							.append( $( "<i>", { class: "fa fa-plus" } ) )
 						.end()
-						.append( $( "<ul>" ) );
+						.append( $sublist )
+						.appendTo( $list );
 
-				workspaceService.addFolderToMenu( jsonObject, $menu.find( ".directoryStructure li ul" ) );
+					this.addFolderToMenu( jsonObject[ key ], $sublist );
+				}
+			}
 
+			for ( key in jsonObject ) {
+				if ( !isNaN( key ) ) {
+					$( "<li>" )
+						.append( $( "<i>", { class: "fa fa-file" } ) )
+						.append( $( "<span>", { html: jsonObject[ key ] } ) )
+						.appendTo( $list );
+				}
+			}
+		}
+		, buildMenu: function( jsonObject ) {
+			var $menu = $( "<div> ", { class: "menu flexbox-v" } )
+				.append( $( "<div>", { class: "search" } ) )
+				.append( $( "<div>", { class: "content flexible-v" } ) )
+				.append( $( "<div>", { class: "control center inflexible" } ) );
+
+			$menu.find( ".search" )
+				.append( $( "<div>" ) )
+				.find( ":last-child" )
+					.append( $( "<div>", { class: "search-container" } ) )
+					.find( "> :last-child" )
+						.append( $( "<i>", { class: "fa fa-search" } ) )
+						.end()
+					.append( $( "<div>", { class: "pattern-container" } ) )
+					.find( "> :last-child" )
+						.append( $( "<input>", { class: "pattern" } ) );
+
+			$menu.find( ".content" )
+				.append( $( "<ul>", { class: "directoryStructure" } ));
+
+			$menu.find( ".control" )
+				.append( $( "<i>", { class: "fa fa-angle-double-up" } ));
+
+			$menu.find( ".directoryStructure" )
+				.append( $( "<li>", { class: "root" } ) )
+				.find( ":last-child" )
+					.append( $( "<i>", { class: "fa fa-folder" } ) )
+					.append( $( "<span>", { html: "root" } ) )
+					.append( $( "<span>", { class: "new-folder" } ) )
+					.find( ".new-folder" )
+						.append( $( "<i>", { class: "fa fa-folder" } ) )
+						.append( $( "<i>", { class: "fa fa-plus" } ) )
+					.end()
+					.append( $( "<ul>" ) );
+
+			this.addFolderToMenu( jsonObject, $menu.find( ".directoryStructure li ul" ) );
+
+			var parent = this;
+
+			$( ".container .menu" ).remove();
+			$( ".container" ).append($menu);
+			$( ".container .menu .control" ).click( function() {
 				$( ".container .menu" ).remove();
-				$( ".container" ).append($menu);
-				$( ".container .menu .control" ).click( function() {
-					$( ".container .menu" ).remove();
-				} );
-				$( ".container .menu .search input" ).keyup( workspaceService.filterMenu );
-				$( ".container .menu .search-container ").mouseover( function() {
-					$( ".tip-search" ).show();
-				} );
-				$( ".container .menu .search-container ").mouseout( function() {
-					$( ".tip-search" ).hide();
-				} );
-				$( ".container .menu .new-folder" ).click( workspaceService.displayNewFolder );
-			}
-			, displayMenu: function() {
-				ajaxService.GET({
-					url: "?menu/list"
-					, fnSuccess: workspaceService.processDisplayMenu
-					, fnFailure: loggingService.recoverableError
-				});
-			}
-			, displayNewFolder: function() {
-				var thiz = this;
+			} );
+			$( ".container .menu .search input" ).keyup( parent.filterMenu );
+			$( ".container .menu .search-container ").mouseover( function() {
+				$( ".tip-search" ).show();
+			} );
+			$( ".container .menu .search-container ").mouseout( function() {
+				$( ".tip-search" ).hide();
+			} );
+			$( ".container .menu .new-folder" ).click( parent.displayNewFolder );
+		}
+		, displayMenu: function() {
+			var parent = this;
 
-				ajaxService.GET({
-					url: "public/views/prompt.html"
-					, fnSuccess: function( rawHtml ) { workspaceService.processDisplayNewDirectory( thiz, rawHtml ); }
-					, fnFailure: loggingService.recoverableError
-				});
+			ajaxService.GET({
+				url: "?menu/list"
+				, fnSuccess: parent.processDisplayMenu
+				, fnFailure: loggingService.recoverableError
+			});
+		}
+		, displayNewFolder: function() {
+			var parent = this;
+
+			ajaxService.GET({
+				url: "public/views/prompt.html"
+				, fnSuccess: function( rawHtml ) { parent.processDisplayNewDirectory( thiz, rawHtml ); }
+				, fnFailure: loggingService.recoverableError
+			});
+		}
+		, filterMenu: function( event ) {
+			var $filter = $( this );
+			var pattern = $filter.val().trim().replace( /[%]/g, "[\\S]*" ).replace( /[_]/g, "[\\S]" );
+			var $menu = $( ".container .menu .content .directoryStructure .root > ul" );
+
+			try {
+				$menu.find( "li" ).show();
+
+				if ( pattern.length > 0 ) {
+					if ( pattern.charAt( 0 ) != "^" ) {
+						pattern = "^"+ pattern;
+					}
+
+					if ( pattern.charAt( pattern.length - 1 ) != "$" ) {
+						pattern += "$";
+					}
+
+					var matcher = new RegExp( pattern );
+
+					$menu.find( "li" ).hide();
+
+					$menu.find( ".fa-file" ).next().each( function() {
+						if ( matcher.test( $( this ).html() ) ) {
+							var $parent = $( this ).parent();
+
+							do {
+								$parent.show();
+
+								$parent = $parent.parent().parent();
+							} while ( $parent.prop( "tagName" ) == "LI" );
+						}
+					} );
+
+					$menu.find( ".fa-folder" ).next().each( function() {
+						if ( matcher.test( $( this ).html() ) ) {
+							var $parent = $( this ).parent();
+
+							$parent.find( "li" ).show();
+
+							do {
+								$parent.show();
+
+								$parent = $parent.parent().parent();
+							} while ( $parent.prop( "tagName" ) == "LI" );
+						}
+					} );
+				}
+			} catch ( e ) {
+				$menu.find( "li" ).hide();
 			}
-			, displayWorkspace: function() {
+		}
+		, processDisplayMenu: function( jsonString ) {
+			try {
+				Require.all( jsonString );
+
+				var jsonObject = $.parseJSON( jsonString );
+
+				Require.all( jsonObject, "files", "responseCode" );
+
+				var parent = this;
+
+				var fnBuildMenu = function() {
+					parent.buildMenu( jsonObject.files );
+				};
+
+				var fnRedirectToLogin = function() {
+					authService.displayLogin();
+					loggingService.displayInfo( "Session Expired" );
+				};
+
+				authService.processResponseCode({
+					responseCode: jsonObject.responseCode
+					, fnAuthorized: fnBuildMenu
+					, fnUnauthorized: fnRedirectToLogin
+				});
+			} catch ( error ) {
+				loggingService.recoverableError( error );
+			}
+		}
+		, processDisplayNewDirectory: function( object, rawHtml ) {
+			try {
+				Require.all( rawHtml );
+
+				var $relatedDirectory = $( object ).parent();
+				var $parent = $( "<div>", { class: "existing-directory center" } );
+				var $directoryInput = $( "<div class='input center'><input type='text' placeholder='new directory' id='directory' value='' /></div>" );
+				var directories = new Array();
+
+				while ( $relatedDirectory.find( "> .fa-folder" ).length ) {
+					directories.push( $relatedDirectory.find( "> .fa-folder" ).next().html() );
+					$relatedDirectory = $relatedDirectory.parent().parent();
+				}
+
+				var $prompt = $( rawHtml );
+				$prompt.addClass( "prompt-container-overlay" );
+				$prompt.find( ".title" ).append( $( "<i>", { class: "fa fa-times close" } ) );
+				$prompt.find( ".content" ).append( $( "<div>", { class: "existing-directory center" } ) );
+				$prompt.find( ".content" ).append( $directoryInput );
+
+				$( ".container" ).append( $prompt );
+				$directoryInput.find( "#directory" ).focus();
+
+				$prompt.find( ".close" ).click( function() {
+					$prompt.remove();
+				} );
+			} catch ( error ) {
+				loggingService.recoverableError( error );
+			}
+		}
+		, processDisplayWorkspace: function( rawHtml ) {
+			var parent = this;
+
+			try {
+				Require.all( rawHtml );
+
+				$( ".container" ).html( rawHtml );
+				$( ".container .menuIndicator" ).mouseover( parent.displayMenu );
+				$( ".container .logout" ).click( authService.logout );
+			} catch ( error ) {
+				loggingService.unrecoverableError( error );
+			}
+		}
+	};
+
+	var buildApi = function( functions ) {
+		ajaxService = AjaxService.getInstance();
+		authService = AuthService.getInstance();
+		loggingService = LoggingService.getInstance();
+
+		return {
+			displayWorkspace: function() {
 				ajaxService.GET({
 					url: "public/views/workspace.html"
-					, fnSuccess: workspaceService.processDisplayWorkspace
+					, fnSuccess: functions.processDisplayWorkspace
 					, fnFailure: loggingService.unrecoverableError
 				});
 			}
-			, filterMenu: function( event ) {
-				var $filter = $( this );
-				var pattern = $filter.val().trim().replace( /[%]/g, "[\\S]*" ).replace( /[_]/g, "[\\S]" );
-				var $menu = $( ".container .menu .content .directoryStructure .root > ul" );
-
-				try {
-					$menu.find( "li" ).show();
-
-					if ( pattern.length > 0 ) {
-						if ( pattern.charAt( 0 ) != "^" ) {
-							pattern = "^"+ pattern;
-						}
-
-						if ( pattern.charAt( pattern.length - 1 ) != "$" ) {
-							pattern += "$";
-						}
-
-						var matcher = new RegExp( pattern );
-
-						$menu.find( "li" ).hide();
-
-						$menu.find( ".fa-file" ).next().each( function() {
-							if ( matcher.test( $( this ).html() ) ) {
-								var $parent = $( this ).parent();
-
-								do {
-									$parent.show();
-
-									$parent = $parent.parent().parent();
-								} while ( $parent.prop( "tagName" ) == "LI" );
-							}
-						} );
-
-						$menu.find( ".fa-folder" ).next().each( function() {
-							if ( matcher.test( $( this ).html() ) ) {
-								var $parent = $( this ).parent();
-
-								$parent.find( "li" ).show();
-
-								do {
-									$parent.show();
-
-									$parent = $parent.parent().parent();
-								} while ( $parent.prop( "tagName" ) == "LI" );
-							}
-						} );
-					}
-				} catch ( e ) {
-					$menu.find( "li" ).hide();
-				}
-			}
-			, processDisplayMenu: function( jsonString ) {
-				try {
-					Require.all( jsonString );
-
-					var jsonObject = $.parseJSON( jsonString );
-
-					Require.all( jsonObject, "files", "responseCode" );
-
-					var fnBuildMenu = function() {
-						workspaceService.buildMenu( jsonObject.files );
-					};
-
-					var fnRedirectToLogin = function() {
-						authService.displayLogin();
-						loggingService.displayInfo( "Session Expired" );
-					};
-
-					authService.processResponseCode({
-						responseCode: jsonObject.responseCode
-						, fnAuthorized: fnBuildMenu
-						, fnUnauthorized: fnRedirectToLogin
-					});
-				} catch ( error ) {
-					loggingService.recoverableError( error );
-				}
-			}
-			, processDisplayWorkspace: function( rawHtml ) {
-				try {
-					Require.all( rawHtml );
-
-					$( ".container" ).html( rawHtml );
-					$( ".container .menuIndicator" ).mouseover( workspaceService.displayMenu );
-					$( ".container .logout" ).click( authService.logout );
-				} catch ( error ) {
-					loggingService.unrecoverableError( error );
-				}
-			}
-			, processDisplayNewDirectory: function( object, rawHtml ) {
-				try {
-					Require.all( rawHtml );
-
-					var $relatedDirectory = $( object ).parent();
-					var $parent = $( "<div>", { class: "existing-directory center" } );
-					var $directoryInput = $( "<div class='input center'><input type='text' placeholder='new directory' id='directory' value='' /></div>" );
-					var directories = new Array();
-
-					while ( $relatedDirectory.find( "> .fa-folder" ).length ) {
-						directories.push( $relatedDirectory.find( "> .fa-folder" ).next().html() );
-						$relatedDirectory = $relatedDirectory.parent().parent();
-					}
-
-					var $prompt = $( rawHtml );
-					$prompt.addClass( "prompt-container-overlay" );
-					$prompt.find( ".title" ).append( $( "<i>", { class: "fa fa-times close" } ) );
-					$prompt.find( ".content" ).append( $( "<div>", { class: "existing-directory center" } ) );
-					$prompt.find( ".content" ).append( $directoryInput );
-
-					$( ".container" ).append( $prompt );
-					$directoryInput.find( "#directory" ).focus();
-
-					$prompt.find( ".close" ).click( function() {
-						$prompt.remove();
-					} );
-				} catch ( error ) {
-					loggingService.recoverableError( error );
-				}
-			}
 		};
+	};
 
-		return workspaceService;
-	}
-};
+	return {
+		getInstance: function() {
+			if ( instance != null ) {
+				return instance;
+			}
+
+			instance = buildApi( functions );
+
+			return instance;
+		}
+		, getTestInstance: function() {
+			var functionsClone = Require.clone( functions );
+			var instance = buildApi( functionsClone );
+
+			instance.privateFunctions = functionsClone;
+			
+			return instance;
+		}
+	};
+}();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

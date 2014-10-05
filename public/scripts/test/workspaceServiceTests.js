@@ -11,13 +11,13 @@ describe( "WorkspaceService", function() {
 		spyOn( KeyService, "getInstance" ).and.returnValue( keyService );
 		spyOn( LoggingService, "getInstance" ).and.returnValue( loggingService );
 
-		workspaceService = WorkspaceService.getInstance();
+		workspaceService = WorkspaceService.getTestInstance();
 	} );
 
 	describe( "DisplayWorkspace", function() {
 		var expectations = function( jsonObject ) {
 			expect( loggingService.unrecoverableError.calls.any() ).toBe( jsonObject.unrecoverableError );
-			expect( workspaceService.processDisplayWorkspace.calls.any() ).toBe( jsonObject.processDisplayWorkspace );
+			expect( workspaceService.privateFunctions.processDisplayWorkspace.calls.any() ).toBe( jsonObject.processDisplayWorkspace );
 
 			var arguments = ajaxService.GET.calls.argsFor( 0 )[ 0 ];
 
@@ -25,7 +25,7 @@ describe( "WorkspaceService", function() {
 		};
 
 		beforeEach( function() {
-			spyOn( workspaceService, "processDisplayWorkspace" );
+			spyOn( workspaceService.privateFunctions, "processDisplayWorkspace" );
 		} );
 
 		it( "Should log unrecoverable error on failure", function() {
@@ -70,7 +70,7 @@ describe( "WorkspaceService", function() {
 		} );
 
 		it( "Should throw error if missing data", function() {
-			workspaceService.processDisplayWorkspace();
+			workspaceService.privateFunctions.processDisplayWorkspace();
 
 			expectations({
 				unrecoverableError: true,
@@ -84,18 +84,18 @@ describe( "WorkspaceService", function() {
 				.append( $( "<i>", { class: "logout"} ) ).html();
 
 			spyOn( authService, "logout" );
-			spyOn( workspaceService, "displayMenu" );
+			spyOn( workspaceService.privateFunctions, "displayMenu" );
 
-			workspaceService.processDisplayWorkspace( minimalWorkspace );
+			workspaceService.privateFunctions.processDisplayWorkspace( minimalWorkspace );
 
 			expectations({
 				unrecoverableError: false,
 				containerHtml: minimalWorkspace
 			});
 
-			expect( workspaceService.displayMenu.calls.any() ).toBe( false );
+			expect( workspaceService.privateFunctions.displayMenu.calls.any() ).toBe( false );
 			$( ".container .menuIndicator" ).mouseover();
-			expect( workspaceService.displayMenu.calls.any() ).toBe( true );
+			expect( workspaceService.privateFunctions.displayMenu.calls.any() ).toBe( true );
 
 			expect( authService.logout.calls.any() ).toBe( false );
 			$( ".container .logout" ).click();
@@ -107,12 +107,12 @@ describe( "WorkspaceService", function() {
 		var expectations = function( jsonObject ) {
 			expect( loggingService.unrecoverableError.calls.any() ).toBe( false );
 			expect( loggingService.recoverableError.calls.any() ).toBe( jsonObject.recoverableError );
-			expect( workspaceService.processDisplayMenu.calls.any() ).toBe( jsonObject.processDisplayMenu );
+			expect( workspaceService.privateFunctions.processDisplayMenu.calls.any() ).toBe( jsonObject.processDisplayMenu );
 		};
 
 		beforeEach( function() {
 			spyOn( loggingService, "recoverableError" );
-			spyOn( workspaceService, "processDisplayMenu" );
+			spyOn( workspaceService.privateFunctions, "processDisplayMenu" );
 		} );
 
 		it( "Should log recoverable error on failure", function() {
@@ -120,7 +120,7 @@ describe( "WorkspaceService", function() {
 				args.fnFailure();
 			} );
 
-			workspaceService.displayMenu();
+			workspaceService.privateFunctions.displayMenu();
 
 			expectations({
 				recoverableError: true,
@@ -133,7 +133,7 @@ describe( "WorkspaceService", function() {
 				args.fnSuccess();
 			} );
 
-			workspaceService.displayMenu();
+			workspaceService.privateFunctions.displayMenu();
 
 			expectations({
 				recoverableError: false,
@@ -154,19 +154,19 @@ describe( "WorkspaceService", function() {
 				expect( arguments[ 0 ] ).toEqual( "Session Expired" );
 			}
 
-			expect( workspaceService.buildMenu.calls.any() ).toBe( jsonObject.buildMenu );
+			expect( workspaceService.privateFunctions.buildMenu.calls.any() ).toBe( jsonObject.buildMenu );
 		};
 
 		beforeEach( function() {
 			spyOn( authService, "displayLogin" );
 			spyOn( loggingService, "displayInfo" );
 			spyOn( loggingService, "recoverableError" );
-			spyOn( workspaceService, "buildMenu" );
+			spyOn( workspaceService.privateFunctions, "buildMenu" );
 			jsonObject = { files: [] };
 		} );
 
 		it( "Should throw error if data is missing", function() {
-			workspaceService.processDisplayMenu();
+			workspaceService.privateFunctions.processDisplayMenu();
 
 			expectations({
 				recoverableError: true,
@@ -176,7 +176,7 @@ describe( "WorkspaceService", function() {
 		} );
 
 		it( "Should throw error if data is not json parsable", function() {
-			workspaceService.processDisplayMenu( "not json" );
+			workspaceService.privateFunctions.processDisplayMenu( "not json" );
 
 			expectations({
 				recoverableError: true,
@@ -186,7 +186,7 @@ describe( "WorkspaceService", function() {
 		} );
 
 		it( "Should throw error if response code not returned", function() {
-			workspaceService.processDisplayMenu( JSON.stringify( jsonObject ) );
+			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( jsonObject ) );
 
 			expectations({
 				recoverableError: true,
@@ -198,7 +198,7 @@ describe( "WorkspaceService", function() {
 		it( "Should throw error if internal error occured", function() {
 			jsonObject.responseCode = "INTERNAL_ERROR";
 
-			workspaceService.processDisplayMenu( JSON.stringify( jsonObject ) );
+			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( jsonObject ) );
 
 			expectations({
 				recoverableError: true,
@@ -210,7 +210,7 @@ describe( "WorkspaceService", function() {
 		it( "Should throw error if invalid request occured", function() {
 			jsonObject.responseCode = "INVALID_REQUEST";
 
-			workspaceService.processDisplayMenu( JSON.stringify( jsonObject ) );
+			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( jsonObject ) );
 
 			expectations({
 				recoverableError: true,
@@ -222,7 +222,7 @@ describe( "WorkspaceService", function() {
 		it( "Should throw error if unexpected response code returned", function() {
 			jsonObject.responseCode = "CHUMBAWUMBA";
 
-			workspaceService.processDisplayMenu( JSON.stringify( jsonObject ) );
+			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( jsonObject ) );
 
 			expectations({
 				recoverableError: true,
@@ -234,7 +234,7 @@ describe( "WorkspaceService", function() {
 		it( "Should display login if unauthorized", function() {
 			jsonObject.responseCode = "UNAUTHORIZED";
 
-			workspaceService.processDisplayMenu( JSON.stringify( jsonObject ) );
+			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( jsonObject ) );
 
 			expectations({
 				recoverableError: false,
@@ -246,7 +246,7 @@ describe( "WorkspaceService", function() {
 		it( "Should build menu if authorized", function() {
 			jsonObject.responseCode = "AUTHORIZED";
 
-			workspaceService.processDisplayMenu( JSON.stringify( jsonObject ) );
+			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( jsonObject ) );
 
 			expectations({
 				recoverableError: false,
@@ -259,7 +259,7 @@ describe( "WorkspaceService", function() {
 	describe( "BuildMenu", function() {
 		beforeEach( function() {
 			$( "body" ).append($( "<div>", { class: "container" } ) );
-			spyOn( workspaceService, "addFolderToMenu" );
+			spyOn( workspaceService.privateFunctions, "addFolderToMenu" );
 		} );
 
 		afterEach( function() {
@@ -290,8 +290,8 @@ describe( "WorkspaceService", function() {
 				}
 			};
 
-			workspaceService.processDisplayWorkspace( minimalWorkspace );
-			workspaceService.processDisplayMenu( JSON.stringify( response ) );
+			workspaceService.privateFunctions.processDisplayWorkspace( minimalWorkspace );
+			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( response ) );
 
 			var $node = $( ".container .menu" );
 
@@ -309,7 +309,7 @@ describe( "WorkspaceService", function() {
 			expect( $node.hasClass( "fa-folder" ) ).toBe( true );
 			expect( $node.next().html() ).toBe( "root" );
 
-			expect( workspaceService.addFolderToMenu.calls.any() ).toBe( true );
+			expect( workspaceService.privateFunctions.addFolderToMenu.calls.any() ).toBe( true );
 		} );
 
 		it( "Close indicator should remove menu", function() {
@@ -325,8 +325,8 @@ describe( "WorkspaceService", function() {
 				}
 			};
 
-			workspaceService.processDisplayWorkspace( minimalWorkspace );
-			workspaceService.processDisplayMenu( JSON.stringify( response ) );
+			workspaceService.privateFunctions.processDisplayWorkspace( minimalWorkspace );
+			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( response ) );
 
 			var $node = $( ".container .menu" );
 
@@ -347,7 +347,7 @@ describe( "WorkspaceService", function() {
 			var $list = $( "<ul>" );
 			jsonObject[ "0" ] = "file1";
 
-			workspaceService.addFolderToMenu( jsonObject, $list );
+			workspaceService.privateFunctions.addFolderToMenu( jsonObject, $list );
 
 			expect( $list.find( "li:first" ).children().length ).toBe( 2 );
 			expect( $list.find( "li:first i.fa-file" ).length ).toBe( 1 );
@@ -358,9 +358,9 @@ describe( "WorkspaceService", function() {
 			var $list = $( "<ul>" );
 			jsonObject[ "folder1" ] = {};
 
-			spyOn( workspaceService, "addFolderToMenu" ).and.callThrough();
+			spyOn( workspaceService.privateFunctions, "addFolderToMenu" ).and.callThrough();
 
-			workspaceService.addFolderToMenu( jsonObject, $list );
+			workspaceService.privateFunctions.addFolderToMenu( jsonObject, $list );
 
 			expect( $list.find( "li:first" ).children().length ).toBe( 4 );
 			expect( $list.find( "li:first i.fa-folder" ).length ).toBe( 2 );
@@ -368,7 +368,7 @@ describe( "WorkspaceService", function() {
 			expect( $list.find( "li:first span" ).html() ).toBe( "folder1" );
 			expect( $list.find( "li:first ul" ).length ).toBe( 1 );
 
-			var secondCallArguments = workspaceService.addFolderToMenu.calls.argsFor( 1 );
+			var secondCallArguments = workspaceService.privateFunctions.addFolderToMenu.calls.argsFor( 1 );
 
 			expect( secondCallArguments[0][0] ).toEqual( jsonObject["folder1"][0] );
 			expect( secondCallArguments[1][0] ).toEqual( $list.find( "li:first ul" )[0] );
@@ -380,7 +380,7 @@ describe( "WorkspaceService", function() {
 			jsonObject[ "0" ] = "file0";
 			jsonObject[ "1" ] = "file1";
 
-			workspaceService.addFolderToMenu( jsonObject, $list );
+			workspaceService.privateFunctions.addFolderToMenu( jsonObject, $list );
 
 			expect( $list.find( "li:first" ).children().length ).toBe( 4 );
 			expect( $list.find( "li:first i.fa-folder" ).length ).toBe( 2 );
@@ -426,8 +426,8 @@ describe( "WorkspaceService", function() {
 				}
 			};
 
-			workspaceService.processDisplayWorkspace( minimalWorkspace );
-			workspaceService.processDisplayMenu( JSON.stringify( response ) );
+			workspaceService.privateFunctions.processDisplayWorkspace( minimalWorkspace );
+			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( response ) );
 		} );
 
 		afterEach( function() {
