@@ -48,6 +48,7 @@ var LoggingService = new function() {
 				functions.displayError( "Error occured.  Please try again or check console for more information." );
 			}
 			, requiredInput: function( field ) {
+				console.log( this );
 				functions.displayError( "Required Input: "+ field );
 			}
 			, unrecoverableError: function( error ) {
