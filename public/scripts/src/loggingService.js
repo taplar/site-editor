@@ -45,11 +45,10 @@ var LoggingService = new function() {
 					console.log( error );
 				}
 
-				functions.displayError( "Error occured.  Please try again or check console for more information." );
+				this.displayError( "Error occured.  Please try again or check console for more information." );
 			}
 			, requiredInput: function( field ) {
-				console.log( this );
-				functions.displayError( "Required Input: "+ field );
+				this.displayError( "Required Input: "+ field );
 			}
 			, unrecoverableError: function( error ) {
 				console.log( "Unrecoverable error occured.  If this does not resolve itself, contact the site administrator for further assistance." );
@@ -58,7 +57,7 @@ var LoggingService = new function() {
 					console.log( error );
 				}
 
-				functions.displayError( "Error occured.  Check console for more information." );
+				this.displayError( "Error occured.  Check console for more information." );
 			}
 		};
 	};
