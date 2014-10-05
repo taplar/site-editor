@@ -333,7 +333,7 @@ describe( "AuthService", function() {
 		} );
 
 		it( "Should not display messages if fields are blank and enter was not pressed", function() {
-			spyOn( keyService, "isEnterPressed" ).and.returnValue( false );
+			spyOn( keyService, "isEnter" ).and.returnValue( false );
 
 			$userid.keyup();
 
@@ -345,7 +345,7 @@ describe( "AuthService", function() {
 		} );
 
 		it( "Should not perform request if userid is blank", function() {
-			spyOn( keyService, "isEnterPressed" ).and.returnValue( true );
+			spyOn( keyService, "isEnter" ).and.returnValue( true );
 
 			$password.val( "admin" );
 			$password.keyup();
@@ -358,7 +358,7 @@ describe( "AuthService", function() {
 		} );
 
 		it( "Should not perform request if password is blank", function() {
-			spyOn( keyService, "isEnterPressed" ).and.returnValue( true );
+			spyOn( keyService, "isEnter" ).and.returnValue( true );
 
 			$userid.val( "admin" );
 			$userid.keyup();
@@ -371,7 +371,7 @@ describe( "AuthService", function() {
 		} );
 
 		it( "Should perform request if fields are not blank and call success", function() {
-			spyOn( keyService, "isEnterPressed" ).and.returnValue( true );
+			spyOn( keyService, "isEnter" ).and.returnValue( true );
 			spyOn( authService, "processLoginSubmit" );
 
 			ajaxService.POST.and.callFake( function( args ) {
@@ -392,7 +392,7 @@ describe( "AuthService", function() {
 
 		it( "Should perform request if fields are not blank and call failure", function() {
 			spyOn( authService, "processLoginSubmit" );
-			spyOn( keyService, "isEnterPressed" ).and.returnValue( true );
+			spyOn( keyService, "isEnter" ).and.returnValue( true );
 
 			ajaxService.POST.and.callFake( function( args ) {
 				args.fnFailure();

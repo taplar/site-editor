@@ -1,6 +1,8 @@
-var LoggingService = {
-	getInstance: function() {
-		var displayMessage = function( message, messageClass ) {
+var LoggingService = new function() {
+	var instance = null;
+
+	var functions = {
+		displayMessage: function( message, messageClass ) {
 			var $msg = $( "<div>", {
 				class: messageClass
 				, html: message
@@ -21,17 +23,19 @@ var LoggingService = {
 					}, 4000 );
 				}, 4000 );
 			}, 1000 );
-		};
+		}
+	};
 
-		var loggingService = {
+	var buildApi = function( functions ) {
+		return {
 			displayError: function( message ) {
-				displayMessage( message, "error" );
+				functions.displayMessage( message, "error" );
 			}
 			, displayInfo: function( message ) {
-				displayMessage( message, "info" );
+				functions.displayMessage( message, "info" );
 			}
 			, displaySuccess: function( message ) {
-				displayMessage( message, "success" );
+				functions.displayMessage( message, "success" );
 			}
 			, recoverableError: function( error ) {
 				console.log( "Error occured.  Please try again.  If error persists, try logging in again.   If unresolved, please contact the site administrator for further assistance." );
@@ -40,10 +44,10 @@ var LoggingService = {
 					console.log( error );
 				}
 
-				loggingService.displayError( "Error occured.  Please try again or check console for more information." );
+				this.displayError( "Error occured.  Please try again or check console for more information." );
 			}
 			, requiredInput: function( field ) {
-				loggingService.displayError( "Required Input: "+ field );
+				this.displayError( "Required Input: "+ field );
 			}
 			, unrecoverableError: function( error ) {
 				console.log( "Unrecoverable error occured.  If this does not resolve itself, contact the site administrator for further assistance." );
@@ -52,10 +56,28 @@ var LoggingService = {
 					console.log( error );
 				}
 
-				loggingService.displayError( "Error occured.  Check console for more information." );
+				this.displayError( "Error occured.  Check console for more information." );
 			}
 		};
+	};
 
-		return loggingService;
-	}
-};
+	return {
+		getInstance: function() {
+			if ( instance != null ) {
+				return instance;
+			}
+
+			instance = buildApi( functions );
+
+			return instance;
+		}
+		, getTestInstance: function() {
+			var functionsClone = Require.clone( functions );
+			var instance = buildApi( functionsClone );
+
+			instance.privateFunctions = functionsClone;
+			
+			return instance;
+		}
+	};
+}();

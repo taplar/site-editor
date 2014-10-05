@@ -1,14 +1,6 @@
 var AjaxService = new function() {
 	var instance = null;
-	var cloneFunctions = function() {
-		var result = {};
 
-		for (key in functions) {
-			result[ key ] = functions[ key ];
-		}
-
-		return result;
-	};
 	var functions = {
 		changeCursorToBusy: function() {
 			$( "body" ).addClass( "busy" );
@@ -16,22 +8,24 @@ var AjaxService = new function() {
 		, changeCursorToDefault: function() {
 			$( "body" ).removeClass( "busy" );
 		}
-		, request: function( requestType, args, functions ) {
+		, request: function( requestType, args ) {
 			if ( requestType === "GET") {
 				Require.all( args, "url", "fnSuccess", "fnFailure" );
 			} else {
 				Require.all( args, "url", "input", "fnSuccess", "fnFailure" );
 			}
 
+			var parent = this;
+
 			var params = {
 				type: requestType
 				, url: args.url
 				, success: function( data ) {
-					functions.changeCursorToDefault();
+					parent.changeCursorToDefault();
 					args.fnSuccess( data );
 				}
 				, error: function( data ) {
-					functions.changeCursorToDefault();
+					parent.changeCursorToDefault();
 					args.fnFailure( data );
 				}
 			};
@@ -40,19 +34,18 @@ var AjaxService = new function() {
 				params.data = args.input;
 			}
 
-			functions.changeCursorToBusy();
+			this.changeCursorToBusy();
 			$.ajax( params );
 		}
 	};
-	var buildApi = function( functionsReference ) {
-		var functions = functionsReference;
-
+	
+	var buildApi = function( functions ) {
 		return {
 			GET: function( args ) {
-				functions.request( "GET", args, functions );
+				functions.request( "GET", args );
 			}
 			, POST: function( args ) {
-				functions.request( "POST", args, functions );
+				functions.request( "POST", args );
 			}
 		};
 	};
@@ -68,10 +61,10 @@ var AjaxService = new function() {
 			return instance;
 		}
 		, getTestInstance: function() {
-			var functions = cloneFunctions();
-			var instance = buildApi( functions );
+			var functionsClone = Require.clone( functions );
+			var instance = buildApi( functionsClone );
 
-			instance.privateFunctions = functions;
+			instance.privateFunctions = functionsClone;
 			
 			return instance;
 		}

@@ -1,18 +1,40 @@
-var KeyService = {
-	getInstance: function() {
-		var isCode = function( event, keyCode ) {
-			return ( event.keyCode == keyCode );
-		};
+var KeyService = new function() {
+	var instance = null;
 
-		var keyService = {
-			isEnterPressed: function( event ) {
-				return isCode( event, 13 );
+	var functions = {
+		keyCodeCreatedEvent: function( event, keyCode ) {
+			return ( event.keyCode == keyCode );
+		}
+	};
+
+	var buildApi = function( functions ) {
+		return {
+			isEnter: function( event ) {
+				return functions.keyCodeCreatedEvent( event, 13 );
 			}
 		};
+	};
 
-		return keyService;
-	}
-};
+	return {
+		getInstance: function() {
+			if ( instance != null ) {
+				return instance;
+			}
+
+			instance = buildApi( functions );
+
+			return instance;
+		}
+		, getTestInstance: function() {
+			var functionsClone = Require.clone( functions );
+			var instance = buildApi( functionsClone );
+
+			instance.privateFunctions = functionsClone;
+			
+			return instance;
+		}
+	};
+}();
 
 
 

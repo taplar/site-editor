@@ -35,7 +35,7 @@ var AuthService = {
 
 				logErrorIfUserIdOrPasswordIsUndefined( json );
 
-				if ( keyService.isEnterPressed( event ) ) {
+				if ( keyService.isEnter( event ) ) {
 					executeCallbackIfCredentialsAreNotBlank( json, function() {
 						ajaxService.POST({
 							url: "?auth/validate"
