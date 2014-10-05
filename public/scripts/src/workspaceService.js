@@ -101,7 +101,7 @@ var WorkspaceService = new function() {
 
 			ajaxService.GET({
 				url: "public/views/prompt.html"
-				, fnSuccess: function( rawHtml ) { parent.processDisplayNewDirectory( thiz, rawHtml ); }
+				, fnSuccess: function( rawHtml ) { parent.processDisplayNewDirectory( parent, rawHtml ); }
 				, fnFailure: loggingService.recoverableError
 			});
 		}
@@ -216,7 +216,7 @@ var WorkspaceService = new function() {
 		}
 		, processDisplayWorkspace: function( rawHtml ) {
 			var parent = this;
-
+console.log( parent );
 			try {
 				Require.all( rawHtml );
 
