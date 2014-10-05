@@ -238,7 +238,7 @@ console.log( parent );
 			displayWorkspace: function() {
 				ajaxService.GET({
 					url: "public/views/workspace.html"
-					, fnSuccess: functions.processDisplayWorkspace
+					, fnSuccess: function( data ) { functions.processDisplayWorkspace( data ); }
 					, fnFailure: loggingService.unrecoverableError
 				});
 			}
