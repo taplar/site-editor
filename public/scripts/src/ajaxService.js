@@ -1,47 +1,46 @@
 var AjaxService = new function() {
 	var instance = null;
 
-	var functions = {
-		changeCursorToBusy: function() {
-			$( "body" ).addClass( "busy" );
-		}
-		, changeCursorToDefault: function() {
-			$( "body" ).removeClass( "busy" );
-		}
-		, request: function( requestType, args ) {
-			if ( requestType === "GET") {
-				Require.all( args, "url", "fnSuccess", "fnFailure" );
-			} else {
-				Require.all( args, "url", "input", "fnSuccess", "fnFailure" );
+	var buildApi = function() {
+		var functions = {
+			changeCursorToBusy: function() {
+				$( "body" ).addClass( "busy" );
 			}
-
-			var parent = this;
-
-			var params = {
-				type: requestType
-				, url: args.url
-				, success: function( data ) {
-					parent.changeCursorToDefault();
-					args.fnSuccess( data );
-				}
-				, error: function( data ) {
-					parent.changeCursorToDefault();
-					args.fnFailure( data );
-				}
-			};
-
-			if ( requestType === "POST" ) {
-				params.data = args.input;
+			, changeCursorToDefault: function() {
+				$( "body" ).removeClass( "busy" );
 			}
+			, request: function( requestType, args ) {
+				if ( requestType === "GET") {
+					Require.all( args, "url", "fnSuccess", "fnFailure" );
+				} else {
+					Require.all( args, "url", "input", "fnSuccess", "fnFailure" );
+				}
 
-			this.changeCursorToBusy();
-			$.ajax( params );
-		}
-	};
-	
-	var buildApi = function( functions ) {
+				var params = {
+					type: requestType
+					, url: args.url
+					, success: function( data ) {
+						functions.changeCursorToDefault();
+						args.fnSuccess( data );
+					}
+					, error: function( data ) {
+						functions.changeCursorToDefault();
+						args.fnFailure( data );
+					}
+				};
+
+				if ( requestType === "POST" ) {
+					params.data = args.input;
+				}
+
+				functions.changeCursorToBusy();
+				$.ajax( params );
+			}
+		};
+
 		return {
-			GET: function( args ) {
+			privateFunctions: functions
+			,GET: function( args ) {
 				functions.request( "GET", args );
 			}
 			, POST: function( args ) {
@@ -52,21 +51,16 @@ var AjaxService = new function() {
 
 	return {
 		getInstance: function() {
-			if ( instance != null ) {
-				return instance;
-			}
+			if ( instance == null ) {
+				instance = buildApi();
 
-			instance = buildApi( functions );
+				delete instance.privateFunctions;
+			}
 
 			return instance;
 		}
 		, getTestInstance: function() {
-			var functionsClone = Require.clone( functions );
-			var instance = buildApi( functionsClone );
-
-			instance.privateFunctions = functionsClone;
-			
-			return instance;
+			return buildApi();
 		}
 	};
 }();

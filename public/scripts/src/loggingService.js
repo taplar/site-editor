@@ -1,34 +1,35 @@
 var LoggingService = new function() {
 	var instance = null;
 
-	var functions = {
-		displayMessage: function( message, messageClass ) {
-			var $msg = $( "<div>", {
-				class: messageClass
-				, html: message
-			} );
+	var buildApi = function() {
+		var functions = {
+			displayMessage: function( message, messageClass ) {
+				var $msg = $( "<div>", {
+					class: messageClass
+					, html: message
+				} );
 
-			$( "body" ).append( $msg );
-
-			setTimeout( function() {
-				$msg
-					.css( "top", "7px" )
-					.css( "right", "125px" );
+				$( "body" ).append( $msg );
 
 				setTimeout( function() {
-					$msg.css( "top", "-50px" );
-					
-					setTimeout( function() {
-						$msg.remove();
-					}, 4000 );
-				}, 4000 );
-			}, 1000 );
-		}
-	};
+					$msg
+						.css( "top", "7px" )
+						.css( "right", "125px" );
 
-	var buildApi = function( functions ) {
+					setTimeout( function() {
+						$msg.css( "top", "-50px" );
+						
+						setTimeout( function() {
+							$msg.remove();
+						}, 4000 );
+					}, 4000 );
+				}, 1000 );
+			}
+		};
+
 		return {
-			displayError: function( message ) {
+			privateFunctions: functions
+			, displayError: function( message ) {
 				functions.displayMessage( message, "error" );
 			}
 			, displayInfo: function( message ) {
@@ -44,10 +45,10 @@ var LoggingService = new function() {
 					console.log( error );
 				}
 
-				this.displayError( "Error occured.  Please try again or check console for more information." );
+				functions.displayError( "Error occured.  Please try again or check console for more information." );
 			}
 			, requiredInput: function( field ) {
-				this.displayError( "Required Input: "+ field );
+				functions.displayError( "Required Input: "+ field );
 			}
 			, unrecoverableError: function( error ) {
 				console.log( "Unrecoverable error occured.  If this does not resolve itself, contact the site administrator for further assistance." );
@@ -56,28 +57,23 @@ var LoggingService = new function() {
 					console.log( error );
 				}
 
-				this.displayError( "Error occured.  Check console for more information." );
+				functions.displayError( "Error occured.  Check console for more information." );
 			}
 		};
 	};
 
 	return {
 		getInstance: function() {
-			if ( instance != null ) {
-				return instance;
-			}
+			if ( instance == null ) {
+				instance = buildApi();
 
-			instance = buildApi( functions );
+				delete instance.privateFunctions;
+			}
 
 			return instance;
 		}
 		, getTestInstance: function() {
-			var functionsClone = Require.clone( functions );
-			var instance = buildApi( functionsClone );
-
-			instance.privateFunctions = functionsClone;
-			
-			return instance;
+			return buildApi();
 		}
 	};
 }();

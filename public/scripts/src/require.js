@@ -20,13 +20,4 @@ var Require = {
 			throw errors;
 		}
 	}
-	, clone: function( json ) {
-		var result = {};
-
-		for ( key in json ) {
-			result[ key ] = json[ key ];
-		}
-
-		return result;
-	}
 };
