@@ -12,7 +12,7 @@ describe( "AjaxService", function() {
 	});
 
 	it( "TestInstance should affect calls", function() {
-		spyOn( ajaxService.privateFunctions, "request" ).and.callFake( function() {
+		spyOn( ajaxService.privateFunctions, "genericAjaxRequest" ).and.callFake( function() {
 			throw [new Error( "Magic" )];
 		} );
 
@@ -30,7 +30,7 @@ describe( "AjaxService", function() {
 	it( "TestInstance should not affect real instance", function() {
 		var realAjaxService = AjaxService.getInstance();
 
-		spyOn( ajaxService.privateFunctions, "request" ).and.callFake( function() {
+		spyOn( ajaxService.privateFunctions, "genericAjaxRequest" ).and.callFake( function() {
 			throw [ new Error( "Magic" ) ];
 		} );
 

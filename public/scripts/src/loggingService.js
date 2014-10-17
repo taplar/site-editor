@@ -11,19 +11,25 @@ var LoggingService = new function() {
 
 				$( "body" ).append( $msg );
 
-				setTimeout( function() {
+				setTimeout( functions.transitionMessageToTopRightCorner( $msg ), 1000 );
+			}
+			, transitionMessageOffTheTopOfThePage: function( $msg ) {
+				return function() {
+					$msg.css( "top", "-50px" );
+
+					setTimeout( function() {
+						$msg.remove();
+					}, 4000 );
+				};
+			}
+			, transitionMessageToTopRightCorner: function( $msg ) {
+				return function() {
 					$msg
 						.css( "top", "7px" )
 						.css( "right", "125px" );
 
-					setTimeout( function() {
-						$msg.css( "top", "-50px" );
-						
-						setTimeout( function() {
-							$msg.remove();
-						}, 4000 );
-					}, 4000 );
-				}, 1000 );
+					setTimeout( functions.transitionMessageOffTheTopOfThePage( $msg ), 4000 );
+				};
 			}
 		};
 

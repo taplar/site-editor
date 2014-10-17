@@ -6,6 +6,7 @@ body {
 	background: rgba(0, 0, 256, .75) url('http://res2.windows.microsoft.com/resbox/en/windows/main/ebf9f807-1f54-4b82-a3fe-862380833f9c_6.jpg') no-repeat;
 	font-family: 'Droid Serif', serif;
 	font-size: 12px;
+	overflow: hidden;
 }
 li {
 	color: rgb(255, 255, 255);

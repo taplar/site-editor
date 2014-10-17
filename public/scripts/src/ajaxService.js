@@ -3,28 +3,19 @@ var AjaxService = new function() {
 
 	var buildApi = function() {
 		var functions = {
-			changeCursorToBusy: function() {
+			addBusyCursorClassToBody: function() {
 				$( "body" ).addClass( "busy" );
 			}
-			, changeCursorToDefault: function() {
-				$( "body" ).removeClass( "busy" );
-			}
-			, request: function( requestType, args ) {
-				if ( requestType === "GET") {
-					Require.all( args, "url", "fnSuccess", "fnFailure" );
-				} else {
-					Require.all( args, "url", "input", "fnSuccess", "fnFailure" );
-				}
-
+			, buildRequestParameters: function( requestType, args ) {
 				var params = {
 					type: requestType
 					, url: args.url
 					, success: function( data ) {
-						functions.changeCursorToDefault();
+						functions.removeBusyCursorClassFromBody();
 						args.fnSuccess( data );
 					}
 					, error: function( data ) {
-						functions.changeCursorToDefault();
+						functions.removeBusyCursorClassFromBody();
 						args.fnFailure( data );
 					}
 				};
@@ -33,18 +24,33 @@ var AjaxService = new function() {
 					params.data = args.input;
 				}
 
-				functions.changeCursorToBusy();
-				$.ajax( params );
+				return params;
+			}
+			, genericAjaxRequest: function( requestType, args ) {
+				functions.requireInputsBasedOffOfRequestType( requestType, args );
+				functions.addBusyCursorClassToBody();
+
+				$.ajax( functions.buildRequestParameters( requestType, args ) );
+			}
+			, removeBusyCursorClassFromBody: function() {
+				$( "body" ).removeClass( "busy" );
+			}
+			, requireInputsBasedOffOfRequestType: function( requestType, args ) {
+				if ( requestType === "GET") {
+					Require.all( args, "url", "fnSuccess", "fnFailure" );
+				} else {
+					Require.all( args, "url", "input", "fnSuccess", "fnFailure" );
+				}
 			}
 		};
 
 		return {
 			privateFunctions: functions
 			,GET: function( args ) {
-				functions.request( "GET", args );
+				functions.genericAjaxRequest( "GET", args );
 			}
 			, POST: function( args ) {
-				functions.request( "POST", args );
+				functions.genericAjaxRequest( "POST", args );
 			}
 		};
 	};
