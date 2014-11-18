@@ -296,8 +296,8 @@ describe( "WorkspaceService", function() {
 			var $node = $( ".container .menu" );
 
 			$node = $node.find( ".search" );
-			expect( $node.find( "div > div > .fa-search" ).length > 0 ).toBe( true );
-			expect( $node.find( "div > div > .pattern" ).length > 0 ).toBe( true );
+			expect( $node.find( ".fa-search" ).length > 0 ).toBe( true );
+			expect( $node.find( ".pattern" ).length > 0 ).toBe( true );
 			$node = $node.parent().find( ".control" );
 			expect( $node.hasClass( "center" ) ).toBe( true );
 			expect( $node.children().first().hasClass( "fa-angle-double-up" ) ).toBe( true );
