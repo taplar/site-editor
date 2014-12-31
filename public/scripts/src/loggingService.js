@@ -1,9 +1,9 @@
-var LoggingService = new function() {
+var LoggingService = function () {
 	var instance = null;
 
-	var buildApi = function() {
+	var buildApi = function () {
 		var functions = {
-			displayMessage: function( message, messageClass ) {
+			displayMessage: function ( message, messageClass ) {
 				var $msg = $( "<div>", {
 					class: messageClass
 					, html: message
@@ -13,8 +13,8 @@ var LoggingService = new function() {
 
 				setTimeout( functions.transitionMessageToTopRightCorner( $msg ), 1000 );
 			}
-			, transitionMessageOffTheTopOfThePage: function( $msg ) {
-				return function() {
+			, transitionMessageOffTheTopOfThePage: function ( $msg ) {
+				return function () {
 					$msg.css( "top", "-50px" );
 
 					setTimeout( function() {
@@ -22,8 +22,8 @@ var LoggingService = new function() {
 					}, 4000 );
 				};
 			}
-			, transitionMessageToTopRightCorner: function( $msg ) {
-				return function() {
+			, transitionMessageToTopRightCorner: function ( $msg ) {
+				return function () {
 					$msg
 						.css( "top", "7px" )
 						.css( "right", "125px" );
@@ -33,43 +33,32 @@ var LoggingService = new function() {
 			}
 		};
 
-		return {
+		var api = {
 			privateFunctions: functions
-			, displayError: function( message ) {
-				functions.displayMessage( message, "error" );
+			, displayError: function ( message ) {
+				functions.displayMessage( message, 'error' );
 			}
-			, displayInfo: function( message ) {
-				functions.displayMessage( message, "info" );
+			, displayInfo: function ( message ) {
+				functions.displayMessage( message, 'info' );
 			}
-			, displaySuccess: function( message ) {
-				functions.displayMessage( message, "success" );
+			, displaySuccess: function ( message ) {
+				functions.displayMessage( message, 'success' );
 			}
-			, recoverableError: function( error ) {
-				console.log( "Error occured.  Please try again.  If error persists, try logging in again.   If unresolved, please contact the site administrator for further assistance." );
-
-				if ( typeof error !== "undefined" ) {
-					console.log( error );
-				}
-
-				this.displayError( "Error occured.  Please try again or check console for more information." );
+			, logInternalError: function () {
+				api.displayError( 'Internal Error.  Please see console for more details.' );
+				console.log( 'Previous request encountered an error.  Please try again.  If this persists, please contact your site administrator.' );
 			}
-			, requiredInput: function( field ) {
-				this.displayError( "Required Input: "+ field );
-			}
-			, unrecoverableError: function( error ) {
-				console.log( "Unrecoverable error occured.  If this does not resolve itself, contact the site administrator for further assistance." );
-
-				if ( typeof error !== "undefined" ) {
-					console.log( error );
-				}
-
-				this.displayError( "Error occured.  Check console for more information." );
+			, logNotFound: function () {
+				api.displayInfo( 'Resource Not Found.  Please see console for more details.' );
+				console.log( 'Requested resource was not found.  Please try again.  If this persists, please contact your site administrator.' );
 			}
 		};
+
+		return api;
 	};
 
 	return {
-		getInstance: function() {
+		getInstance: function () {
 			if ( instance == null ) {
 				instance = buildApi();
 
@@ -78,7 +67,7 @@ var LoggingService = new function() {
 
 			return instance;
 		}
-		, getTestInstance: function() {
+		, getTestInstance: function () {
 			return buildApi();
 		}
 	};

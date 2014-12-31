@@ -2,15 +2,17 @@
 
 final class Router {
 	private static $instance;
+	private $http;
 
 
-	private function __clone() {
+	private function __clone () {
 	}
 
-	private function __construct() {
+	private function __construct () {
+		$this->http = Http::getInstance();
 	}
 
-	public static function getInstance() {
+	public static function getInstance () {
 		if ( !self::$instance ) {
 			self::$instance = new self();
 		}
@@ -18,25 +20,57 @@ final class Router {
 		return self::$instance;
 	}
 
-	public static function getInstanceOfClass( $className, $params ) {
+	public static function getInstanceOfClass ( $className, $params ) {
 		if ( !ctype_alpha( $className ) ) {
 			throw new Exception( "Invalid Class Name" );
 		}
 
-		$reversedString = strrev( strtolower( $className ) );
-
-		if ( substr( $reversedString, 0, 10 ) == "rellortnoc" ) {
-			$relativePath = "private/controllers/";
-		} else if ( substr( $reversedString, 0, 7 ) == "ecivres" ) {
-			$relativePath = "private/services/";
-		} else {
-			throw new Exception( "Unknown Object Type" );
-		}
-
+		$relativePath = self::getRelativePathToClass( $className );
 		$lowercaseClassName = $className;
 		$lowercaseClassName{ 0 } = strtolower( $lowercaseClassName{ 0 } );
-		$filePath = Config::getInstance()->getEditorDirectory() . $relativePath . $lowercaseClassName .".php";
+		$filePath = Config::getInstance()->editorDirectory() . $relativePath . $lowercaseClassName .".php";
 
+		return self::includeFileAndInstantiateClass( $filePath, $className, $params );
+	}
+
+	private static function forwardToRestFunction ( $path ) {
+		$controller = ucwords( strtolower( $path[ 0 ] ) ."Controller" );
+		$controller = Router::getInstanceOfClass( $controller, NULL );
+
+		switch ( strtoupper( $_SERVER[ "REQUEST_METHOD" ] ) ) {
+			case "DELETE":
+				$controller->delete( $path );
+				break;
+			case "GET":
+				$controller->index( $path );
+				break;
+			case "POST":
+				$controller->save( $path );
+				break;
+			case "PUT":
+				$controller->update( $path );
+				break;
+			default:
+				$this->http->badRequest();
+				break;
+		}
+	}
+
+	private static function getRelativePathToClass ( $className ) {
+		$reversedString = strrev( strtolower( $className ) );
+
+		if ( substr( $reversedString, 0, 10 ) == strrev( "controller" ) ) {
+			return "private/controllers/";
+		}
+
+		if ( substr( $reversedString, 0, 7 ) == strrev( "service" ) ) {
+			return "private/services/";
+		}
+
+		throw new Exception( "Unknown Object Type" );
+	}
+
+	private static function includeFileAndInstantiateClass ( $filePath, $className, $params ) {
 		if ( file_exists( $filePath ) ) {
 			include_once $filePath;
 
@@ -44,49 +78,43 @@ final class Router {
 
 			if ( !isset( $params ) ) {
 				return call_user_func( $callable );
-			} else {
-				return call_user_func_array( $callable, $params );
 			}
-		} else {
-			throw new Exception( "Class Does Not Exist" );
+
+			return call_user_func_array( $callable, $params );
 		}
+
+		throw new Exception( "Class Does Not Exist" );
 	}
 
-	private function getPath() {
+	private static function loginAttempt ( $requestPath ) {
+		return ( strtoupper( $requestPath[ 0 ] ) == "SESSIONS" && strtoupper( $_SERVER[ "REQUEST_METHOD" ] ) == "POST" );
+	}
+
+	private function parseRequestPath () {
 		$keys = array_keys( $_GET );
 
 		if ( count( $keys ) > 0) {
 			return explode( "/", $keys[ 0 ] );
 		}
 
-		return NULL;
+		return [];
 	}
 
-	public function resolve() {
-		$response = self::getInstanceOfClass( "ResponseService", NULL );
-		$path = $this->getPath();
+	public function resolve () {
+		$requestPath = $this->parseRequestPath();
+		$sessionsController = Router::getInstanceOfClass( "SessionsController", NULL );
 
-		try {
-			if ( $path && count( $path ) > 0 ) {
-				self::getInstanceOfClass( "AuthorizationService", NULL )->validate();
-
-				$className = ucwords( strtolower( $path[ 0 ] ) ."Controller" );
-
-				self::getInstanceOfClass( $className, NULL )->resolve( $path, $response );
+		if ( count( $requestPath ) > 0 ) {
+			if ( $sessionsController->index( $requestPath ) ) {
+				Router::forwardToRestFunction( $requestPath );
+			} else if ( Router::loginAttempt( $requestPath ) ) {
+				$sessionsController->save( $requestPath );
 			} else {
-				$this->resolveInvalidPath( $response );
+				$this->http->unauthorized();
 			}
-		} catch ( Exception $e ) {
-			$response->unexpectedExceptionOccured();
+		} else {
+			$this->http->badRequest();
 		}
-
-		echo $response;
-	}
-
-	private function resolveInvalidPath( $response ) {
-		$filesystem = self::getInstanceOfClass( "FilesystemService", NULL );
-		$indexFile = Config::getInstance()->getEditorDirectory() ."public/views/index.html";
-		$response->rawData( $filesystem->readFile( $indexFile ) );
 	}
 }
 

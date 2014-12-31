@@ -1,23 +1,28 @@
-var KeyService = new function() {
+var KeyService = function () {
 	var instance = null;
 
-	var buildApi = function() {
+	var buildApi = function () {
 		var functions = {
-			keyCodeCreatedEvent: function( event, keyCode ) {
-				return ( event.keyCode == keyCode );
+		};
+
+		var api = {
+			privateFunctions: functions
+			, enter: function ( event ) {
+				var code = event.which;
+
+				if ( typeof code == 'undefined' ) {
+					code = event.keyCode;
+				}
+
+				return ( code == 13 );
 			}
 		};
 
-		return {
-			privateFunctions: functions
-			, isEnter: function( event ) {
-				return functions.keyCodeCreatedEvent( event, 13 );
-			}
-		};
+		return api;
 	};
 
 	return {
-		getInstance: function() {
+		getInstance: function () {
 			if ( instance == null ) {
 				instance = buildApi();
 
@@ -26,21 +31,8 @@ var KeyService = new function() {
 
 			return instance;
 		}
-		, getTestInstance: function() {
+		, getTestInstance: function () {
 			return buildApi();
 		}
 	};
 }();
-
-
-
-
-/*
-	var KeyTest = {
-		isCode: function(e, keyCode){ return (e.keyCode == keyCode); }
-		,isCtrl: function(e){ return KeyTest.isCode(e, 17); }
-		,isEnter: function(e){ return KeyTest.isCode(e, 13); }
-		,isS: function(e){ return KeyTest.isCode(e, 83); }
-		,isTab: function(e){ return KeyTest.isCode(e, 9); }
-	};
-*/

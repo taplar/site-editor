@@ -2,17 +2,16 @@
 
 final class Config {
 	private static $instance;
-	private $EDITOR_DIRECTORY = "./";
-	private $ROOT_DIRECTORY = "../";
+	private static $EDITOR_DIRECTORY = "../";
+	private static $ROOT_DIRECTORY = "../../";
 
-
-	private function __clone() {
+	private function __clone () {
 	}
 
-	private function __construct() {
+	private function __construct () {
 	}
 
-	public static function getInstance() {
+	public static function getInstance () {
 		if ( !self::$instance ) {
 			self::$instance = new self();
 		}
@@ -20,12 +19,12 @@ final class Config {
 		return self::$instance;
 	}
 
-	public function getEditorDirectory() {
-		return $this->EDITOR_DIRECTORY;
+	public function editorDirectory () {
+		return self::$EDITOR_DIRECTORY;
 	}
 
-	public function getRootDirectory() {
-		return $this->ROOT_DIRECTORY;
+	public function rootDirectory () {
+		return self::$ROOT_DIRECTORY;
 	}
 }
 

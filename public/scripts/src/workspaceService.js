@@ -1,120 +1,137 @@
-var WorkspaceService = new function() {
+var WorkspaceService = function () {
 	var instance = null;
 
-	var buildApi = function() {
-		var ajaxService = AjaxService.getInstance();
-		var authService = AuthService.getInstance();
-		var loggingService = LoggingService.getInstance();
-
+	var buildApi = function () {
 		var functions = {
-			addFolderToMenu: function( jsonObject, $list ) {
-				for ( key in jsonObject ) {
+			buildFilesystem: function ( data ) {
+				var $ul = $( '<ul>' );
+
+				functions.displayFilesInDirectory( $ul, $.parseJSON( data ) );
+
+				$( '.root ul' ).remove();
+				$ul.appendTo( $( '.root' ) );
+				$( '.root > .new-directory' ).click( functions.displayNewDirectory );
+			}
+			, buildFileTreeArray: function ( $fileActionObject ) {
+				var fileTree = [];
+				var $listItem = $fileActionObject.parent();
+
+				while ( $listItem.find( '> .file-name' ).length > 0 ) {
+					fileTree.push( $listItem.find( '> .file-name' ).html() );
+					$listItem = $listItem.parent().parent();
+				}
+
+				return fileTree.reverse();
+			}
+			, buildMenu: function ( data ) {
+				$( '.container .menu' ).remove();
+				$( '.container' ).append( data );
+
+				$( '.container .menu .control' ).click( function() {
+					$( '.container .menu' ).remove();
+				} );
+
+				functions.toggleSearchTips();
+				functions.displayFilesystem();
+				$( '.search .pattern' ).keyup( functions.filterMenu );
+			}
+			, buildNewDirectory: function ( data, fileTreeArray ) { //TODO: TEST THIS
+				var $prompt = $( data );
+
+				$prompt.find( '.existing-directory' ).html( fileTreeArray.join( '/' ) +'/' );
+				$prompt.prop( 'fileTree', fileTreeArray );
+
+				$( '.prompt-container' ).remove();
+				$prompt.appendTo( $( '.container' ) );
+
+				$( '.prompt-container .close' ).click( function () {
+					$( '.prompt-container' ).remove();
+				} );
+
+				$( '#newdirectory' ).keyup( functions.submitNewDirectoryOnEnter  );
+			}
+			, buildWorkspace: function ( data ) {
+				$( '.container' ).html( data );
+				$( '.container .menuIndicator' ).mouseover( functions.displayMenu );
+				$( '.container .logout' ).click( SessionService.getInstance().logout );
+			}
+			, displayFileInDirectory: function ( $filename, $directory ) {
+				$( '<li>' )
+					.append( $( '<i>', { class: 'fa fa-file'} ) )
+					.append( $( '<span>', {
+						class: 'file-name'
+						, html: $filename
+					} ) )
+					.appendTo( $directory );
+			}
+			, displayFilesInDirectory: function ( $directory, $files ) {
+				var filenames = [];
+
+				for ( key in $files ) {
 					if ( isNaN( key ) ) {
-						var $sublist = $( "<ul>" );
-
-						$( "<li>" )
-							.append( $("<i>", { class: "fa fa-folder subfolder" } ) )
-							.append( $( "<span>", { html: key } ) )
-							.append( $( "<span>", { class: "new-folder" } ) )
-							.find( ".new-folder" )
-								.append( $( "<i>", { class: "fa fa-folder" } ) )
-								.append( $( "<i>", { class: "fa fa-plus" } ) )
-							.end()
-							.append( $sublist )
-							.appendTo( $list );
-
-						functions.addFolderToMenu( jsonObject[ key ], $sublist );
+						functions.displaySubdirectory( key, $directory, $files[ key ] );
+					} else {
+						filenames.push( $files[ key ] );
 					}
 				}
 
-				for ( key in jsonObject ) {
-					if ( !isNaN( key ) ) {
-						$( "<li>" )
-							.append( $( "<i>", { class: "fa fa-file" } ) )
-							.append( $( "<span>", { html: jsonObject[ key ] } ) )
-							.appendTo( $list );
-					}
+				for ( key in filenames ) {
+					functions.displayFileInDirectory( filenames[ key ], $directory );
 				}
 			}
-			, buildMenu: function( jsonObject ) {
-				var $menu = $( "<div> ", { class: "menu flexbox-v" } )
-					.append( $( "<div>", { class: "search" } ) )
-					.append( $( "<div>", { class: "content flexible-v" } ) )
-					.append( $( "<div>", { class: "control center inflexible" } ) );
-
-				// $menu.find( ".search" )
-				// 	.append( $( "<div>" ) )
-				// 	.find( ":last-child" )
-				// 		.append( $( "<div>", { class: "search-container" } ) )
-				// 		.find( "> :last-child" )
-				// 			.append( $( "<i>", { class: "fa fa-search" } ) )
-				// 			.end()
-				// 		.append( $( "<div>", { class: "pattern-container" } ) )
-				// 		.find( "> :last-child" )
-				// 			.append( $( "<input>", { class: "pattern" } ) );
-
-				$menu.find( ".search" )
-					.append( $( "<div>", { class: "search-container" } ) )
-					.find( "> :last-child" )
-						.append( $( "<i>", { class: "fa fa-search" } ) )
-						.end()
-					.append( $( "<div>", { class: "pattern-container" } ) )
-					.append( $( "<input>", { class: "pattern" } ) );
-
-				$menu.find( ".content" )
-					.append( $( "<ul>", { class: "directoryStructure" } ));
-
-				$menu.find( ".control" )
-					.append( $( "<i>", { class: "fa fa-angle-double-up" } ));
-
-				$menu.find( ".directoryStructure" )
-					.append( $( "<li>", { class: "root" } ) )
-					.find( ":last-child" )
-						.append( $( "<i>", { class: "fa fa-folder" } ) )
-						.append( $( "<span>", { html: "root" } ) )
-						.append( $( "<span>", { class: "new-folder" } ) )
-						.find( ".new-folder" )
-							.append( $( "<i>", { class: "fa fa-folder" } ) )
-							.append( $( "<i>", { class: "fa fa-plus" } ) )
-						.end()
-						.append( $( "<ul>" ) );
-
-				functions.addFolderToMenu( jsonObject, $menu.find( ".directoryStructure li ul" ) );
-
-				$( ".container .menu" ).remove();
-				$( ".container" ).append($menu);
-				$( ".container .menu .control" ).click( function() {
-					$( ".container .menu" ).remove();
-				} );
-				$( ".container .menu .search input" ).keyup( functions.filterMenu );
-				$( ".container .menu .search-container ").mouseover( function() {
-					$( ".tip-search" ).show();
-				} );
-				$( ".container .menu .search-container ").mouseout( function() {
-					$( ".tip-search" ).hide();
-				} );
-				$( ".container .menu .new-folder" ).click( functions.displayNewFolder );
-			}
-			, displayMenu: function() {
-				ajaxService.GET({
-					url: "?menu/list"
-					, fnSuccess: functions.processDisplayMenu
-					, fnFailure: loggingService.recoverableError
+			, displayFilesystem: function () {
+				AjaxService.getInstance().GET({
+					url: './private/?files'
+					, success: functions.buildFilesystem
+					, 401: SessionService.getInstance().displayLogin
+					, 500: LoggingService.getInstance().logInternalError
 				});
 			}
-			, displayNewFolder: function() {
-				var parent = this;
+			, displaySubdirectory: function ( $directoryName, $directory, $subfiles ) {
+				var $sublist = $( '<ul>' );
+				var $listItem = $( '<li>' );
 
-				ajaxService.GET({
-					url: "public/views/prompt.html"
-					, fnSuccess: function( rawHtml ) { functions.processDisplayNewDirectory( parent, rawHtml ); }
-					, fnFailure: loggingService.recoverableError
+				$listItem
+					.append( $( '<i>', { class: 'fa fa-folder subdirectory'} ) )
+					.append( $( '<span>', {
+						class: 'file-name'
+						, html: $directoryName
+					} ) )
+					.append( $( '<span>', { class: 'new-directory' } ) )
+					.find( '.new-directory' )
+						.append( $( '<i>', { class: 'fa fa-folder' } ) )
+						.append( $( '<i>', { class: 'fa fa-plus' } ) )
+					.end()
+					.append( $sublist )
+					.appendTo( $directory );
+
+					functions.displayFilesInDirectory( $sublist, $subfiles );
+					$listItem.find( '> .new-directory' ).click( functions.displayNewDirectory );
+			}
+			, displayMenu: function () {
+				AjaxService.getInstance().GET({
+					url: './public/views/menu.view'
+					, success: functions.buildMenu
+					, 401: SessionService.getInstance().displayLogin
+					, 404: LoggingService.getInstance().logNotFound
+					, 500: LoggingService.getInstance().logInternalError
 				});
 			}
-			, filterMenu: function( event ) {
+			, displayNewDirectory: function () {
+				var fileTree = functions.buildFileTreeArray( $( this ) );
+
+				AjaxService.getInstance().GET({
+					url: './public/views/newDirectory.view'
+					, success: function ( data ) { functions.buildNewDirectory( data, fileTree ); }
+					, 401: SessionService.getInstance().displayLogin
+					, 404: LoggingService.getInstance().logNotFound
+					, 500: LoggingService.getInstance().logInternalError
+				});
+			}
+			, filterMenu: function ( event ) {
 				var $filter = $( this );
 				var pattern = $filter.val().trim().replace( /[%]/g, "[\\S]*" ).replace( /[_]/g, "[\\S]" );
-				var $menu = $( ".container .menu .content .directoryStructure .root > ul" );
+				var $menu = $( ".container .menu .content .directory-structure .root > ul" );
 
 				try {
 					$menu.find( "li" ).show();
@@ -162,89 +179,48 @@ var WorkspaceService = new function() {
 					$menu.find( "li" ).hide();
 				}
 			}
-			, processDisplayMenu: function( jsonString ) {
-				try {
-					Require.all( jsonString );
+			, submitNewDirectoryOnEnter: function ( event ) { //TODO: TEST THIS
 
-					var jsonObject = $.parseJSON( jsonString );
 
-					Require.all( jsonObject, "files", "responseCode" );
 
-					var fnBuildMenu = function() {
-						functions.buildMenu( jsonObject.files );
-					};
 
-					var fnRedirectToLogin = function() {
-						authService.displayLogin();
-						loggingService.displayInfo( "Session Expired" );
-					};
 
-					authService.processResponseCode({
-						responseCode: jsonObject.responseCode
-						, fnAuthorized: fnBuildMenu
-						, fnUnauthorized: fnRedirectToLogin
-					});
-				} catch ( error ) {
-					loggingService.recoverableError( error );
-				}
+
+
+
+
+
+
 			}
-			, processDisplayNewDirectory: function( object, rawHtml ) {
-				try {
-					Require.all( rawHtml );
+			, toggleSearchTips: function () {
+				$( '.container .menu .search-container' ).mouseover( function() {
+					$( '.tip-search' ).show();
+				} );
 
-					var $relatedDirectory = $( object ).parent();
-					var $parent = $( "<div>", { class: "existing-directory center" } );
-					var $directoryInput = $( "<div class='input center'><input type='text' placeholder='new directory' id='directory' value='' /></div>" );
-					var directories = new Array();
-
-					while ( $relatedDirectory.find( "> .fa-folder" ).length ) {
-						directories.push( $relatedDirectory.find( "> .fa-folder" ).next().html() );
-						$relatedDirectory = $relatedDirectory.parent().parent();
-					}
-
-					var $prompt = $( rawHtml );
-					$prompt.addClass( "prompt-container-overlay" );
-					$prompt.find( ".title" ).append( $( "<i>", { class: "fa fa-times close" } ) );
-					$prompt.find( ".content" ).append( $( "<div>", { class: "existing-directory center" } ) );
-					$prompt.find( ".content" ).append( $directoryInput );
-
-					$( ".container" ).append( $prompt );
-					$directoryInput.find( "#directory" ).focus();
-
-					$prompt.find( ".close" ).click( function() {
-						$prompt.remove();
-					} );
-				} catch ( error ) {
-					loggingService.recoverableError( error );
-				}
-			}
-			, processDisplayWorkspace: function( rawHtml ) {
-				try {
-					Require.all( rawHtml );
-
-					$( ".container" ).html( rawHtml );
-					$( ".container .menuIndicator" ).mouseover( functions.displayMenu );
-					$( ".container .logout" ).click( authService.logout );
-				} catch ( error ) {
-					loggingService.unrecoverableError( error );
-				}
+				$( '.container .menu .search-container' ).mouseout( function() {
+					$( '.tip-search' ).hide();
+				} );
 			}
 		};
 
-		return {
+		var api = {
 			privateFunctions: functions
-			, displayWorkspace: function() {
-				ajaxService.GET({
-					url: "public/views/workspace.html"
-					, fnSuccess: functions.processDisplayWorkspace
-					, fnFailure: loggingService.unrecoverableError
+			, displayWorkspace: function () {
+				AjaxService.getInstance().GET({
+					url: './public/views/workspace.view'
+					, success: functions.buildWorkspace
+					, 401: SessionService.getInstance().displayLogin
+					, 404: LoggingService.getInstance().logNotFound
+					, 500: LoggingService.getInstance().logInternalError
 				});
 			}
 		};
+
+		return api;
 	};
 
 	return {
-		getInstance: function() {
+		getInstance: function () {
 			if ( instance == null ) {
 				instance = buildApi();
 
@@ -253,172 +229,8 @@ var WorkspaceService = new function() {
 
 			return instance;
 		}
-		, getTestInstance: function() {
+		, getTestInstance: function () {
 			return buildApi();
 		}
 	};
 }();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-var EDITOR = {
-	actionCreateFilePrompt: function(path, ajaxService){
-		ajaxService.GET('public/views/prompt.html', {
-			fnSuccess: function(data){ EDITOR.processFileCreatePrompt(data, path, ajaxService); }
-			,fnFailure: EDITOR.recoverableError
-		});
-	}
-	,actionSubmitCreateFilePrompt: function(e, path, ajaxService){
-		if (EDITOR.KeyTest.isEnter(e)){
-			var filename = $('.prompt #filename').val();
-			var filenamePattern = /^[a-zA-Z][a-zA-Z0-9._-]*[.][a-zA-Z0-9]+$/;
-
-			if (filenamePattern.test(filename)){
-				path.push(filename);
-
-				ajaxService.POST('?file/create', { file: path }, {
-					fnSuccess: function(data){
-						EDITOR.displayInfo(data);
-
-
-
-
-
-
-
-
-						$('.prompt-container').remove();
-					}
-					,fnFailure: EDITOR.recoverableError
-				});
-			} else {
-				EDITOR.displayError("Invalid filename");
-			}
-		}
-	}
-	,buildFile: function($parent, path, file, ajaxService){
-		//var $delete = $('<i class="fa fa-times red" />');
-		var $li = $('<li><i class="fa fa-file file-icon" /></li>');
-		//var $newFile = $('<i class="fa fa-file gray" />');
-		//var $newFolder = $('<i class="fa fa-folder gray" />');
-		var $ul = $('<ul></ul>');
-		
-		//$newFile.click(THIS.actionNewFile(path, key));
-		//$newFolder.click(THIS.actionNewFolder(path, key));
-		//$delete.click(THIS.actionDeleteFolder(path, key));
-		//$li.click(THIS.actionToggleExpansion);
-		
-		path.push(file);
-		
-		$li.append(file)
-			//.append('&nbsp;').append($newFile)
-			//.append('&nbsp;').append($newFolder)
-			//.append('&nbsp;').append($delete)
-			.append($ul);
-		
-		$parent.append($li);
-	}
-	,buildFolder: function($parent, path, folder, files, ajaxService){
-		//var $delete = $('<i class="fa fa-times red" />');
-		var $li = $('<li><i class="fa fa-folder folder-icon subfolder" /></li>');
-		var $newFile = $('<span class="file-new-icon"><i class="fa fa-file" /><i class="fa fa-plus" /></span>');
-		//var $newFolder = $('<i class="fa fa-folder gray" />');
-		var $ul = $('<ul></ul>');
-		
-		path.push(folder);
-
-		$newFile.click(function(){ EDITOR.actionCreateFilePrompt(path, ajaxService); });
-		//$newFolder.click(THIS.actionNewFolder(path, key));
-		//$delete.click(THIS.actionDeleteFolder(path, key));
-		//$li.click(THIS.actionToggleExpansion);
-		
-		$li.append(folder).append($newFile)
-			//.append('&nbsp;').append($newFolder)
-			//.append('&nbsp;').append($delete)
-			.append($ul);
-		
-		EDITOR.buildFileList($ul, path, files, ajaxService);
-		
-		$parent.append($li);
-	}
-	,buildRootFolder: function($parent, ajaxService){
-		var $li = $('<li><i class="fa fa-folder folder-icon" /></li>');
-		var $newFile = $('<span class="file-new-icon"><i class="fa fa-file" /><i class="fa fa-plus" /></span>');
-		//var $newFolder = $('<i class="fa fa-folder gray" />');
-		var $ul = $('<ul></ul>');
-		
-		//$newFile.click(THIS.actionNewFile(null, 'root'));
-		//$newFolder.click(THIS.actionNewFolder(null, 'root'));
-		
-		$li.append('root').append($newFile)
-			//.append('&nbsp;').append($newFolder)
-			.append($ul);
-		
-		$parent.append($li);
-		
-		return $ul;
-	}
-	,processApplicationEntry: function(jsonString, ajaxService){
-		try {
-			var response = $.parseJSON(jsonString);
-
-			Require.all(response, 'responseCode');
-
-			if (response.responseCode == 'UNAUTHORIZED'){
-				EDITOR.displayLogin(ajaxService);
-			} else if (response.responseCode == 'AUTHORIZED'){
-				EDITOR.displayWorkspace(ajaxService);
-			} else {
-				EDITOR.unrecoverableError();
-			}
-		} catch (e){
-			console.log(e);
-			EDITOR.unrecoverableError();
-		}
-	}
-	,processFileCreatePrompt: function(data, path, ajaxService){
-		var $prompt = $(data);
-		var $content = $prompt.find('.content');
-
-		$prompt.find('.title').html('New File');
-		$content.append(
-			'<div class="input center">'
-				+'<input type="text" placeholder="filename" id="filename" value="" />'
-			+'</div>');
-
-		$('.container').append($prompt);
-		$('.prompt .input input').keyup(function(e){ EDITOR.actionSubmitCreateFilePrompt(e, path, ajaxService); });
-		$('.prompt .input input:first').focus();
-	}
-};
-
-
-
-
-*/

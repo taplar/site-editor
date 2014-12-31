@@ -1,62 +1,104 @@
-var AjaxService = new function() {
+var AjaxService = function () {
 	var instance = null;
 
-	var buildApi = function() {
+	var buildApi = function () {
+		var validRequestTypes = ['DELETE', 'GET', 'POST', 'PUT'];
+
 		var functions = {
-			addBusyCursorClassToBody: function() {
-				$( "body" ).addClass( "busy" );
-			}
-			, buildRequestParameters: function( requestType, args ) {
-				var params = {
-					type: requestType
-					, url: args.url
-					, success: function( data ) {
-						functions.removeBusyCursorClassFromBody();
-						args.fnSuccess( data );
+			buildErrorCallback: function ( params, jsonArgs ) {
+				params.error = function ( xhr, error ) {
+					var statusDoesNotHaveACallback =
+						   ( typeof params.statusCode[ 401 ] == 'undefined' || xhr.status != 401 )
+						&& ( typeof params.statusCode[ 404 ] == 'undefined' || xhr.status != 404 )
+						&& ( typeof params.statusCode[ 500 ] == 'undefined' || xhr.status != 500 );
+
+					if ( statusDoesNotHaveACallback ) {
+						LoggingService.getInstance().displayError( 'Unexpected response code returned from service.  Please see console for more details.' );
+						console.log( 'Service returned an unexpected response code of: '+ xhr.status );
 					}
-					, error: function( data ) {
-						functions.removeBusyCursorClassFromBody();
-						args.fnFailure( data );
+
+					if ( typeof jsonArgs.failure != 'undefined' ) {
+						jsonArgs.failure( xhr, error );
 					}
 				};
+			}
+			, buildRequestParameters: function ( requestType, jsonArgs ) {
+				var params = {
+					type: requestType
+					, url: jsonArgs.url
+					, success: jsonArgs.success
+					, complete: functions.changeMouseStateToDefault
+					, statusCode: {}
+				};
 
-				if ( requestType === "POST" ) {
-					params.data = args.input;
+				if ( requestType === 'POST' || requestType === 'PUT' ) {
+					params.data = jsonArgs.input;
 				}
+
+				if ( typeof jsonArgs[ 401 ] != 'undefined' ) {
+					params.statusCode[ 401 ] = jsonArgs[ 401 ];
+				}
+
+				if ( typeof jsonArgs[ 404 ] != 'undefined' ) {
+					params.statusCode[ 404 ] = jsonArgs[ 404 ];
+				}
+
+				if ( typeof jsonArgs[ 500 ] != 'undefined' ) {
+					params.statusCode[ 500 ] = jsonArgs[ 500 ];
+				}
+
+				functions.buildErrorCallback( params, jsonArgs );
 
 				return params;
 			}
-			, genericAjaxRequest: function( requestType, args ) {
-				functions.requireInputsBasedOffOfRequestType( requestType, args );
-				functions.addBusyCursorClassToBody();
+			, changeMouseStateToBusy: function () {
+				$( 'body' ).addClass( 'busy' );
+			}
+			, changeMouseStateToDefault: function () {
+				$( 'body' ).removeClass( 'busy' );
+			}
+			, generateAjaxRequest: function ( requestType, jsonArgs ) {
+				functions.requireRequestTypeInputs( requestType, jsonArgs );
+				functions.changeMouseStateToBusy();
 
-				$.ajax( functions.buildRequestParameters( requestType, args ) );
+				$.ajax( functions.buildRequestParameters( requestType, jsonArgs ) );
 			}
-			, removeBusyCursorClassFromBody: function() {
-				$( "body" ).removeClass( "busy" );
-			}
-			, requireInputsBasedOffOfRequestType: function( requestType, args ) {
-				if ( requestType === "GET") {
-					Require.all( args, "url", "fnSuccess", "fnFailure" );
-				} else {
-					Require.all( args, "url", "input", "fnSuccess", "fnFailure" );
+			, requireRequestTypeInputs: function ( requestType, jsonArgs ) {
+				Require.valueInArray( requestType, validRequestTypes );
+
+				switch ( requestType ) {
+					case 'POST':
+					case 'PUT':
+						Require.all( jsonArgs, 'url', 'input', 'success' );
+						break;
+					default:
+						Require.all( jsonArgs, 'url', 'success' );
+						break;
 				}
 			}
 		};
 
-		return {
+		var api = {
 			privateFunctions: functions
-			,GET: function( args ) {
-				functions.genericAjaxRequest( "GET", args );
+			, DELETE: function ( jsonArgs ) {
+				functions.generateAjaxRequest( 'DELETE', jsonArgs );
 			}
-			, POST: function( args ) {
-				functions.genericAjaxRequest( "POST", args );
+			, GET: function ( jsonArgs ) {
+				functions.generateAjaxRequest( 'GET', jsonArgs );
+			}
+			, POST: function ( jsonArgs ) {
+				functions.generateAjaxRequest( 'POST', jsonArgs );
+			}
+			, PUT: function ( jsonArgs ) {
+				functions.generateAjaxRequest( 'PUT', jsonArgs );
 			}
 		};
+
+		return api;
 	};
 
 	return {
-		getInstance: function() {
+		getInstance: function () {
 			if ( instance == null ) {
 				instance = buildApi();
 
@@ -65,7 +107,7 @@ var AjaxService = new function() {
 
 			return instance;
 		}
-		, getTestInstance: function() {
+		, getTestInstance: function () {
 			return buildApi();
 		}
 	};

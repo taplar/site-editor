@@ -1,0 +1,20 @@
+<div class="prompt-container prompt-container-overlay flexbox-h">
+	<div class="flexible-h"></div>
+	
+	<div class="inflexible flexbox-v">
+		<div class="flexible-v"></div>
+		
+		<div class="prompt inflexible">
+			<div class="title center new-directory-title">New Directory<i class="fa fa-times close" /></div>
+
+			<div class="content center">
+				<span class="existing-directory"></span>
+				<span class="input new-directory-name"><input type="text" id="newdirectory" /></span>
+			</div>
+		</div>
+		
+		<div class="flexible-v"></div>
+	</div>
+	
+	<div class="flexible-h"></div>
+</div>

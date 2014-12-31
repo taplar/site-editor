@@ -1,80 +1,60 @@
 # Interface
 
-`"~" represents "http://<domain>/<path to editor>"`
+`"~" represents "https://< domain >/< path to editor >"`
 
-### Application start
+### Validate Active Session
 
-Purpose: Returns the start page for the editor.
-
-##### Request
-```
-Method: GET
-URL: ~/
-```
-##### Response
-```
-Raw webpage data
-```
-
-### Validate authorization status
-
-Purpose: Determines on initial page load if user is already authorized.
+Purpose: Determine if a session is active.
 
 ##### Request
 ```
 Method: GET
-URL: ~/?auth/validate
+URL: ~/private/?sessions
 ```
 ##### Response
 ```
-{ responseCode: "AUTHORIZED"|"INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED" }
+* HTTP Response Codes
+	* 200 - Active Session
+	* 401 - Inactive Session
+	* 500 - Internal Error
 ```
-* responseCode
-	* AUTHORIZED - Expected when user is recognised; request successful
-	* INTERNAL_ERROR - Expected when unexpected exception occurs
-	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
-	* UNAUTHORIZED - Expected when user is not recognised
 
-### Authorization request
+### Create Active Session
 
 Purpose: Validate authorization against provided input.
 
 ##### Request
 ```
 Method: POST
-URL: ~/?auth/validate
+URL: ~/private/?sessions
 {
-	userid: <string>
-	,password: <string>
+	userid: < string >
+	,password: < string >
 }
 ```
 ##### Response
 ```
-{ responseCode: "AUTHORIZED"|"INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED" }
+* HTTP Response Codes
+	* 200 - Active Session Created
+	* 401 - Invalid Credentials
+	* 500 - Internal Error
 ```
-* responseCode
-	* AUTHORIZED - Expected when user is recognised; request successful
-	* INTERNAL_ERROR - Expected when unexpected exception occurs
-	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
-	* UNAUTHORIZED - Expected when user is not recognised
 
-### Invalidate authorization status
+### Delete Active Session
 
-Purpose: Ends the user's validation.
+Purpose: Terminate the active session.
 
 ##### Request
 ```
-Method: GET
-URL: ~/?auth/revoke
+Method: DELETE
+URL: ~/private/?sessions
 ```
 ##### Response
 ```
-{ responseCode: "INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED" }
+* HTTP Response Codes
+	* 200 - Active Session Terminated
+	* 500 - Internal Error
 ```
-* responseCode
-	* INTERNAL_ERROR - Expected when unexpected exception occurs
-	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
-	* UNAUTHORIZED - Expected when user is not recognised
 
 ### Retrieve list of files and directories
 
@@ -83,20 +63,23 @@ Purpose: Retrieve file tree for menu.
 ##### Request
 ```
 Method: GET
-URL: ~/?menu/list
+URL: ~/private/?files
 ```
 ##### Response
 ```
+* HTTP Response Codes
+	* 200 - File Tree Returned
+	* 401 - Inactive Session
+	* 500 - Internal Error
+
+* DATA
 {
-	files: <array(key => <string|object>)>
-	,responseCode: "AUTHORIZED"|"INTERNAL_ERROR"|"INVALID_REQUEST"|"UNAUTHORIZED"
+	files: < array( key => < object > ) >
 }
 ```
 * files - Array of objects
-	* Numeric keys - Object is a string representing a filename
-	* Non-numeric keys - Key is a string representing a directory and the Object is an array representing the directory contents in the same [key, object] relationship
-* responseCode
-	* AUTHORIZED - Expected when user is recognised; request successful
-	* INTERNAL_ERROR - Expected when unexpected exception occurs
-	* INVALID_REQUEST - Expected when exception occurs regarding processing of request
-	* UNAUTHORIZED - Expected when user is not recognised
+	* key (numeric)
+		* object is a filename string
+	* key (alphanumeric)
+		* key is a directory string
+		* object is an array with structure identical to 'files'

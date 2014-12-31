@@ -44,7 +44,7 @@ input:focus, select:focus, textarea:focus, button:focus {
 	width: 100vw;
 }
 .prompt-container-overlay {
-	background-color: rgba(0, 0, 0, 0.25);
+	background-color: rgba(0, 0, 0, 0.35);
 }
 .prompt-container-overlay .close {
 	position: absolute;
@@ -68,6 +68,7 @@ input:focus, select:focus, textarea:focus, button:focus {
 	cursor: default;
 }
 .fa-file, .fa-folder {
+	font-size: 12px;
 	margin-right: 4px;
 }
 .fa-power-off {
@@ -91,10 +92,10 @@ input:focus, select:focus, textarea:focus, button:focus {
 	font-size: 0.7em;
 	margin-left: -8px;
 }
-.new-folder {
+.new-directory {
 	margin-left: 4px;
 }
-.new-folder .fa-plus {
+.new-directory .fa-plus {
 	position: relative;
 	left: -13px;
 	top: -1px;
@@ -121,9 +122,14 @@ input:focus, select:focus, textarea:focus, button:focus {
 }
 
 /********** MENU **********/
-.directoryStructure {
+.directory-structure {
 	margin: 4px;
 	margin-left: -12px;
+
+	font-size: 0;
+}
+.file-name {
+	font-size: 12px;
 }
 .menu {
 	position: absolute;
@@ -234,9 +240,24 @@ input:focus, select:focus, textarea:focus, button:focus {
 }
 
 /********** NEW DIRECTORY **********/
+.prompt-container-overlay .new-directory-name {
+	position: relative;
+	left: -4px;
+}
+.prompt-container-overlay .new-directory-name input {
+	margin-right: 4px !important;
+}
+.prompt-container-overlay .new-directory-title {
+	padding-right: 24px;
+}
 .prompt-container-overlay .existing-directory {
 	color: rgb(192, 192, 192);
+	font-family: monospace;
 	font-weight: bold;
+	margin-left: 4px;
+}
+.prompt-container-overlay #newdirectory {
+	margin-left: 4px;
 }
 
 /********** PROMPT **********/
@@ -299,7 +320,6 @@ input:focus, select:focus, textarea:focus, button:focus {
 	color: rgb(255, 255, 255);
 	margin-left: 6px;
 }
-.fa-times { margin-left: 2px; }
 .openFile {
 	display: inline-block;
 	

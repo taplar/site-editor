@@ -1,574 +1,548 @@
-describe( "WorkspaceService", function() {
-	beforeEach( function() {
+describe ( 'WorkspaceService', function () {
+	beforeEach ( function () {
 		ajaxService = AjaxService.getInstance();
-		authService = AuthService.getInstance();
-		keyService = KeyService.getInstance();
 		loggingService = LoggingService.getInstance();
+		sessionService = SessionService.getInstance();
 
-		spyOn( loggingService, "unrecoverableError" );
-		spyOn( AjaxService, "getInstance" ).and.returnValue( ajaxService );
-		spyOn( AuthService, "getInstance" ).and.returnValue( authService );
-		spyOn( KeyService, "getInstance" ).and.returnValue( keyService );
-		spyOn( LoggingService, "getInstance" ).and.returnValue( loggingService );
+		spyOn( AjaxService, 'getInstance' ).and.returnValue( ajaxService );
+		spyOn( LoggingService, 'getInstance' ).and.returnValue( loggingService );
 
 		workspaceService = WorkspaceService.getTestInstance();
+
+		$( '<div>', { class: 'container'} ).appendTo( $( 'body' ) );
 	} );
 
-	describe( "DisplayWorkspace", function() {
-		var expectations = function( jsonObject ) {
-			expect( loggingService.unrecoverableError.calls.any() ).toBe( jsonObject.unrecoverableError );
-			expect( workspaceService.privateFunctions.processDisplayWorkspace.calls.any() ).toBe( jsonObject.processDisplayWorkspace );
+	afterEach ( function () {
+		$( '.container' ).remove();
+	} );
 
-			var arguments = ajaxService.GET.calls.argsFor( 0 )[ 0 ];
+	describe ( 'API', function () {
+		describe ( 'DisplayWorkspace', function () {
+			it ( 'Should call GET to retrieve workspace view', function () {
+				spyOn( ajaxService, 'GET' );
 
-			expect( arguments.url ).toEqual( "public/views/workspace.html" );
-		};
+				workspaceService.displayWorkspace();
 
-		beforeEach( function() {
-			spyOn( workspaceService.privateFunctions, "processDisplayWorkspace" );
-		} );
+				expect( ajaxService.GET ).toHaveBeenCalled();
 
-		it( "Should log unrecoverable error on failure", function() {
-			spyOn( ajaxService, "GET" ).and.callFake( function(args) {
-				args.fnFailure();
+				var args = ajaxService.GET.calls.argsFor( 0 );
+
+				expect( args[ 0 ].url ).toEqual( './public/views/workspace.view' );
+				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.buildWorkspace );
+				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
+				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
 			} );
-
-			workspaceService.displayWorkspace();
-
-			expectations({
-				unrecoverableError: true,
-				processDisplayWorkspace: false
-			});
 		} );
+	} );
 
-		it( "Should process response on success", function() {
-			spyOn( ajaxService, "GET" ).and.callFake( function( args ) {
-				args.fnSuccess();
+	describe ( 'PrivateFunctions', function () {
+		describe ( 'BuildFilesystem', function () {
+			it ( 'Should remove existing ul and insert new one', function () {
+				spyOn( workspaceService.privateFunctions, 'displayFilesInDirectory' );
+
+				$( '<div>', { class: 'root' } ).appendTo( $( '.container' ) );
+				$( '<ul>', { class: 'existingUL' } ).appendTo( $( '.root' ) );
+
+				var data = { key1: 'value1', key2: 'value2' };
+
+				workspaceService.privateFunctions.buildFilesystem( JSON.stringify( data ) );
+
+				expect( $( '.root ul' ).hasClass( 'existingURL' ) ).toBe( false );
+				expect( workspaceService.privateFunctions.displayFilesInDirectory ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayFilesInDirectory.calls.argsFor( 0 );
+
+				expect( args[ 0 ][ 0 ] ).toEqual( $( '.root ul' )[ 0 ] );
+				expect( args[ 1 ] ).toEqual( data );
 			} );
-
-			workspaceService.displayWorkspace();
-
-			expectations({
-				unrecoverableError: false,
-				processDisplayWorkspace: true
-			});
-		} );
-	} );
-
-	describe( "ProcessDisplayWorkspace", function() {
-		var expectations = function( jsonObject ) {
-			expect( loggingService.unrecoverableError.calls.any() ).toBe( jsonObject.unrecoverableError );
-			expect( $( ".container" ).html() ).toEqual( jsonObject.containerHtml );
-		};
-
-		beforeEach( function() {
-			$( "body" ).append($( "<div>", { class: "container" } ) );
 		} );
 
-		afterEach( function() {
-			$( ".container" ).remove();
-		} );
+		describe ( 'BuildFileTreeArray', function () {
+			it ( 'Should build file tree for child element', function () {
+				var data = [
+					'<ul>'
+						,'<li>'
+							,'<span class="file-name">directory1</span>'
+							,'<ul>'
+								,'<li>'
+									,'<span class="file-name">directory1.1</span>'
+									,'<ul>'
+										,'<li><span class="file-name">file1.1.1</span></li>'
+										,'<li><span class="file-name testFile">file1.1.2</span></li>'
+									,'</ul>'
+								,'</li>'
+								,'<li><span class="file-name">file1.1</span></li>'
+							,'</ul>'
+						,'</li><li>'
+							,'<span class="file-name">directory2</span>'
+							,'<ul>'
+								,'<li>'
+									,'<span class="file-name">directory2.1</span>'
+									,'<ul>'
+										,'<li><span class="file-name">file2.1.1</span></li>'
+										,'<li><span class="file-name">file2.1.2</span></li>'
+									,'</ul>'
+								,'</li>'
+								,'<li><span class="file-name">file2.1</span></li>'
+							,'</ul>'
+						,'</li>'
+						,'<li><span class="file-name">file2</span></li>'
+					,'</ul>'
+				];
 
-		it( "Should throw error if missing data", function() {
-			workspaceService.privateFunctions.processDisplayWorkspace();
+				var $completeDirectory = $( data.join( '' ) );
+				var $targetDirectory = $completeDirectory.find( '.testFile' );
 
-			expectations({
-				unrecoverableError: true,
-				containerHtml: ""
-			});
-		});
-
-		it( "Should clear page and build menu and logout options", function() {
-			var minimalWorkspace = $( "<span>" )
-				.append( $( "<i>", { class: "menuIndicator" } ) )
-				.append( $( "<i>", { class: "logout"} ) ).html();
-
-			spyOn( authService, "logout" );
-			spyOn( workspaceService.privateFunctions, "displayMenu" );
-
-			workspaceService.privateFunctions.processDisplayWorkspace( minimalWorkspace );
-
-			expectations({
-				unrecoverableError: false,
-				containerHtml: minimalWorkspace
-			});
-
-			expect( workspaceService.privateFunctions.displayMenu.calls.any() ).toBe( false );
-			$( ".container .menuIndicator" ).mouseover();
-			expect( workspaceService.privateFunctions.displayMenu.calls.any() ).toBe( true );
-
-			expect( authService.logout.calls.any() ).toBe( false );
-			$( ".container .logout" ).click();
-			expect( authService.logout.calls.any() ).toBe( true );
-		} );
-	} );
-
-	describe( "DisplayMenu", function() {
-		var expectations = function( jsonObject ) {
-			expect( loggingService.unrecoverableError.calls.any() ).toBe( false );
-			expect( loggingService.recoverableError.calls.any() ).toBe( jsonObject.recoverableError );
-			expect( workspaceService.privateFunctions.processDisplayMenu.calls.any() ).toBe( jsonObject.processDisplayMenu );
-		};
-
-		beforeEach( function() {
-			spyOn( loggingService, "recoverableError" );
-			spyOn( workspaceService.privateFunctions, "processDisplayMenu" );
-		} );
-
-		it( "Should log recoverable error on failure", function() {
-			spyOn( ajaxService, "GET" ).and.callFake( function( args ) {
-				args.fnFailure();
+				expect( workspaceService.privateFunctions.buildFileTreeArray( $targetDirectory ) ).toEqual( [ 'directory1', 'directory1.1', 'file1.1.2' ] );
 			} );
-
-			workspaceService.privateFunctions.displayMenu();
-
-			expectations({
-				recoverableError: true,
-				processDisplayMenu: false
-			});
 		} );
 
-		it( "Should process response on success", function() {
-			spyOn( ajaxService, "GET" ).and.callFake( function( args ) {
-				args.fnSuccess();
+		describe ( 'BuildMenu', function () {
+			it ( 'Should replace existing menu with new data and remove when control is activated', function () {
+				$( '<div>', { class: 'menu old' } ).appendTo( $( '.container' ) );
+
+				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+				spyOn( workspaceService.privateFunctions, 'toggleSearchTips' );
+				spyOn( workspaceService.privateFunctions, 'filterMenu' );
+
+				var data = '<div class="menu new"><div class="search"><input class="pattern" type="text"></div><i class="control" /></div>'
+
+				workspaceService.privateFunctions.buildMenu( data );
+
+				expect( $( '.menu' ).hasClass( 'old' ) ).toBe( false );
+				expect( $( '.menu' ).hasClass( 'new' ) ).toBe( true );
+				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.toggleSearchTips ).toHaveBeenCalled();
+
+				expect( workspaceService.privateFunctions.filterMenu ).not.toHaveBeenCalled();
+				$( '.search .pattern' ).trigger( 'keyup' );
+				expect( workspaceService.privateFunctions.filterMenu ).toHaveBeenCalled();
+
+				$( '.control' ).click();
+				expect( $( '.menu' ).length ).toEqual( 0 );
 			} );
-
-			workspaceService.privateFunctions.displayMenu();
-
-			expectations({
-				recoverableError: false,
-				processDisplayMenu: true
-			});
-		} );
-	} );
-
-	describe( "ProcessDisplayMenu", function() {
-		var expectations = function( jsonObject ) {
-			expect( loggingService.unrecoverableError.calls.any() ).toBe( false );
-			expect( loggingService.recoverableError.calls.any() ).toBe( jsonObject.recoverableError );
-			expect( authService.displayLogin.calls.any() ).toBe( jsonObject.displayLogin );
-
-			if ( jsonObject.displayLogin ) {
-				var arguments = loggingService.displayInfo.calls.argsFor( 0 );
-
-				expect( arguments[ 0 ] ).toEqual( "Session Expired" );
-			}
-
-			expect( workspaceService.privateFunctions.buildMenu.calls.any() ).toBe( jsonObject.buildMenu );
-		};
-
-		beforeEach( function() {
-			spyOn( authService, "displayLogin" );
-			spyOn( loggingService, "displayInfo" );
-			spyOn( loggingService, "recoverableError" );
-			spyOn( workspaceService.privateFunctions, "buildMenu" );
-			jsonObject = { files: [] };
 		} );
 
-		it( "Should throw error if data is missing", function() {
-			workspaceService.privateFunctions.processDisplayMenu();
+		describe ( 'BuildNewDirectory', function () {
+			it ( '', function () {
+				
 
-			expectations({
-				recoverableError: true,
-				displayLogin: false,
-				buildMenu: false
-			});
+
+
+
+
+
+
+
+
+
+
+
+
+			} );
 		} );
 
-		it( "Should throw error if data is not json parsable", function() {
-			workspaceService.privateFunctions.processDisplayMenu( "not json" );
+		describe ( 'BuildWorkspace', function () {
+			it ( 'Should replace container html and bind events', function () {
+				spyOn( sessionService, 'logout' );
+				spyOn( workspaceService.privateFunctions, 'displayMenu' );
 
-			expectations({
-				recoverableError: true,
-				displayLogin: false,
-				buildMenu: false
-			});
+				$( '.container' ).html( 'existing data to be replaced' );
+				workspaceService.privateFunctions.buildWorkspace( '<i class="menuIndicator" /><i class="logout" />' );
+				expect( $( '.container' ).html() ).not.toEqual( 'existing data to be replaced' );
+
+				expect( workspaceService.privateFunctions.displayMenu ).not.toHaveBeenCalled();
+				$( '.menuIndicator' ).mouseover();
+				expect( workspaceService.privateFunctions.displayMenu ).toHaveBeenCalled();
+
+				expect( sessionService.logout ).not.toHaveBeenCalled();
+				$( '.logout' ).click();
+				expect( sessionService.logout ).toHaveBeenCalled();
+			} );
 		} );
 
-		it( "Should throw error if response code not returned", function() {
-			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( jsonObject ) );
+		describe ( 'DisplayFileInDirectory', function () {
+			it ( 'Should add directory to directory listing', function () {
+				var $ul = $( '<ul>' );
 
-			expectations({
-				recoverableError: true,
-				displayLogin: false,
-				buildMenu: false
-			});
+				workspaceService.privateFunctions.displayFileInDirectory( 'fileForSale', $ul );
+
+				expect( $ul.html() ).toEqual(
+					'<li>'
+						+ '<i class="fa fa-file"></i>'
+						+ '<span class="file-name">fileForSale</span>'
+					+ '</li>'
+				);
+			} );
 		} );
 
-		it( "Should throw error if internal error occured", function() {
-			jsonObject.responseCode = "INTERNAL_ERROR";
+		describe ( 'DisplayFilesInDirectory', function () {
+			it ( 'Should process directories and files', function () {
+				spyOn( workspaceService.privateFunctions, 'displaySubdirectory' );
+				spyOn( workspaceService.privateFunctions, 'displayFileInDirectory' );
 
-			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( jsonObject ) );
-
-			expectations({
-				recoverableError: true,
-				displayLogin: false,
-				buildMenu: false
-			});
+				var data = {
+					'0': 'file1.html'
+					, 'directory1': { '0': 'file1.1.html' }
+					, '1': 'file2.html'
+					, 'directory2': { '0': 'file2.1.html' }
+				}
+			} );
 		} );
 
-		it( "Should throw error if invalid request occured", function() {
-			jsonObject.responseCode = "INVALID_REQUEST";
+		describe ( 'DisplayFilesystem', function () {
+			it ( 'Should call GET to retreive directory structure', function () {
+				spyOn( ajaxService, 'GET' );
 
-			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( jsonObject ) );
+				workspaceService.privateFunctions.displayFilesystem();
 
-			expectations({
-				recoverableError: true,
-				displayLogin: false,
-				buildMenu: false
-			});
+				expect( ajaxService.GET ).toHaveBeenCalled();
+
+				var args = ajaxService.GET.calls.argsFor( 0 );
+
+				expect( args[ 0 ].url ).toEqual( './private/?files' );
+				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.buildFilesystem );
+				expect( args[ 0 ][ 401 ] ).toEqual( sessionService.displayLogin );
+				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
+			} );
 		} );
 
-		it( "Should throw error if unexpected response code returned", function() {
-			jsonObject.responseCode = "CHUMBAWUMBA";
+		describe ( 'DisplaySubdirectory', function () {
+			it ( 'Should add directory to directory listing', function () {
+				spyOn( workspaceService.privateFunctions, 'displayFilesInDirectory' );
+				spyOn( workspaceService.privateFunctions, 'displayNewDirectory' );
 
-			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( jsonObject ) );
+				var $ul = $( '<ul>' );
+				var $subfiles = { 'file': 'blah' };
 
-			expectations({
-				recoverableError: true,
-				displayLogin: false,
-				buildMenu: false
-			});
+				workspaceService.privateFunctions.displaySubdirectory( 'directoryForPurchase', $ul, $subfiles );
+
+				expect( $ul.html() ).toEqual(
+					'<li>'
+						+ '<i class="fa fa-folder subdirectory"></i>'
+						+ '<span class="file-name">directoryForPurchase</span>'
+						+ '<span class="new-directory">'
+							+ '<i class="fa fa-folder"></i>'
+							+ '<i class="fa fa-plus"></i>'
+						+ '</span>'
+						+ '<ul></ul>'
+					+ '</li>'
+				);
+
+				expect( workspaceService.privateFunctions.displayFilesInDirectory ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayFilesInDirectory.calls.argsFor( 0 );
+
+				expect( args[ 0 ][ 0 ] ).toEqual( $ul.find( 'li ul' )[ 0 ] );
+				expect( args[ 1 ] ).toEqual( $subfiles );
+
+				expect( workspaceService.privateFunctions.displayNewDirectory ).not.toHaveBeenCalled();
+				$ul.find( '.new-directory' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.displayNewDirectory ).toHaveBeenCalled();
+			} );
 		} );
 
-		it( "Should display login if unauthorized", function() {
-			jsonObject.responseCode = "UNAUTHORIZED";
+		describe ( 'DisplayMenu', function () {
+			it ( 'Should call GET to retrieve menu view', function () {
+				spyOn( ajaxService, 'GET' );
 
-			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( jsonObject ) );
+				workspaceService.privateFunctions.displayMenu();
 
-			expectations({
-				recoverableError: false,
-				displayLogin: true,
-				buildMenu: false
-			});
+				expect( ajaxService.GET ).toHaveBeenCalled();
+
+				var args = ajaxService.GET.calls.argsFor( 0 );
+
+				expect( args[ 0 ].url ).toEqual( './public/views/menu.view' );
+				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.buildMenu );
+				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
+				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
+			} );
 		} );
 
-		it( "Should build menu if authorized", function() {
-			jsonObject.responseCode = "AUTHORIZED";
+		describe ( 'DisplayNewDirectory', function () {
+			it ( 'Should call GET to retrieve new directory view', function () {
+				spyOn( ajaxService, 'GET' );
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( [ 'root' ] );
+				spyOn( workspaceService.privateFunctions, 'buildNewDirectory' );
 
-			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( jsonObject ) );
+				workspaceService.privateFunctions.displayNewDirectory();
 
-			expectations({
-				recoverableError: false,
-				displayLogin: false,
-				buildMenu: true
-			});
+				expect( ajaxService.GET ).toHaveBeenCalled();
+
+				var args = ajaxService.GET.calls.argsFor( 0 );
+
+				expect( args[ 0 ].url ).toEqual( './public/views/newDirectory.view' );
+				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
+				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
+
+				args[ 0 ].success( 'myData' );
+
+				var args = workspaceService.privateFunctions.buildNewDirectory.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'myData' );
+				expect( args[ 1 ] ).toEqual( [ 'root' ] );
+			} );
 		} );
-	} );
 
-	describe( "BuildMenu", function() {
-		beforeEach( function() {
-			$( "body" ).append($( "<div>", { class: "container" } ) );
-			spyOn( workspaceService.privateFunctions, "addFolderToMenu" );
-		} );
+		describe ( 'FilterMenu', function () {
+			var menuData = [
+				'<div class="menu">'
+					,'<div class="search">'
+						,'<div class="search-container">'
+							,'<i class="fa-search" />'
+						,'</div>'
+						,'<div class="pattern-container" />'
+						,'<input type="text" class="pattern" />'
+					,'</div>'
+					,'<div class="content">'
+						,'<ul class="directory-structure">'
+							,'<li class="root">'
+								,'<i class="fa-folder" />'
+								,'<span class="file-name">root</span>'
+								,'<span class="new-directory">'
+									,'<i class="fa-folder" />'
+									,'<i class="fa-plus" />'
+								,'</span>'
+								,'<ul></ul>'
+							,'</li>'
+						,'</ul>'
+					,'</div>'
+					,'<div class="control"><i class="fa-angle-double-up" /></div>'
+				,'</div>'
+			];
 
-		afterEach( function() {
-			$( ".container" ).remove();
-		} );
-
-		it( "Should display menu", function() {
-			var minimalWorkspace = $( "<span>" )
-				.append( $( "<i>", { class: "menuIndicator" } ) )
-				.append( $( "<i>", { class: "logout"} ) ).html();
-
-			var response = {
-				"responseCode": "AUTHORIZED"
-				,"files": {
-					"0": "file0.1"
-					,"1": "file0.2"
-					,"folder1": {
-						"0": "file1.1"
-						,"1": "file1.2"
-					}
-					,"folder2": {
-						"0": "file2.1"
-						,"1": "file2.2"
-						,"folder3": {
-							"0": "file3.1"
-						}
-					}
+			var fileData = {
+				"site-editor":{
+					"0":"LICENSE",
+					"1":"README.md",
+					"2":"index.html",
+					"private":{
+						"0":"README.md",
+						"1":"config.php",
+						"controllers":[
+							"filesController.php",
+							"sessionsController.php"
+						],
+						"2":"http.php",
+						"3":"index.php",
+						"4":"router.php",
+						"services":[
+							"filesService.php",
+							"sessionService.php"
+						]
+					},
+					"public":{
+						"scripts":{
+							"src":[
+								"ajaxService.js",
+								"index.js",
+								"keyService.js",
+								"loggingService.js",
+								"require.js",
+								"sessionService.js",
+								"workspaceService.js"
+							],
+							"test":[
+								"ajaxServiceTests.js",
+								"keyServiceTests.js",
+								"sessionServiceTests.js",
+								"workspaceServiceTests.js"
+							],
+							"vendor":{
+								"jasmine":[
+									"boot.js",
+									"console.js",
+									"jasmine-html.js",
+									"jasmine.js"
+								]
+							}
+						},
+						"styles":{
+							"0":"flexbox.css",
+							"1":"index.css",
+							"vendor":{
+								"font-awesome":{
+									"4.2.0":{
+										"css":[ "font-awesome.min.css" ],
+										"fonts":[
+											"FontAwesome.otf",
+											"fontawesome-webfont.eot",
+											"fontawesome-webfont.svg",
+											"fontawesome-webfont.ttf",
+											"fontawesome-webfont.woff"
+										]
+									}
+								},
+								"jasmine":[ "jasmine.css" ]
+							}
+						},
+						"views":[
+							"login.view",
+							"menu.view",
+							"prompt.view",
+							"workspace.view"
+						]
+					},
+					"3":"tests.html"
 				}
 			};
 
-			workspaceService.privateFunctions.processDisplayWorkspace( minimalWorkspace );
-			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( response ) );
+			beforeEach ( function () {
+				spyOn( workspaceService.privateFunctions, 'toggleSearchTips' );
+				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+				workspaceService.privateFunctions.buildMenu( menuData.join( '' ) );
+				workspaceService.privateFunctions.buildFilesystem( JSON.stringify( fileData ) );
 
-			var $node = $( ".container .menu" );
+				$liElements = $( '.directory-structure .file-name' ).parent().filter( ':not(.root)' )
+			} );
 
-			$node = $node.find( ".search" );
-			expect( $node.find( ".fa-search" ).length > 0 ).toBe( true );
-			expect( $node.find( ".pattern" ).length > 0 ).toBe( true );
-			$node = $node.parent().find( ".control" );
-			expect( $node.hasClass( "center" ) ).toBe( true );
-			expect( $node.children().first().hasClass( "fa-angle-double-up" ) ).toBe( true );
-			$node = $node.parent().find( ".content" );
-			$node = $node.children().first();
-			expect( $node.hasClass( "directoryStructure" ) ).toBe( true );
-			$node = $node.children().first();
-			$node = $node.children().first();
-			expect( $node.hasClass( "fa-folder" ) ).toBe( true );
-			expect( $node.next().html() ).toBe( "root" );
+			afterEach ( function () {
+				$( '.container .menu' ).remove();
+			} );
 
-			expect( workspaceService.privateFunctions.addFolderToMenu.calls.any() ).toBe( true );
-		} );
+			it ( 'Should default all files to visible', function () {
+				expect( $liElements.filter( ':hidden' ).length ).toEqual( 0 );
+			} );
 
-		it( "Close indicator should remove menu", function() {
-			var minimalWorkspace = $( "<span>" )
-				.append( $( "<i>", { class: "menuIndicator" } ) )
-				.append( $( "<i>", { class: "logout"} ) ).html();
+			it ( 'Should hide all files if no match', function () {
+				$( '.container .pattern' ).val( 'xyz' );
+				$( '.container .pattern' ).trigger( 'keyup' );
 
-			var response = {
-				"responseCode": "AUTHORIZED"
-				,"files": {
-					"0": "file0.1"
-					,"1": "file0.2"
-				}
-			};
+				expect( $liElements.filter( ':visible' ).length ).toEqual( 0 );
+			} );
 
-			workspaceService.privateFunctions.processDisplayWorkspace( minimalWorkspace );
-			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( response ) );
+			it ( 'Should filter specific file', function () {
+				$( '.container .pattern' ).val( 'index.css' );
+				$( '.container .pattern' ).trigger( 'keyup' );
 
-			var $node = $( ".container .menu" );
+				$liElements.find( '.file-name' ).each( function () {
+					var $this = $( this );
 
-			expect( $node.length ).toBe( 1 );
-
-			$node.find( ".control" ).click();
-
-			expect( $( ".container .menu" ).length ).toBe( 0 );
-		} );
-	} );
-
-	describe( "AddFolderToMenu", function() {
-		beforeEach( function() {
-			jsonObject = {};
-		} );
-
-		it( "Should add a single file", function() {
-			var $list = $( "<ul>" );
-			jsonObject[ "0" ] = "file1";
-
-			workspaceService.privateFunctions.addFolderToMenu( jsonObject, $list );
-
-			expect( $list.find( "li:first" ).children().length ).toBe( 2 );
-			expect( $list.find( "li:first i.fa-file" ).length ).toBe( 1 );
-			expect( $list.find( "li:first span" ).html() ).toBe( "file1" );
-		} );
-
-		it( "Should add a single folder", function() {
-			var $list = $( "<ul>" );
-			jsonObject[ "folder1" ] = {};
-
-			spyOn( workspaceService.privateFunctions, "addFolderToMenu" ).and.callThrough();
-
-			workspaceService.privateFunctions.addFolderToMenu( jsonObject, $list );
-
-			expect( $list.find( "li:first" ).children().length ).toBe( 4 );
-			expect( $list.find( "li:first i.fa-folder" ).length ).toBe( 2 );
-			expect( $list.find( "li:first i.fa-folder:first" ).hasClass( "subfolder" ) ).toBe( true );
-			expect( $list.find( "li:first span" ).html() ).toBe( "folder1" );
-			expect( $list.find( "li:first ul" ).length ).toBe( 1 );
-
-			var secondCallArguments = workspaceService.privateFunctions.addFolderToMenu.calls.argsFor( 1 );
-
-			expect( secondCallArguments[0][0] ).toEqual( jsonObject["folder1"][0] );
-			expect( secondCallArguments[1][0] ).toEqual( $list.find( "li:first ul" )[0] );
-		} );
-
-		it( "Should add files below folders", function() {
-			var $list = $( "<ul>" );
-			jsonObject[ "folder1" ] = {};
-			jsonObject[ "0" ] = "file0";
-			jsonObject[ "1" ] = "file1";
-
-			workspaceService.privateFunctions.addFolderToMenu( jsonObject, $list );
-
-			expect( $list.find( "li:first" ).children().length ).toBe( 4 );
-			expect( $list.find( "li:first i.fa-folder" ).length ).toBe( 2 );
-			expect( $list.find( "li:first span" ).html() ).toBe( "folder1" );
-			expect( $list.find( "li:first ul" ).length ).toBe( 1 );
-
-			expect( $list.find( "li:nth(1)" ).children().length ).toBe( 2 );
-			expect( $list.find( "li:nth(1) i.fa-file" ).length ).toBe( 1 );
-			expect( $list.find( "li:nth(1) span" ).html() ).toBe( "file0" );
-
-			expect( $list.find( "li:nth(2)" ).children().length ).toBe( 2 );
-			expect( $list.find( "li:nth(2) i.fa-file" ).length ).toBe( 1 );
-			expect( $list.find( "li:nth(2) span" ).html() ).toBe( "file1" );
-		} );
-	} );
-
-	describe( "FilterMenu", function() {
-		beforeEach( function() {
-			$( "body" ).append($( "<div>", { class: "container" } ) );
-
-			var minimalWorkspace = $( "<span>" )
-				.append( $( "<i>", { class: "menuIndicator" } ) )
-				.append( $( "<i>", { class: "logout"} ) ).html();
-
-			var response = {
-				"responseCode": "AUTHORIZED"
-				,"files": {
-					"0": "index.php"
-					,"1": "menu.php"
-					,"scripts": {
-						"0": "index.js"
-						,"1": "menu.js"
-						,"2": "menu2.js"
-						,"vendor": {
-							"0": "blah.js"
-						}
+					if ( $this.html() == 'index.css' ) {
+						expect( $this.parent().is( ':visible' ) ).toBe( true );
 					}
-					,"styles": {
-						"0": "index.css"
-						,"1": "menu.css"
-						,"2": "menu2.css"
+				});
+			} );
+
+			it ( 'Should filter with leading wildcard', function () {
+				$( '.container .pattern' ).val( '%.css' );
+				$( '.container .pattern' ).trigger( 'keyup' );
+
+				var matcher = new RegExp( '[\\S]*.css' );
+
+				$liElements.find( '.file-name' ).each( function () {
+					var $this = $( this );
+
+					if ( matcher.test( $this.html() ) ) {
+						expect( $this.parent().is( ':visible' ) ).toBe( true );
 					}
-				}
-			};
+				});
+			} );
 
-			workspaceService.privateFunctions.processDisplayWorkspace( minimalWorkspace );
-			workspaceService.privateFunctions.processDisplayMenu( JSON.stringify( response ) );
-		} );
+			it ( 'Should filter with following wildcard', function () {
+				$( '.container .pattern' ).val( 'index%' );
+				$( '.container .pattern' ).trigger( 'keyup' );
 
-		afterEach( function() {
-			$( ".container" ).remove();
-		} );
+				var matcher = new RegExp( 'index[\\S]*' );
 
-		it( "Should hide all but specific file", function() {
-			var $input = $( ".container .menu .search input" );
-			var $menu = $( ".container .menu .content .directoryStructure" );
+				$liElements.find( '.file-name' ).each( function () {
+					var $this = $( this );
 
-			$input.val( "   menu.php   " );
-			$input.keyup();
+					if ( matcher.test( $this.html() ) ) {
+						expect( $this.parent().is( ':visible' ) ).toBe( true );
+					}
+				});
+			} );
 
-			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( true );
-		} );
+			it ( 'Should filter with leading and following wildcard', function () {
+				$( '.container .pattern' ).val( '%dex%' );
+				$( '.container .pattern' ).trigger( 'keyup' );
 
-		it( "Should hide all but file with wildcarded name", function() {
-			var $input = $( ".container .menu .search input" );
-			var $menu = $( ".container .menu .content .directoryStructure" );
+				var matcher = new RegExp( '[\\S]*dex[\\S]*' );
 
-			$input.val( "   %.php   " );
-			$input.keyup();
+				$liElements.find( '.file-name' ).each( function () {
+					var $this = $( this );
 
-			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( true );
-		} );
+					if ( matcher.test( $this.html() ) ) {
+						expect( $this.parent().is( ':visible' ) ).toBe( true );
+					}
+				});
+			} );
 
-		it( "Should hide all but file with partially wildcarded name", function() {
-			var $input = $( ".container .menu .search input" );
-			var $menu = $( ".container .menu .content .directoryStructure" );
+			it ( 'Should filter with leading, middle, and following wildcard', function () {
+				$( '.container .pattern' ).val( '%Con%.p%' );
+				$( '.container .pattern' ).trigger( 'keyup' );
 
-			$input.val( "   _enu.php   " );
-			$input.keyup();
+				var matcher = new RegExp( '[\\S]*Con[\\S]*.p[\\S]*' );
 
-			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( true );
-		} );
+				$liElements.find( '.file-name' ).each( function () {
+					var $this = $( this );
 
-		it( "Should hide all but file with wildcarded extension", function() {
-			var $input = $( ".container .menu .search input" );
-			var $menu = $( ".container .menu .content .directoryStructure" );
+					if ( matcher.test( $this.html() ) ) {
+						expect( $this.parent().is( ':visible' ) ).toBe( true );
+					}
+				});
+			} );
 
-			$input.val( "   index.p%   " );
-			$input.keyup();
+			it ( 'Should filter with single leading wildcard', function () {
+				$( '.container .pattern' ).val( '_ndex.css' );
+				$( '.container .pattern' ).trigger( 'keyup' );
 
-			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( false );
-		} );
+				var matcher = new RegExp( '[\\S]ndex.css' );
 
-		it( "Should hide all but file with partially wildcarded extension", function() {
-			var $input = $( ".container .menu .search input" );
-			var $menu = $( ".container .menu .content .directoryStructure" );
+				$liElements.find( '.file-name' ).each( function () {
+					var $this = $( this );
 
-			$input.val( "   index.p%   " );
-			$input.keyup();
+					if ( matcher.test( $this.html() ) ) {
+						expect( $this.parent().is( ':visible' ) ).toBe( true );
+					}
+				});
+			} );
 
-			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( false );
-		} );
+			it ( 'Should filter with single following wildcard', function () {
+				$( '.container .pattern' ).val( 'index.htm_' );
+				$( '.container .pattern' ).trigger( 'keyup' );
 
-		it( "Should not hide wildcarded nested file", function() {
-			var $input = $( ".container .menu .search input" );
-			var $menu = $( ".container .menu .content .directoryStructure" );
+				var matcher = new RegExp( 'index.htm[\\S]' );
 
-			$input.val( "   _enu%.%   " );
-			$input.keyup();
+				$liElements.find( '.file-name' ).each( function () {
+					var $this = $( this );
 
-			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(2)" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(3)" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(1) > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(1) > ul > li:nth(1)" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(1) > ul > li:nth(2)" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( true );
-		} );
+					if ( matcher.test( $this.html() ) ) {
+						expect( $this.parent().is( ':visible' ) ).toBe( true );
+					}
+				});
+			} );
 
-		it( "Should hide all but wildcarded folder and nested files and folders", function() {
-			var $input = $( ".container .menu .search input" );
-			var $menu = $( ".container .menu .content .directoryStructure" );
+			it ( 'Should filter with leading and following wildcard', function () {
+				$( '.container .pattern' ).val( '_ndex.htm_' );
+				$( '.container .pattern' ).trigger( 'keyup' );
 
-			$input.val( "   vendor   " );
-			$input.keyup();
+				var matcher = new RegExp( '[\\S]ndex.htm[\\S]' );
 
-			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(0)" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(0) > ul > li" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(0) > ul > li:nth(3)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( false );
-		} );
+				$liElements.find( '.file-name' ).each( function () {
+					var $this = $( this );
 
-		it( "Should hide nothing if blank", function() {
-			var $input = $( ".container .menu .search input" );
-			var $menu = $( ".container .menu .content .directoryStructure" );
+					if ( matcher.test( $this.html() ) ) {
+						expect( $this.parent().is( ':visible' ) ).toBe( true );
+					}
+				});
+			} );
 
-			$input.val( "blah.dat" );
-			$input.keyup();
+			it ( 'Should filter with leading, middle, and following wildcard', function () {
+				$( '.container .pattern' ).val( '_nde_.htm_' );
+				$( '.container .pattern' ).trigger( 'keyup' );
 
-			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( false );
+				var matcher = new RegExp( '[\\S]nde[\\S].htm[\\S]' );
 
-			$input.val( "" );
-			$input.keyup();
+				$liElements.find( '.file-name' ).each( function () {
+					var $this = $( this );
 
-			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( true );
-			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( true );
-		} );
-
-		it( "Should hide everything if invalid RegExp", function() {
-			var $input = $( ".container .menu .search input" );
-			var $menu = $( ".container .menu .content .directoryStructure" );
-
-			$input.val( "\\" );
-			$input.keyup();
-
-			expect( $menu.find( "> li > ul > li:nth(0)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(1)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(2)" ).is( ":visible" ) ).toBe( false );
-			expect( $menu.find( "> li > ul > li:nth(3)" ).is( ":visible" ) ).toBe( false );
+					if ( matcher.test( $this.html() ) ) {
+						expect( $this.parent().is( ':visible' ) ).toBe( true );
+					}
+				});
+			} );
 		} );
 	} );
 } );

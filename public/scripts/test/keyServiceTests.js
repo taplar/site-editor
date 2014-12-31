@@ -1,16 +1,21 @@
-describe( "KeyService", function() {
-	beforeEach( function() {
-		keyService = KeyService.getTestInstance();
+describe ( 'KeyService', function () {
+	beforeEach( function () {
+		keyService = KeyService.getInstance();
 	} );
 
-	describe( "IsEnter", function() {
-		it( "Should return true", function() {
-			expect( keyService.isEnter({ keyCode: 13 }) ).toBe( true );
-		} );
+	describe ( 'API', function () {
+		describe ( 'Enter', function () {
+			it ( 'Should return true', function () {
+				var e = $.Event( 'keyup', { keyCode: 13 } );
 
-		it( "Should return false", function() {
-			expect( keyService.isEnter({ keyCode: 12 }) ).toBe( false );
-			expect( keyService.isEnter({ keyCode: 14 }) ).toBe( false );
+				expect( keyService.enter( e ) ).toBe( true );
+			} );
+
+			it ( 'Should return false', function () {
+				var e = $.Event( 'keyup', { keyCode: 12 } );
+
+				expect( keyService.enter( e ) ).toBe( false );
+			} );
 		} );
 	} );
 } );

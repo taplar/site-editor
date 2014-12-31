@@ -1,0 +1,31 @@
+<div class="menu flexbox-v">
+	<div class="search">
+		<div class="search-container">
+			<i class="fa fa-search" />
+		</div>
+
+		<div class="pattern-container" />
+		<input type="text" class="pattern" />
+	</div>
+
+	<div class="content flexible-v">
+		<ul class="directory-structure">
+			<li class="root">
+				<i class="fa fa-folder" />
+
+				<span class="file-name">root</span>
+
+				<span class="new-directory">
+					<i class="fa fa-folder" />
+					<i class="fa fa-plus" />
+				</span>
+
+				<ul></ul>
+			</li>
+		</ul>
+	</div>
+
+	<div class="control center inflexible">
+		<i class="fa fa-angle-double-up" />
+	</div>
+</div>
