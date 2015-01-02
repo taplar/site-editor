@@ -1,10 +1,12 @@
 describe ( 'WorkspaceService', function () {
 	beforeEach ( function () {
 		ajaxService = AjaxService.getInstance();
+		keyService = KeyService.getInstance();
 		loggingService = LoggingService.getInstance();
 		sessionService = SessionService.getInstance();
 
 		spyOn( AjaxService, 'getInstance' ).and.returnValue( ajaxService );
+		spyOn( KeyService, 'getInstance' ).and.returnValue( keyService );
 		spyOn( LoggingService, 'getInstance' ).and.returnValue( loggingService );
 
 		workspaceService = WorkspaceService.getTestInstance();
@@ -552,6 +554,54 @@ describe ( 'WorkspaceService', function () {
 						expect( $this.parent().is( ':visible' ) ).toBe( true );
 					}
 				});
+			} );
+		} );
+
+		describe ( 'SubmitNewDirectoryOnEnter', function () {
+			it ( 'Should POST new directory request on enter', function () {
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newdirectory" /></div>' );
+				var fileTree = [ 'dir1', 'dir2' ];
+				var newDirectoryName = 'dir777';
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.find( '#newdirectory' ).val( newDirectoryName );
+				$prompt.find( '#newdirectory' ).keyup( workspaceService.privateFunctions.submitNewDirectoryOnEnter );
+				$prompt.appendTo( $( '.container' ) );
+
+				spyOn( ajaxService, 'POST' );
+				spyOn( keyService, 'enter' ).and.returnValue( true );
+
+				$prompt.find( '#newdirectory' ).trigger( 'keyup' );
+
+				expect( ajaxService.POST ).toHaveBeenCalled();
+
+				var args = ajaxService.POST.calls.argsFor( 0 );
+
+				expect( args[ 0 ].url ).toEqual( './private/?files/directories' );
+				expect( args[ 0 ].input ).toEqual( { path: fileTree, filename: newDirectoryName } );
+				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.newDirectorySuccess );
+				expect( args[ 0 ][ 400 ] ).toEqual( workspaceService.privateFunctions.newDirectoryFailure );
+				expect( args[ 0 ][ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
+				expect( args[ 0 ][ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
+				expect( args[ 0 ][ 500 ] ).toEqual( ajaxService.logInternalError );
+			} );
+
+			it ( 'Should not POST new directory request on non-enter', function () {
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newdirectory" /></div>' );
+				var fileTree = [ 'dir1', 'dir2' ];
+				var newDirectoryName = 'dir777';
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.find( '#newdirectory' ).val( newDirectoryName );
+				$prompt.find( '#newdirectory' ).keyup( workspaceService.privateFunctions.submitNewDirectoryOnEnter );
+				$prompt.appendTo( $( '.container' ) );
+
+				spyOn( ajaxService, 'POST' );
+				spyOn( keyService, 'enter' ).and.returnValue( false );
+
+				$prompt.find( '#newdirectory' ).trigger( 'keyup' );
+
+				expect( ajaxService.POST ).not.toHaveBeenCalled();
 			} );
 		} );
 	} );

@@ -49,6 +49,7 @@ var WorkspaceService = function () {
 				} );
 
 				$( '#newdirectory' ).keyup( functions.submitNewDirectoryOnEnter  );
+				$( '#newdirectory' ).focus();
 			}
 			, buildWorkspace: function ( data ) {
 				$( '.container' ).html( data );
@@ -179,18 +180,30 @@ var WorkspaceService = function () {
 					$menu.find( "li" ).hide();
 				}
 			}
-			, submitNewDirectoryOnEnter: function ( event ) { //TODO: TEST THIS
-
-
-
-
-
-
-
-
-
-
-
+			, invalidReference: function ( data ) { //TODO: TEST THIS
+				throw new Error( 'Unimplemented Method' );
+			}
+			, newDirectoryFailure: function ( data ) { //TODO: TEST THIS
+				throw new Error( 'Unimplemented Method' );
+			}
+			, newDirectorySuccess: function ( data ) { //TODO: TEST THIS
+				throw new Error( 'Unimplemented Method' );
+			}
+			, submitNewDirectoryOnEnter: function ( event ) {
+				if ( KeyService.getInstance().enter( event ) ) {
+					AjaxService.getInstance().POST({
+						url: './private/?files/directories'
+						, input: {
+							path: $( '.prompt-container' ).prop( 'fileTree' )
+							, filename: $( this ).val()
+						}
+						, success: functions.newDirectorySuccess
+						, 400: functions.newDirectoryFailure
+						, 401: functions.displayLogin
+						, 499: functions.invalidReference
+						, 500: AjaxService.getInstance().logInternalError
+					});
+				}
 			}
 			, toggleSearchTips: function () {
 				$( '.container .menu .search-container' ).mouseover( function() {
