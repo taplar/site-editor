@@ -3,7 +3,17 @@ var WorkspaceService = function () {
 
 	var buildApi = function () {
 		var functions = {
-			buildFilesystem: function ( data ) {
+			buildDeleteDirectory: function ( data, fileTreeArray ) { //TODO: TEST THIS
+				var $prompt = $( data );
+
+				$prompt.find( '.existing-directory' ).html( fileTreeArray.join( '/' ) );
+				$prompt.prop( 'fileTree', fileTreeArray );
+
+				functions.closePromptContainer();
+				$prompt.appendTo( $( '.container' ) );
+				$( '.prompt-container .prompt-no' ).click( functions.closePromptContainer );
+			}
+			, buildFilesystem: function ( data ) {
 				var $ul = $( '<ul>' );
 
 				functions.displayFilesInDirectory( $ul, $.parseJSON( data ) );
@@ -43,12 +53,10 @@ var WorkspaceService = function () {
 				$prompt.find( '.existing-directory' ).html( fileTreeArray.join( '/' ) +'/' );
 				$prompt.prop( 'fileTree', fileTreeArray );
 
-				$( '.prompt-container' ).remove();
+				functions.closePromptContainer();
 				$prompt.appendTo( $( '.container' ) );
 
-				$( '.prompt-container .close' ).click( function () {
-					$( '.prompt-container' ).remove();
-				} );
+				$( '.prompt-container .close' ).click( functions.closePromptContainer );
 
 				$( '#newdirectory' ).keyup( functions.submitNewDirectoryOnEnter  );
 				$( '#newdirectory' ).focus();
@@ -58,9 +66,23 @@ var WorkspaceService = function () {
 				$( '.container .menuIndicator' ).mouseover( functions.displayMenu );
 				$( '.container .logout' ).click( SessionService.getInstance().logout );
 			}
+			, closePromptContainer: function () { //TODO: TEST THIS
+				$( '.prompt-container' ).remove();
+			}
+			, displayDeleteDirectory: function () {
+				var fileTree = functions.buildFileTreeArray( $( this ) );
+
+				AjaxService.getInstance().GET({
+					url: './public/views/deleteDirectory.view'
+					, success: function ( data ) { functions.buildDeleteDirectory( data, fileTree ); }
+					, 401: SessionService.getInstance().displayLogin
+					, 404: LoggingService.getInstance().logNotFound
+					, 500: LoggingService.getInstance().logInternalError
+				});
+			}
 			, displayFileInDirectory: function ( $filename, $directory ) {
 				$( '<li>' )
-					.append( $( '<i>', { class: 'fa fa-file'} ) )
+					.append( $( '<i class="fa fa-file">' ) )
 					.append( $( '<span>', {
 						class: 'file-name'
 						, html: $filename
@@ -95,21 +117,23 @@ var WorkspaceService = function () {
 				var $listItem = $( '<li>' );
 
 				$listItem
-					.append( $( '<i>', { class: 'fa fa-folder subdirectory'} ) )
+					.append( $( '<i class="fa fa-folder subdirectory">' ) )
 					.append( $( '<span>', {
 						class: 'file-name'
 						, html: $directoryName
 					} ) )
-					.append( $( '<span>', { class: 'new-directory' } ) )
+					.append( $( '<span class="new-directory">' ) )
 					.find( '.new-directory' )
-						.append( $( '<i>', { class: 'fa fa-folder' } ) )
-						.append( $( '<i>', { class: 'fa fa-plus' } ) )
+						.append( $( '<i class="fa fa-folder actionable">' ) )
+						.append( $( '<i class="fa fa-plus actionable">' ) )
 					.end()
+					.append( $( '<i class="fa fa-times delete delete-directory actionable">' ) )
 					.append( $sublist )
 					.appendTo( $directory );
 
 					functions.displayFilesInDirectory( $sublist, $subfiles );
 					$listItem.find( '> .new-directory' ).click( functions.displayNewDirectory );
+					$listItem.find( '> .delete-directory' ).click( functions.displayDeleteDirectory );
 			}
 			, displayMenu: function () {
 				AjaxService.getInstance().GET({
@@ -184,7 +208,7 @@ var WorkspaceService = function () {
 			}
 			, invalidReference: function ( data ) {
 				LoggingService.getInstance().displayError( 'Parent directory no longer exists' );
-				$( '.prompt-container' ).remove();
+				functions.closePromptContainer();
 				functions.displayFilesystem();
 			}
 			, newDirectoryFailure: function ( data ) {
@@ -192,7 +216,7 @@ var WorkspaceService = function () {
 			}
 			, newDirectorySuccess: function ( data ) {
 				LoggingService.getInstance().displaySuccess( 'Directory created' );
-				$( '.prompt-container' ).remove();
+				functions.closePromptContainer();
 				functions.displayFilesystem();
 			}
 			, submitNewDirectoryOnEnter: function ( event ) {

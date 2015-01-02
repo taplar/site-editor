@@ -26,6 +26,9 @@ input:focus, select:focus, textarea:focus, button:focus {
 }
 
 /********** COLORS **********/
+.red {
+	color: rgb(255, 0, 0);
+}
 .yellow {
 	color: rgb(255, 255, 0);
 }
@@ -42,6 +45,8 @@ input:focus, select:focus, textarea:focus, button:focus {
 	min-width: 800px;
 	height: 100vh;
 	width: 100vw;
+
+	cursor: default;
 }
 .prompt-container-overlay {
 	background-color: rgba(0, 0, 0, 0.35);
@@ -63,13 +68,27 @@ input:focus, select:focus, textarea:focus, button:focus {
 	cursor: wait;
 }
 
+/********** DECORATIONS **********/
+.actionable {
+	cursor: pointer!important;
+}
+.bold {
+	font-weight: bold;
+}
+
 /********** FONT AWESOME **********/
+.delete, .fa-file, .fa-folder {
+	font-size: 12px;
+	margin-left: 4px;
+}
+.delete {
+	position: relative;
+	left: -6px;
+
+	color: rgb(255, 0, 0);
+}
 .fa {
 	cursor: default;
-}
-.fa-file, .fa-folder {
-	font-size: 12px;
-	margin-right: 4px;
 }
 .fa-power-off {
 	position: absolute;
@@ -81,23 +100,9 @@ input:focus, select:focus, textarea:focus, button:focus {
 .fa-power-off:hover {
 	color: rgb(255, 0, 0);
 }
-.file-icon, .folder-icon {
-	margin-right: 4px;
-}
-.file-new-icon {
-	margin-left: 4px;
-}
-.file-new-icon .fa-plus {
-	color: rgb(0, 0, 0);
-	font-size: 0.7em;
-	margin-left: -8px;
-}
-.new-directory {
-	margin-left: 4px;
-}
 .new-directory .fa-plus {
 	position: relative;
-	left: -13px;
+	left: -9px;
 	top: -1px;
 
 	color: rgb(0, 0, 0);
@@ -130,6 +135,7 @@ input:focus, select:focus, textarea:focus, button:focus {
 }
 .file-name {
 	font-size: 12px;
+	margin-left: 4px;
 }
 .menu {
 	position: absolute;
@@ -287,6 +293,19 @@ input:focus, select:focus, textarea:focus, button:focus {
 	color: rgb(255, 255, 255);
 	font-size: 30px;
 	margin-bottom: 12px;
+}
+.prompt-no {
+	background: rgba(0, 128, 0, 0.5);
+}
+.prompt-yes {
+	background: rgba(255, 0, 0, 0.5);
+}
+.prompt-no, .prompt-yes {
+	border: 1px solid #000;
+	border-radius: 8px;
+	padding: 8px;
+
+	font-weight: bold;
 }
 
 /********** TIPS **********/

@@ -173,6 +173,31 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'DisplayDeleteDirectory', function () {
+			it ( 'Should call GET to retrieve delete directory view', function () {
+				spyOn( ajaxService, 'GET' );
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( [ 'root', 'site-editor' ] );
+				spyOn( workspaceService.privateFunctions, 'buildDeleteDirectory' );
+
+				workspaceService.privateFunctions.displayDeleteDirectory();
+
+				expect( ajaxService.GET ).toHaveBeenCalled();
+
+				var args = ajaxService.GET.calls.argsFor( 0 );
+
+				expect( args[ 0 ].url ).toEqual( './public/views/deleteDirectory.view' );
+				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
+				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
+
+				args[ 0 ].success( 'myData' );
+
+				var args = workspaceService.privateFunctions.buildDeleteDirectory.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'myData' );
+				expect( args[ 1 ] ).toEqual( [ 'root', 'site-editor' ] );
+			} );
+		} );
+
 		describe ( 'DisplayFileInDirectory', function () {
 			it ( 'Should add directory to directory listing', function () {
 				var $ul = $( '<ul>' );
@@ -223,6 +248,7 @@ describe ( 'WorkspaceService', function () {
 			it ( 'Should add directory to directory listing', function () {
 				spyOn( workspaceService.privateFunctions, 'displayFilesInDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayNewDirectory' );
+				spyOn( workspaceService.privateFunctions, 'displayDeleteDirectory' );
 
 				var $ul = $( '<ul>' );
 				var $subfiles = { 'file': 'blah' };
@@ -234,9 +260,10 @@ describe ( 'WorkspaceService', function () {
 						+ '<i class="fa fa-folder subdirectory"></i>'
 						+ '<span class="file-name">directoryForPurchase</span>'
 						+ '<span class="new-directory">'
-							+ '<i class="fa fa-folder"></i>'
-							+ '<i class="fa fa-plus"></i>'
+							+ '<i class="fa fa-folder actionable"></i>'
+							+ '<i class="fa fa-plus actionable"></i>'
 						+ '</span>'
+						+ '<i class="fa fa-times delete delete-directory actionable"></i>'
 						+ '<ul></ul>'
 					+ '</li>'
 				);
@@ -251,6 +278,10 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.displayNewDirectory ).not.toHaveBeenCalled();
 				$ul.find( '.new-directory' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.displayNewDirectory ).toHaveBeenCalled();
+
+				expect( workspaceService.privateFunctions.displayDeleteDirectory ).not.toHaveBeenCalled();
+				$ul.find( '.delete-directory' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.displayDeleteDirectory ).toHaveBeenCalled();
 			} );
 		} );
 

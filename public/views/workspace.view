@@ -1,5 +1,5 @@
 <div>
 	<i class="fa fa-rss fa-rotate-90 fa-3x menuIndicator yellow" />
-	<i class="fa fa-power-off fa-2x logout yellow" />
+	<i class="fa fa-power-off fa-2x logout yellow actionable" />
 	<div class="tip-search" style="display: none;"> Wildcards "%" and "_" allowed as well as regular expressions </div>
 </div>

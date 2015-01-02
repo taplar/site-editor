@@ -16,8 +16,8 @@
 				<span class="file-name">root</span>
 
 				<span class="new-directory">
-					<i class="fa fa-folder" />
-					<i class="fa fa-plus" />
+					<i class="fa fa-folder actionable" />
+					<i class="fa fa-plus actionable" />
 				</span>
 
 				<ul></ul>
@@ -25,7 +25,7 @@
 		</ul>
 	</div>
 
-	<div class="control center inflexible">
-		<i class="fa fa-angle-double-up" />
+	<div class="control center inflexible actionable">
+		<i class="fa fa-angle-double-up actionable" />
 	</div>
 </div>
