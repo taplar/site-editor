@@ -83,3 +83,25 @@ URL: ~/private/?files
 	* key (alphanumeric)
 		* key is a directory string
 		* object is an array with structure identical to 'files'
+
+### Create new directory
+
+Purpose: Create new (nested) directory
+
+##### Request
+```
+Method: POST
+URL: ~/private/?files/directories
+{
+	path: < array( 'root' [ , < string > [ , < string > [ ... ] ] ] ) >
+	,filename: < string >
+}
+```
+##### Response
+```
+* HTTP Response Codes
+	* 200 - Directory Created
+	* 401 - Inactive Session
+	* 498 - Directory not created due to invalid name
+	* 499 - Directory not created due to invalid path
+	* 500 - Internal Error

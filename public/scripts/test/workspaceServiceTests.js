@@ -580,8 +580,8 @@ describe ( 'WorkspaceService', function () {
 				expect( args[ 0 ].url ).toEqual( './private/?files/directories' );
 				expect( args[ 0 ].input ).toEqual( { path: fileTree, filename: newDirectoryName } );
 				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.newDirectorySuccess );
-				expect( args[ 0 ][ 400 ] ).toEqual( workspaceService.privateFunctions.newDirectoryFailure );
 				expect( args[ 0 ][ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
+				expect( args[ 0 ][ 498 ] ).toEqual( workspaceService.privateFunctions.newDirectoryFailure );
 				expect( args[ 0 ][ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
 				expect( args[ 0 ][ 500 ] ).toEqual( ajaxService.logInternalError );
 			} );

@@ -198,8 +198,8 @@ var WorkspaceService = function () {
 							, filename: $( this ).val()
 						}
 						, success: functions.newDirectorySuccess
-						, 400: functions.newDirectoryFailure
 						, 401: functions.displayLogin
+						, 498: functions.newDirectoryFailure
 						, 499: functions.invalidReference
 						, 500: AjaxService.getInstance().logInternalError
 					});
