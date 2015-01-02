@@ -35,6 +35,7 @@ var WorkspaceService = function () {
 				functions.toggleSearchTips();
 				functions.displayFilesystem();
 				$( '.search .pattern' ).keyup( functions.filterMenu );
+				$( '.search .pattern' ).focus();
 			}
 			, buildNewDirectory: function ( data, fileTreeArray ) {
 				var $prompt = $( data );
