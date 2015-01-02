@@ -124,21 +124,31 @@ describe ( 'WorkspaceService', function () {
 		} );
 
 		describe ( 'BuildNewDirectory', function () {
-			it ( '', function () {
-				
+			it ( 'Should build prompt and bind close and submit actions', function () {
+				var data = [
+					'<div class="prompt-container">'
+						,'<div class="existing-directory"></div>'
+						,'<div><i class="close" /></div>'
+						,'<div><input type="text" id="newdirectory" /></div>'
+					,'</div>'
+				];
+				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
 
+				spyOn( workspaceService.privateFunctions, 'submitNewDirectoryOnEnter' );
 
+				workspaceService.privateFunctions.buildNewDirectory( data.join( '' ), fileTreeArray );
 
+				var $container = $( '.container' );
 
+				expect( $( '.container > .prompt-container' ).length ).toEqual( 1 );
+				expect( $( '.existing-directory' ).html() ).toEqual( fileTreeArray.join( '/' ) +'/' );
 
+				expect( workspaceService.privateFunctions.submitNewDirectoryOnEnter ).not.toHaveBeenCalled();
+				$( '#newdirectory' ).trigger( 'keyup' );
+				expect( workspaceService.privateFunctions.submitNewDirectoryOnEnter ).toHaveBeenCalled();
 
-
-
-
-
-
-
-
+				$( '.close' ).click();
+				expect( $( '.container > .prompt-container' ).length ).toEqual( 0 );
 			} );
 		} );
 
