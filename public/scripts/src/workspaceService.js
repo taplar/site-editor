@@ -11,6 +11,7 @@ var WorkspaceService = function () {
 				$( '.root ul' ).remove();
 				$ul.appendTo( $( '.root' ) );
 				$( '.root > .new-directory' ).click( functions.displayNewDirectory );
+				$( '.search .pattern' ).trigger( 'keyup' );
 			}
 			, buildFileTreeArray: function ( $fileActionObject ) {
 				var fileTree = [];
