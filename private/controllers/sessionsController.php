@@ -19,19 +19,19 @@ final class SessionsController {
 		return self::$instance;
 	}
 
-	public function delete ( $requestParams ) {
+	public function delete ( $path ) {
 		$this->sessionService->invalidateSession();
 	}
 
-	public function index ( $requestParams ) {
+	public function index ( $path ) {
 		return $this->sessionService->isSessionActive();
 	}
 
-	public function save ( $requestParams ) {
+	public function save ( $path ) {
 		$this->sessionService->validateSession();
 	}
 
-	public function update ( $requestParams ) {
+	public function update ( $path ) {
 		Http::getInstance()->badRequest();
 	}
 }

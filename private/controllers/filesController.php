@@ -19,17 +19,28 @@ final class FilesController {
 		return self::$instance;
 	}
 
-	public function delete ( $requestParams ) {
+	public function delete ( $path ) {
+		Http::getInstance()->badRequest();
 	}
 
-	public function index ( $requestParams ) {
+	public function index ( $path ) {
 		echo json_encode( $this->filesService->listDirectoryStructure() );
 	}
 
-	public function save ( $requestParams ) {
+	public function save ( $path ) {
+		if ( count( $path ) > 1 ) {
+			if ( strtolower( $path[ 1 ] ) == "directories" ) {
+				$this->filesService->createDirectory();
+			} else {
+				Http::getInstance()->badRequest();
+			}
+		} else {
+			$this->filesService->createFile();
+		}
 	}
 
-	public function update ( $requestParams ) {
+	public function update ( $path ) {
+		Http::getInstance()->badRequest();
 	}
 }
 

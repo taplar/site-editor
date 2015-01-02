@@ -93,6 +93,22 @@ describe ( 'AjaxService', function () {
 				genericShouldNotLog( 404 );
 			} );
 
+			it ( 'Should log 498 if callback does not exists', function () {
+				genericShouldLog( 498 );
+			} );
+
+			it ( 'Should not log 498 if callback does exist', function () {
+				genericShouldNotLog( 498 );
+			} );
+
+			it ( 'Should log 499 if callback does not exists', function () {
+				genericShouldLog( 499 );
+			} );
+
+			it ( 'Should not log 499 if callback does exist', function () {
+				genericShouldNotLog( 499 );
+			} );
+
 			it ( 'Should log 500 if callback does not exists', function () {
 				genericShouldLog( 500 );
 			} );

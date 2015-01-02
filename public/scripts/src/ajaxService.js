@@ -2,15 +2,19 @@ var AjaxService = function () {
 	var instance = null;
 
 	var buildApi = function () {
+		var errorStatusCodes = [ 401, 404, 498, 499, 500 ];
 		var validRequestTypes = ['DELETE', 'GET', 'POST', 'PUT'];
 
 		var functions = {
 			buildErrorCallback: function ( params, jsonArgs ) {
 				params.error = function ( xhr, error ) {
-					var statusDoesNotHaveACallback =
-						   ( typeof params.statusCode[ 401 ] == 'undefined' || xhr.status != 401 )
-						&& ( typeof params.statusCode[ 404 ] == 'undefined' || xhr.status != 404 )
-						&& ( typeof params.statusCode[ 500 ] == 'undefined' || xhr.status != 500 );
+					var statusDoesNotHaveACallback = true;
+
+					for ( var i = 0; i < errorStatusCodes.length; i++ ) {
+						statusDoesNotHaveACallback = statusDoesNotHaveACallback
+							&& ( typeof params.statusCode[ errorStatusCodes[ i ] ] == 'undefined'
+							     || xhr.status != errorStatusCodes[ i ] );
+					}
 
 					if ( statusDoesNotHaveACallback ) {
 						LoggingService.getInstance().displayError( 'Unexpected response code returned from service.  Please see console for more details.' );
@@ -35,16 +39,10 @@ var AjaxService = function () {
 					params.data = jsonArgs.input;
 				}
 
-				if ( typeof jsonArgs[ 401 ] != 'undefined' ) {
-					params.statusCode[ 401 ] = jsonArgs[ 401 ];
-				}
-
-				if ( typeof jsonArgs[ 404 ] != 'undefined' ) {
-					params.statusCode[ 404 ] = jsonArgs[ 404 ];
-				}
-
-				if ( typeof jsonArgs[ 500 ] != 'undefined' ) {
-					params.statusCode[ 500 ] = jsonArgs[ 500 ];
+				for ( var i = 0; i < errorStatusCodes.length; i++ ) {
+					if ( typeof jsonArgs[ errorStatusCodes[ i ] ] != 'undefined' ) {
+						params.statusCode[ errorStatusCodes[ i ] ] = jsonArgs[ errorStatusCodes[ i ] ];
+					}
 				}
 
 				functions.buildErrorCallback( params, jsonArgs );

@@ -35,7 +35,7 @@ var WorkspaceService = function () {
 				functions.displayFilesystem();
 				$( '.search .pattern' ).keyup( functions.filterMenu );
 			}
-			, buildNewDirectory: function ( data, fileTreeArray ) { //TODO: TEST THIS
+			, buildNewDirectory: function ( data, fileTreeArray ) {
 				var $prompt = $( data );
 
 				$prompt.find( '.existing-directory' ).html( fileTreeArray.join( '/' ) +'/' );
@@ -180,14 +180,18 @@ var WorkspaceService = function () {
 					$menu.find( "li" ).hide();
 				}
 			}
-			, invalidReference: function ( data ) { //TODO: TEST THIS
-				throw new Error( 'Unimplemented Method' );
+			, invalidReference: function ( data ) {
+				LoggingService.getInstance().displayError( 'Parent directory no longer exists' );
+				$( '.prompt-container' ).remove();
+				functions.displayFilesystem();
 			}
-			, newDirectoryFailure: function ( data ) { //TODO: TEST THIS
-				throw new Error( 'Unimplemented Method' );
+			, newDirectoryFailure: function ( data ) {
+				LoggingService.getInstance().displayError( 'New directory already exists or is invalid syntax' );
 			}
-			, newDirectorySuccess: function ( data ) { //TODO: TEST THIS
-				throw new Error( 'Unimplemented Method' );
+			, newDirectorySuccess: function ( data ) {
+				LoggingService.getInstance().displaySuccess( 'Directory created' );
+				$( '.prompt-container' ).remove();
+				functions.displayFilesystem();
 			}
 			, submitNewDirectoryOnEnter: function ( event ) {
 				if ( KeyService.getInstance().enter( event ) ) {

@@ -557,6 +557,61 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'InvalidReference', function () {
+			it ( 'Should display error message, close prompt, and reload menu', function () {
+				spyOn( loggingService, 'displayError' );
+				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+
+				$( '<div class="prompt-container" />' ).appendTo( $( '.container' ) );
+
+				workspaceService.privateFunctions.invalidReference();
+
+				expect( $( '.prompt-container' ).length ).toEqual( 0 );
+				expect( workspaceService.privateFunctions.displayFilesystem );
+				expect( loggingService.displayError ).toHaveBeenCalled();
+
+				var args = loggingService.displayError.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'Parent directory no longer exists' );
+			} );
+		} );
+
+		describe ( 'NewDirectoryFailure', function () {
+			it ( 'Should display error message', function () {
+				spyOn( loggingService, 'displayError' );
+
+				$( '<div class="prompt-container" />' ).appendTo( $( '.container' ) );
+
+				workspaceService.privateFunctions.newDirectoryFailure();
+
+				expect( $( '.prompt-container' ).length ).toEqual( 1 );
+				expect( loggingService.displayError ).toHaveBeenCalled();
+
+				var args = loggingService.displayError.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'New directory already exists or is invalid syntax' );
+			} );
+		} );
+
+		describe ( 'NewDirectorySuccess', function () {
+			it ( 'Should display success message, close prompt, and reload menu', function () {
+				spyOn( loggingService, 'displaySuccess' );
+				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+
+				$( '<div class="prompt-container" />' ).appendTo( $( '.container' ) );
+
+				workspaceService.privateFunctions.newDirectorySuccess();
+
+				expect( $( '.prompt-container' ).length ).toEqual( 0 );
+				expect( workspaceService.privateFunctions.displayFilesystem );
+				expect( loggingService.displaySuccess ).toHaveBeenCalled();
+
+				var args = loggingService.displaySuccess.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'Directory created' );
+			} );
+		} );
+
 		describe ( 'SubmitNewDirectoryOnEnter', function () {
 			it ( 'Should POST new directory request on enter', function () {
 				var $prompt = $( '<div class="prompt-container"><input type="text" id="newdirectory" /></div>' );

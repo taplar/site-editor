@@ -20,19 +20,6 @@ final class Router {
 		return self::$instance;
 	}
 
-	public static function getInstanceOfClass ( $className, $params ) {
-		if ( !ctype_alpha( $className ) ) {
-			throw new Exception( "Invalid Class Name" );
-		}
-
-		$relativePath = self::getRelativePathToClass( $className );
-		$lowercaseClassName = $className;
-		$lowercaseClassName{ 0 } = strtolower( $lowercaseClassName{ 0 } );
-		$filePath = Config::getInstance()->editorDirectory() . $relativePath . $lowercaseClassName .".php";
-
-		return self::includeFileAndInstantiateClass( $filePath, $className, $params );
-	}
-
 	private static function forwardToRestFunction ( $path ) {
 		$controller = ucwords( strtolower( $path[ 0 ] ) ."Controller" );
 		$controller = Router::getInstanceOfClass( $controller, NULL );
@@ -54,6 +41,19 @@ final class Router {
 				$this->http->badRequest();
 				break;
 		}
+	}
+
+	public static function getInstanceOfClass ( $className, $params ) {
+		if ( !ctype_alpha( $className ) ) {
+			throw new Exception( "Invalid Class Name" );
+		}
+
+		$relativePath = self::getRelativePathToClass( $className );
+		$lowercaseClassName = $className;
+		$lowercaseClassName{ 0 } = strtolower( $lowercaseClassName{ 0 } );
+		$filePath = Config::getInstance()->editorDirectory() . $relativePath . $lowercaseClassName .".php";
+
+		return self::includeFileAndInstantiateClass( $filePath, $className, $params );
 	}
 
 	private static function getRelativePathToClass ( $className ) {
