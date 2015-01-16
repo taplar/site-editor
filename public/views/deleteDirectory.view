@@ -11,8 +11,8 @@
 				<span class="existing-directory"></span>
 				<p class="yellow bold center">Are you sure you want to delete this directory?</p>
 				<div class="center">
-					<span class="prompt-yes actionable">Yes</span>
-					<span class="prompt-no actionable">No</span>
+					<button class="prompt-yes actionable">Yes</button>
+					<button class="prompt-no actionable">No</button>
 				</div>
 			</div>
 		</div>

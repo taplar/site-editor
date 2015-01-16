@@ -34,6 +34,21 @@ final class FilesService {
 		}
 	}
 
+	public function deleteFile () {
+
+	}
+
+	public function deleteDirectory () {
+echo ",get the input"
+		$path = $this->getPathFromInput();
+echo $path;
+		if ( $path != NULL ) {
+			//rmdir( $path );
+		} else {
+			Http::getInstance()->invalidPath();
+		}
+	}
+
 	public function createFile () {
 
 	}
@@ -65,7 +80,9 @@ final class FilesService {
 	}
 
 	private function getPathFromInput () {
-		$pathArray = $_POST[ "path" ];
+		$input = json_decode( file_get_contents( "php://input" ) );
+echo $input->{ "path" };
+		$pathArray = $input->{ "path" };
 
 		if ( !isset( $pathArray ) || !is_array( $pathArray ) || !strtolower( $pathArray[ 0 ] ) == "root" ) {
 			return NULL;

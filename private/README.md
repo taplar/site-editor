@@ -105,3 +105,23 @@ URL: ~/private/?files/directories
 	* 498 - Directory not created due to invalid name
 	* 499 - Directory not created due to invalid path
 	* 500 - Internal Error
+
+### Delete directory
+
+Purpose: Delete (nested) directory and all contents
+
+##### Request
+```
+Method: DELETE
+URL: ~/private/?files/directories
+{
+	path: < array( 'root' [ , < string > [ , < string > [ ... ] ] ] ) >
+}
+```
+##### Response
+```
+* HTTP Response Codes
+	* 200 - Directory Deleted
+	* 401 - Inactive Session
+	* 499 - Directory not deleted due to invalid path
+	* 500 - Internal Error

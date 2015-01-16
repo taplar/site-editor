@@ -38,6 +38,36 @@ describe ( 'WorkspaceService', function () {
 	} );
 
 	describe ( 'PrivateFunctions', function () {
+		describe ( 'BuildDeleteDirectory', function () {
+			it ( 'Should build delete directory prompt and bind actions', function () {
+				var data = [
+					'<div class="prompt-container">'
+						, '<div class="existing-directory"></div>'
+						, '<button class="prompt-yes" />'
+						, '<button class="prompt-no" />'
+					, '</div>'
+				];
+				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
+
+				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
+				spyOn( workspaceService.privateFunctions, 'deleteDirectory' );
+
+				workspaceService.privateFunctions.buildDeleteDirectory( data.join( '' ), fileTreeArray );
+
+				expect( $( '.container .prompt-container' ).length ).toEqual( 1 );
+				expect( $( '.existing-directory' ).html() ).toEqual( fileTreeArray.join( '/') );
+				expect( $( '.prompt-container' ).prop( 'fileTree' ) ).toEqual( fileTreeArray );
+				expect( workspaceService.privateFunctions.closePromptContainer.calls.count() ).toEqual( 1 );
+
+				expect( workspaceService.privateFunctions.deleteDirectory ).not.toHaveBeenCalled();
+				$( '.prompt-container .prompt-yes' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.deleteDirectory ).toHaveBeenCalled();
+
+				$( '.prompt-container .prompt-no' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.closePromptContainer.calls.count() ).toEqual( 2 );
+			} );
+		} );
+
 		describe ( 'BuildFilesystem', function () {
 			it ( 'Should remove existing ul and insert new one', function () {
 				spyOn( workspaceService.privateFunctions, 'displayFilesInDirectory' );
@@ -170,6 +200,15 @@ describe ( 'WorkspaceService', function () {
 				expect( sessionService.logout ).not.toHaveBeenCalled();
 				$( '.logout' ).click();
 				expect( sessionService.logout ).toHaveBeenCalled();
+			} );
+		} );
+
+		describe ( 'ClosePromptContainer', function () {
+			it ( 'Should remove the prompt container', function () {
+				$( '<div class="prompt-container">' ).appendTo( $( '.container' ) );
+				expect( $( '.container .prompt-container' ).length ).toEqual( 1 );
+				workspaceService.privateFunctions.closePromptContainer();
+				expect( $( '.container .prompt-container' ).length ).toEqual( 0 );
 			} );
 		} );
 

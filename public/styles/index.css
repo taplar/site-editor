@@ -305,6 +305,7 @@ input:focus, select:focus, textarea:focus, button:focus {
 	border-radius: 8px;
 	padding: 8px;
 
+	color: #000;
 	font-weight: bold;
 }
 

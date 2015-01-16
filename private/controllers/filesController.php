@@ -20,7 +20,17 @@ final class FilesController {
 	}
 
 	public function delete ( $path ) {
-		Http::getInstance()->badRequest();
+		if ( count( $path ) > 1 ) {
+			echo "have a path";
+			if ( strtolower( $path[ 1 ] ) == "directories" ) {
+				echo ",delete the directory"
+				$this->filesService->deleteDirectory();
+			} else {
+				Http::getInstance()->badRequest();
+			}
+		} else {
+			$this->filesService->deleteFile();
+		}
 	}
 
 	public function index ( $path ) {

@@ -3,7 +3,7 @@ var WorkspaceService = function () {
 
 	var buildApi = function () {
 		var functions = {
-			buildDeleteDirectory: function ( data, fileTreeArray ) { //TODO: TEST THIS
+			buildDeleteDirectory: function ( data, fileTreeArray ) {
 				var $prompt = $( data );
 
 				$prompt.find( '.existing-directory' ).html( fileTreeArray.join( '/' ) );
@@ -11,6 +11,7 @@ var WorkspaceService = function () {
 
 				functions.closePromptContainer();
 				$prompt.appendTo( $( '.container' ) );
+				$( '.prompt-container .prompt-yes' ).click( functions.deleteDirectory );
 				$( '.prompt-container .prompt-no' ).click( functions.closePromptContainer );
 			}
 			, buildFilesystem: function ( data ) {
@@ -66,8 +67,25 @@ var WorkspaceService = function () {
 				$( '.container .menuIndicator' ).mouseover( functions.displayMenu );
 				$( '.container .logout' ).click( SessionService.getInstance().logout );
 			}
-			, closePromptContainer: function () { //TODO: TEST THIS
+			, closePromptContainer: function () {
 				$( '.prompt-container' ).remove();
+			}
+			, deleteDirectory: function () { //TODO: TEST THIS
+					AjaxService.getInstance().DELETE({
+						url: './private/?files/directories'
+						, input: {
+							path: $( '.prompt-container' ).prop( 'fileTree' )
+						}
+						, success: functions.deleteDirectorySuccess
+						, 401: functions.displayLogin
+						, 499: functions.invalidReference
+						, 500: AjaxService.getInstance().logInternalError
+					});
+			}
+			, deleteDirectorySuccess: function ( data ) { //TODO: TEST THIS
+				LoggingService.getInstance().displaySuccess( 'Directory deleted' );
+				functions.closePromptContainer();
+				functions.displayFilesystem();
 			}
 			, displayDeleteDirectory: function () {
 				var fileTree = functions.buildFileTreeArray( $( this ) );
