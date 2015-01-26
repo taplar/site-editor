@@ -87,9 +87,15 @@ var WorkspaceService = function () {
 					, input: { }
 					, success: functions.deleteDirectorySuccess
 					, 401: functions.displayLogin
+					, 497: functions.deleteDirectoryFailure
 					, 499: functions.invalidReference
 					, 500: AjaxService.getInstance().logInternalError
 				});
+			}
+			, deleteDirectoryFailure: function ( data ) { //TODO: TEST THIS
+				LoggingService.getInstance().displayError( 'Directory not deleted.' );
+				functions.closePromptContainer();
+				functions.displayFilesystem();
 			}
 			, deleteDirectorySuccess: function ( data ) { //TODO: TEST THIS
 				LoggingService.getInstance().displaySuccess( 'Directory deleted' );

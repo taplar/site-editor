@@ -118,5 +118,6 @@ URL: ~/private/?files/directories/root [ /sub-directory1 [ /sub-directory2 [ ...
 * HTTP Response Codes
 	* 200 - Directory Deleted
 	* 401 - Inactive Session
+	* 497 - Directory not deleted due to recursive delete/unlink failure
 	* 499 - Directory not deleted due to invalid path
 	* 500 - Internal Error

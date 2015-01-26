@@ -50,7 +50,7 @@ final class FilesService {
 	public function createFile () {
 
 	}
-	
+
 	private function getDirectoryStructure ( $pathString ) {
 		$array = array();
 
@@ -83,17 +83,35 @@ final class FilesService {
 
 		foreach ( $files as $file ) {
 			if ( is_dir( $pathString ."/". $file ) ) {
-				$this->removeDirectory( $pathString ."/". $file );
+				if ( !$this->removeDirectory( $pathString ."/". $file ) ) {
+					return false;
+				}
 			} else {
-				$this->removeFile( $pathString ."/". $file );
+				if ( !$this->removeFile( $pathString ."/". $file ) ) {
+					return false;
+				}
 			}
 		}
 
 		rmdir( $pathString );
+
+		if ( is_dir( $pathString ) ) {
+			Http::getInstance()->deleteFailure();
+			return false;
+		}
+
+		return true;
 	}
 
 	private function removeFile ( $pathString ) {
+		unlink( $pathString );
 
+		if ( file_exists( $pathString ) ) {
+			Http::getInstance()->deleteFailure();
+			return false;
+		}
+
+		return true;
 	}
 
 	private function stringDoesNotContainInvalidCharacters ( $string ) {
