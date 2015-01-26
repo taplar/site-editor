@@ -702,8 +702,8 @@ describe ( 'WorkspaceService', function () {
 
 				var args = ajaxService.POST.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './private/?files/directories' );
-				expect( args[ 0 ].input ).toEqual( { path: fileTree, filename: newDirectoryName } );
+				expect( args[ 0 ].url ).toEqual( './private/?files/directories/dir1/dir2/dir777' );
+				expect( args[ 0 ].input ).toEqual( { } );
 				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.newDirectorySuccess );
 				expect( args[ 0 ][ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
 				expect( args[ 0 ][ 498 ] ).toEqual( workspaceService.privateFunctions.newDirectoryFailure );

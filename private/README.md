@@ -91,11 +91,8 @@ Purpose: Create new (nested) directory
 ##### Request
 ```
 Method: POST
-URL: ~/private/?files/directories
-{
-	path: < array( 'root' [ , < string > [ , < string > [ ... ] ] ] ) >
-	,filename: < string >
-}
+URL: ~/private/?files/directories/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /new-directory
+{ }
 ```
 ##### Response
 ```

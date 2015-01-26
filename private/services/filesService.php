@@ -18,14 +18,13 @@ final class FilesService {
 		return self::$instance;
 	}
 
-	public function createDirectory () {
-		$path = $this->getPathFromInput();
+	public function createDirectory ( $path ) {
+		$filename = array_pop( $path );
+		$pathString = $this-> validateExistingPath( $path );
 
-		if ( $path != NULL ) {
-			$filename = $this->getFilenameFromInput();
-
-			if ( $filename != NULL && !file_exists( $path . $filename ) ) {
-				mkdir( $path . $filename );
+		if ( $pathString != NULL ) {
+			if ( $this->isAValidFilename( $filename ) && !file_exists( $pathString . $filename ) ) {
+				mkdir( $pathString . $filename );
 			} else {
 				Http::getInstance()->invalidName();
 			}
@@ -38,15 +37,8 @@ final class FilesService {
 
 	}
 
-	public function deleteDirectory () {
-echo ",get the input"
-		$path = $this->getPathFromInput();
-echo $path;
-		if ( $path != NULL ) {
-			//rmdir( $path );
-		} else {
-			Http::getInstance()->invalidPath();
-		}
+	public function deleteDirectory ( $path ) {
+
 	}
 
 	public function createFile () {
@@ -69,39 +61,6 @@ echo $path;
 		return $array;
 	}
 
-	private function getFilenameFromInput () {
-		$filename = $_POST[ "filename" ];
-
-		if ( !isset( $filename ) || !is_string( $filename ) || !$this->isAValidFilename( $filename ) ) {
-			return NULL;
-		}
-
-		return $filename;
-	}
-
-	private function getPathFromInput () {
-		$input = json_decode( file_get_contents( "php://input" ) );
-echo $input->{ "path" };
-		$pathArray = $input->{ "path" };
-
-		if ( !isset( $pathArray ) || !is_array( $pathArray ) || !strtolower( $pathArray[ 0 ] ) == "root" ) {
-			return NULL;
-		}
-
-		$path = Config::getInstance()->rootDirectory();
-
-		for ( $i = 1, $j = count( $pathArray ); $i < $j; $i++ ) {
-			if ( !$this->isAValidFilename( $pathArray[ $i ] )
-			|| !is_dir( $path . $pathArray[ $i ] ."/" ) ) {
-				return NULL;
-			}
-
-			$path .= $pathArray[ $i ] ."/";
-		}
-
-		return $path;
-	}
-
 	private function isAValidFilename ( $name ) {
 		$name = trim( $name );
 
@@ -119,6 +78,25 @@ echo $input->{ "path" };
 
 	private function stringPotentiallyContainsDirectoryShift ( $string ) {
 		return ( strpos( $string, ".." ) != FALSE );
+	}
+
+	private function validateExistingPath ( $pathArray ) {
+		if ( !isset( $pathArray ) || !is_array( $pathArray ) || !strtolower( $pathArray[ 0 ] ) == "root" ) {
+			return NULL;
+		}
+
+		$path = Config::getInstance()->rootDirectory();
+
+		for ( $i = 1, $j = count( $pathArray ); $i < $j; $i++ ) {
+			if ( !$this->isAValidFilename( $pathArray[ $i ] )
+			|| !is_dir( $path . $pathArray[ $i ] ."/" ) ) {
+				return NULL;
+			}
+
+			$path .= $pathArray[ $i ] ."/";
+		}
+
+		return $path;
 	}
 }
 

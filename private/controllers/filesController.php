@@ -40,7 +40,7 @@ final class FilesController {
 	public function save ( $path ) {
 		if ( count( $path ) > 1 ) {
 			if ( strtolower( $path[ 1 ] ) == "directories" ) {
-				$this->filesService->createDirectory();
+				$this->filesService->createDirectory( array_slice( $path, 2) );
 			} else {
 				Http::getInstance()->badRequest();
 			}

@@ -239,12 +239,12 @@ var WorkspaceService = function () {
 			}
 			, submitNewDirectoryOnEnter: function ( event ) {
 				if ( KeyService.getInstance().enter( event ) ) {
+					var newDirectory = $( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
+					newDirectory += '/'+ $( this ).val(); 
+
 					AjaxService.getInstance().POST({
-						url: './private/?files/directories'
-						, input: {
-							path: $( '.prompt-container' ).prop( 'fileTree' )
-							, filename: $( this ).val()
-						}
+						url: './private/?files/directories/'+ newDirectory
+						, input: {}
 						, success: functions.newDirectorySuccess
 						, 401: functions.displayLogin
 						, 498: functions.newDirectoryFailure
