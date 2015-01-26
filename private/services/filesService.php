@@ -20,8 +20,8 @@ final class FilesService {
 
 	public function createDirectory ( $pathArray ) {
 		$filename = array_pop( $pathArray );
-		$pathString = $this->validateExistingPath( $pathArray );
-		$pathString = $this->validatePathExternalToEditor( $pathString );
+		$pathString = $this->pathExists( $pathArray );
+		$pathString = $this->editorIsNotParentOfPath( $pathString );
 
 		if ( $pathString != NULL ) {
 			if ( $this->isAValidFilename( $filename ) && !file_exists( $pathString . $filename ) ) {
@@ -39,7 +39,7 @@ final class FilesService {
 	}
 
 	public function deleteDirectory ( $pathArray ) {
-		$pathString = $this->validateExistingPath( $pathArray );
+		$pathString = $this->pathExists( $pathArray );
 
 		if ( $pathString != NULL ) {
 			$this->removeDirectory( $pathString );
@@ -50,6 +50,17 @@ final class FilesService {
 
 	public function createFile () {
 
+	}
+
+	private function editorIsNotParentOfPath ( $pathString ) {
+		$testPath = realpath( $pathString );
+		$editorPath = realpath( Config::getInstance()->editorDirectory() );
+
+		if ( strpos( $testPath, $editorPath ) === 0 ) {
+			return NULL;
+		}
+
+		return $pathString;
 	}
 
 	private function getDirectoryStructure ( $pathString ) {
@@ -77,6 +88,25 @@ final class FilesService {
 
 	public function listDirectoryStructure () {
 		return $this->getDirectoryStructure( Config::getInstance()->rootDirectory() );
+	}
+
+	private function pathExists ( $pathArray ) {
+		if ( !isset( $pathArray ) || !is_array( $pathArray ) || !strtolower( $pathArray[ 0 ] ) == "root" ) {
+			return NULL;
+		}
+
+		$path = Config::getInstance()->rootDirectory();
+
+		for ( $i = 1, $j = count( $pathArray ); $i < $j; $i++ ) {
+			if ( !$this->isAValidFilename( $pathArray[ $i ] )
+			|| !is_dir( $path . $pathArray[ $i ] ."/" ) ) {
+				return NULL;
+			}
+
+			$path .= $pathArray[ $i ] ."/";
+		}
+
+		return $path;
 	}
 
 	private function removeDirectory ( $pathString ) {
@@ -121,36 +151,6 @@ final class FilesService {
 
 	private function stringPotentiallyContainsDirectoryShift ( $string ) {
 		return ( strpos( $string, ".." ) != FALSE );
-	}
-
-	private function validateExistingPath ( $pathArray ) {
-		if ( !isset( $pathArray ) || !is_array( $pathArray ) || !strtolower( $pathArray[ 0 ] ) == "root" ) {
-			return NULL;
-		}
-
-		$path = Config::getInstance()->rootDirectory();
-
-		for ( $i = 1, $j = count( $pathArray ); $i < $j; $i++ ) {
-			if ( !$this->isAValidFilename( $pathArray[ $i ] )
-			|| !is_dir( $path . $pathArray[ $i ] ."/" ) ) {
-				return NULL;
-			}
-
-			$path .= $pathArray[ $i ] ."/";
-		}
-
-		return $path;
-	}
-
-	private function validatePathExternalToEditor ( $pathString ) {
-		$testPath = realpath( $pathString );
-		$editorPath = realpath( Config::getInstance()->editorDirectory() );
-
-		if ( strpos( $testPath, $editorPath ) === 0 ) {
-			return NULL;
-		}
-
-		return $pathString;
 	}
 }
 
