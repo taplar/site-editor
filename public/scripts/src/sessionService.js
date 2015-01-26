@@ -2,9 +2,11 @@ var SessionService = function () {
 	var instance = null;
 
 	var buildApi = function () {
+		var $container = $( '.container' );
+
 		var functions = {
 			buildLoginForm: function ( data ) {
-				$( '.container' ).html( data );
+				$container.html( data );
 				$( '#userid, #password' ).keyup( functions.submitLoginOnEnter );
 				$( '#userid' ).focus();
 			}

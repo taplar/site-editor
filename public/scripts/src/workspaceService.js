@@ -2,6 +2,9 @@ var WorkspaceService = function () {
 	var instance = null;
 
 	var buildApi = function () {
+		var $container = $( '.container ');
+		var $menu = $( '.menu' );
+
 		var functions = {
 			buildDeleteDirectory: function ( data, fileTreeArray ) {
 				var $prompt = $( data );
@@ -10,19 +13,24 @@ var WorkspaceService = function () {
 				$prompt.prop( 'fileTree', fileTreeArray );
 
 				functions.closePromptContainer();
-				$prompt.appendTo( $( '.container' ) );
-				$( '.prompt-container .prompt-yes' ).click( functions.deleteDirectory );
-				$( '.prompt-container .prompt-no' ).click( functions.closePromptContainer );
+				$prompt.appendTo( $container );
+
+				var $promptContainer = $container.find( '.prompt-container' );
+
+				$promptContainer.find( '.prompt-yes' ).click( functions.deleteDirectory );
+				$promptContainer.find( '.prompt-no' ).click( functions.closePromptContainer );
 			}
 			, buildFilesystem: function ( data ) {
 				var $ul = $( '<ul>' );
 
 				functions.displayFilesInDirectory( $ul, $.parseJSON( data ) );
 
-				$( '.root ul' ).remove();
-				$ul.appendTo( $( '.root' ) );
-				$( '.root > .new-directory' ).click( functions.displayNewDirectory );
-				$( '.search .pattern' ).trigger( 'keyup' );
+				var $root = $menu.find( '.root' );
+
+				$root.find( 'ul' ).remove();
+				$ul.appendTo( $root );
+				$root.find( '> .new-directory' ).click( functions.displayNewDirectory );
+				$menu.find( '.search .pattern' ).trigger( 'keyup' );
 			}
 			, buildFileTreeArray: function ( $fileActionObject ) {
 				var fileTree = [];
@@ -36,17 +44,19 @@ var WorkspaceService = function () {
 				return fileTree.reverse();
 			}
 			, buildMenu: function ( data ) {
-				$( '.container .menu' ).remove();
-				$( '.container' ).append( data );
+				$container.find( '.menu' ).remove();
+				$container.append( data );
 
-				$( '.container .menu .control' ).click( function() {
-					$( '.container .menu' ).remove();
+				$menu = $container.find( '.menu' );
+
+				$container.find( '.menu .control' ).click( function() {
+					$container.find( '.menu' ).remove();
 				} );
 
 				functions.toggleSearchTips();
 				functions.displayFilesystem();
-				$( '.search .pattern' ).keyup( functions.filterMenu );
-				$( '.search .pattern' ).focus();
+				$menu.find( '.search .pattern' ).keyup( functions.filterMenu );
+				$menu.find( '.search .pattern' ).focus();
 			}
 			, buildNewDirectory: function ( data, fileTreeArray ) {
 				var $prompt = $( data );
@@ -55,26 +65,25 @@ var WorkspaceService = function () {
 				$prompt.prop( 'fileTree', fileTreeArray );
 
 				functions.closePromptContainer();
-				$prompt.appendTo( $( '.container' ) );
+				$prompt.appendTo( $container );
 
-				$( '.prompt-container .close' ).click( functions.closePromptContainer );
-
-				$( '#newdirectory' ).keyup( functions.submitNewDirectoryOnEnter  );
-				$( '#newdirectory' ).focus();
+				$prompt.find( '.close' ).click( functions.closePromptContainer );
+				$prompt.find( '#newdirectory' ).keyup( functions.submitNewDirectoryOnEnter  );
+				$prompt.find( '#newdirectory' ).focus();
 			}
 			, buildWorkspace: function ( data ) {
-				$( '.container' ).html( data );
-				$( '.container .menuIndicator' ).mouseover( functions.displayMenu );
-				$( '.container .logout' ).click( SessionService.getInstance().logout );
+				$container.html( data );
+				$container.find( '.menuIndicator' ).mouseover( functions.displayMenu );
+				$container.find( '.logout' ).click( SessionService.getInstance().logout );
 			}
 			, closePromptContainer: function () {
-				$( '.prompt-container' ).remove();
+				$container.find( '.prompt-container' ).remove();
 			}
 			, deleteDirectory: function () { //TODO: TEST THIS
 					AjaxService.getInstance().DELETE({
 						url: './private/?files/directories'
 						, input: {
-							path: $( '.prompt-container' ).prop( 'fileTree' )
+							path: $container.find( '.prompt-container' ).prop( 'fileTree' )
 						}
 						, success: functions.deleteDirectorySuccess
 						, 401: functions.displayLogin
@@ -176,52 +185,56 @@ var WorkspaceService = function () {
 			, filterMenu: function ( event ) {
 				var $filter = $( this );
 				var pattern = $filter.val().trim().replace( /[%]/g, "[\\S]*" ).replace( /[_]/g, "[\\S]" );
-				var $menu = $( ".container .menu .content .directory-structure .root > ul" );
+				var $menu = $container.find( '.menu .content .directory-structure .root > ul' );
 
 				try {
-					$menu.find( "li" ).show();
+					$menu.find( 'li' ).show();
 
 					if ( pattern.length > 0 ) {
-						if ( pattern.charAt( 0 ) != "^" ) {
-							pattern = "^"+ pattern;
+						if ( pattern.charAt( 0 ) != '^' ) {
+							pattern = '^'+ pattern;
 						}
 
-						if ( pattern.charAt( pattern.length - 1 ) != "$" ) {
-							pattern += "$";
+						if ( pattern.charAt( pattern.length - 1 ) != '$' ) {
+							pattern += '$';
 						}
 
 						var matcher = new RegExp( pattern );
 
-						$menu.find( "li" ).hide();
+						$menu.find( 'li' ).hide();
 
-						$menu.find( ".fa-file" ).next().each( function() {
-							if ( matcher.test( $( this ).html() ) ) {
-								var $parent = $( this ).parent();
+						$menu.find( '.fa-file' ).next().each( function() {
+							var $thiz = $( this );
+
+							if ( matcher.test( $thiz.html() ) ) {
+								var $parent = $thiz.parent();
 
 								do {
 									$parent.show();
 
 									$parent = $parent.parent().parent();
-								} while ( $parent.prop( "tagName" ) == "LI" );
+								} while ( $parent.prop( 'tagName' ) == 'LI' );
 							}
 						} );
 
-						$menu.find( ".fa-folder" ).next().each( function() {
-							if ( matcher.test( $( this ).html() ) ) {
-								var $parent = $( this ).parent();
+						$menu.find( '.fa-folder' ).next().each( function() {
+							var $thiz = $( this );
 
-								$parent.find( "li" ).show();
+							if ( matcher.test( $thiz.html() ) ) {
+								var $parent = $thiz.parent();
+
+								$parent.find( 'li' ).show();
 
 								do {
 									$parent.show();
 
 									$parent = $parent.parent().parent();
-								} while ( $parent.prop( "tagName" ) == "LI" );
+								} while ( $parent.prop( 'tagName' ) == 'LI' );
 							}
 						} );
 					}
 				} catch ( e ) {
-					$menu.find( "li" ).hide();
+					$menu.find( 'li' ).hide();
 				}
 			}
 			, invalidReference: function ( data ) {
@@ -239,7 +252,7 @@ var WorkspaceService = function () {
 			}
 			, submitNewDirectoryOnEnter: function ( event ) {
 				if ( KeyService.getInstance().enter( event ) ) {
-					var newDirectory = $( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
+					var newDirectory = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
 					newDirectory += '/'+ $( this ).val(); 
 
 					AjaxService.getInstance().POST({
@@ -254,12 +267,14 @@ var WorkspaceService = function () {
 				}
 			}
 			, toggleSearchTips: function () {
-				$( '.container .menu .search-container' ).mouseover( function() {
-					$( '.tip-search' ).show();
+				var $tipSearch = $container.find( '.tip-search' );
+
+				$container.find( '.menu .search-container' ).mouseover( function() {
+					$tipSearch.show();
 				} );
 
-				$( '.container .menu .search-container' ).mouseout( function() {
-					$( '.tip-search' ).hide();
+				$container.find( '.menu .search-container' ).mouseout( function() {
+					$tipSearch.hide();
 				} );
 			}
 		};

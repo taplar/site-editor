@@ -4,6 +4,7 @@ var AjaxService = function () {
 	var buildApi = function () {
 		var errorStatusCodes = [ 401, 404, 498, 499, 500 ];
 		var validRequestTypes = ['DELETE', 'GET', 'POST', 'PUT'];
+		var $body = $( 'body' );
 
 		var functions = {
 			buildErrorCallback: function ( params, jsonArgs ) {
@@ -50,10 +51,10 @@ var AjaxService = function () {
 				return params;
 			}
 			, changeMouseStateToBusy: function () {
-				$( 'body' ).addClass( 'busy' );
+				$body.addClass( 'busy' );
 			}
 			, changeMouseStateToDefault: function () {
-				$( 'body' ).removeClass( 'busy' );
+				$body.removeClass( 'busy' );
 			}
 			, generateAjaxRequest: function ( requestType, jsonArgs ) {
 				functions.requireRequestTypeInputs( requestType, jsonArgs );

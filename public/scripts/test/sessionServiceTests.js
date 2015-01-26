@@ -1,5 +1,7 @@
 describe ( 'SessionService', function () {
 	beforeEach ( function () {
+		$( '<div>', { class: 'container' } ).appendTo( $( 'body' ) );
+
 		ajaxService = AjaxService.getInstance();
 		keyService = KeyService.getInstance();
 		loggingService = LoggingService.getInstance();
@@ -11,8 +13,6 @@ describe ( 'SessionService', function () {
 		spyOn( WorkspaceService, 'getInstance' ).and.returnValue( workspaceService );
 
 		sessionService = SessionService.getTestInstance();
-
-		$( '<div>', { class: 'container' } ).appendTo( $( 'body' ) );
 	} );
 
 	afterEach ( function () {

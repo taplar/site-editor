@@ -2,20 +2,22 @@ var LoggingService = function () {
 	var instance = null;
 
 	var buildApi = function () {
+		var $body = $( 'body' );
+
 		var functions = {
 			displayMessage: function ( message, messageClass ) {
-				var $msg = $( "<div>", {
+				var $msg = $( '<div>', {
 					class: messageClass
 					, html: message
 				} );
 
-				$( "body" ).append( $msg );
+				$body.append( $msg );
 
 				setTimeout( functions.transitionMessageToTopRightCorner( $msg ), 1000 );
 			}
 			, transitionMessageOffTheTopOfThePage: function ( $msg ) {
 				return function () {
-					$msg.css( "top", "-50px" );
+					$msg.css( 'top', '-50px' );
 
 					setTimeout( function() {
 						$msg.remove();
@@ -25,8 +27,8 @@ var LoggingService = function () {
 			, transitionMessageToTopRightCorner: function ( $msg ) {
 				return function () {
 					$msg
-						.css( "top", "7px" )
-						.css( "right", "125px" );
+						.css( 'top', '7px' )
+						.css( 'right', '125px' );
 
 					setTimeout( functions.transitionMessageOffTheTopOfThePage( $msg ), 4000 );
 				};
