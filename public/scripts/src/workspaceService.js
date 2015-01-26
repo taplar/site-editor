@@ -93,7 +93,7 @@ var WorkspaceService = function () {
 				});
 			}
 			, deleteDirectoryFailure: function ( data ) { //TODO: TEST THIS
-				LoggingService.getInstance().displayError( 'Directory not deleted.' );
+				LoggingService.getInstance().displayError( 'Directory not deleted' );
 				functions.closePromptContainer();
 				functions.displayFilesystem();
 			}
@@ -244,7 +244,7 @@ var WorkspaceService = function () {
 				}
 			}
 			, invalidReference: function ( data ) {
-				LoggingService.getInstance().displayError( 'Parent directory no longer exists' );
+				LoggingService.getInstance().displayError( 'Parent directory no longer exists or has restricted access' );
 				functions.closePromptContainer();
 				functions.displayFilesystem();
 			}

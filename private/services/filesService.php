@@ -21,6 +21,7 @@ final class FilesService {
 	public function createDirectory ( $pathArray ) {
 		$filename = array_pop( $pathArray );
 		$pathString = $this->validateExistingPath( $pathArray );
+		$pathString = $this->validatePathExternalToEditor( $pathString );
 
 		if ( $pathString != NULL ) {
 			if ( $this->isAValidFilename( $filename ) && !file_exists( $pathString . $filename ) ) {
@@ -139,6 +140,17 @@ final class FilesService {
 		}
 
 		return $path;
+	}
+
+	private function validatePathExternalToEditor ( $pathString ) {
+		$testPath = realpath( $pathString );
+		$editorPath = realpath( Config::getInstance()->editorDirectory() );
+
+		if ( strpos( $testPath, $editorPath ) === 0 ) {
+			return NULL;
+		}
+
+		return $pathString;
 	}
 }
 

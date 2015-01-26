@@ -642,7 +642,7 @@ describe ( 'WorkspaceService', function () {
 
 				var args = loggingService.displayError.calls.argsFor( 0 );
 
-				expect( args[ 0 ] ).toEqual( 'Parent directory no longer exists' );
+				expect( args[ 0 ] ).toEqual( 'Parent directory no longer exists or has restricted access' );
 			} );
 		} );
 
