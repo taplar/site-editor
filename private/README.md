@@ -102,6 +102,7 @@ URL: ~/private/?files/directories/root [ /sub-directory1 [ /sub-directory2 [ ...
 	* 498 - Directory not created due to invalid name
 	* 499 - Directory not created due to invalid path
 	* 500 - Internal Error
+```
 
 ### Delete directory
 
@@ -121,3 +122,4 @@ URL: ~/private/?files/directories/root [ /sub-directory1 [ /sub-directory2 [ ...
 	* 497 - Directory not deleted due to recursive delete/unlink failure
 	* 499 - Directory not deleted due to invalid path
 	* 500 - Internal Error
+```
