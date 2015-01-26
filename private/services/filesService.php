@@ -34,12 +34,17 @@ final class FilesService {
 		}
 	}
 
+	public function createFile () {
+
+	}
+
 	public function deleteFile () {
 
 	}
 
 	public function deleteDirectory ( $pathArray ) {
 		$pathString = $this->pathExists( $pathArray );
+		$pathString = $this->editorIsNotParentOfOrSubdirectoryInPath( $pathString );
 
 		if ( $pathString != NULL ) {
 			$this->removeDirectory( $pathString );
@@ -48,8 +53,16 @@ final class FilesService {
 		}
 	}
 
-	public function createFile () {
+	private function editorIsNotParentOfOrSubdirectoryInPath ( $pathString ) {
+		$testPath = realpath( $pathString );
+		$editorPath = realpath( Config::getInstance()->editorDirectory() );
 
+		if ( strpos( $testPath, $editorPath ) === 0
+		|| strpos( $editorPath, $testPath ) === 0) {
+			return NULL;
+		}
+
+		return $pathString;
 	}
 
 	private function editorIsNotParentOfPath ( $pathString ) {
