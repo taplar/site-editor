@@ -80,16 +80,16 @@ var WorkspaceService = function () {
 				$container.find( '.prompt-container' ).remove();
 			}
 			, deleteDirectory: function () { //TODO: TEST THIS
-					AjaxService.getInstance().DELETE({
-						url: './private/?files/directories'
-						, input: {
-							path: $container.find( '.prompt-container' ).prop( 'fileTree' )
-						}
-						, success: functions.deleteDirectorySuccess
-						, 401: functions.displayLogin
-						, 499: functions.invalidReference
-						, 500: AjaxService.getInstance().logInternalError
-					});
+				var directory = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
+
+				AjaxService.getInstance().DELETE({
+					url: './private/?files/directories/'+ directory
+					, input: { }
+					, success: functions.deleteDirectorySuccess
+					, 401: functions.displayLogin
+					, 499: functions.invalidReference
+					, 500: AjaxService.getInstance().logInternalError
+				});
 			}
 			, deleteDirectorySuccess: function ( data ) { //TODO: TEST THIS
 				LoggingService.getInstance().displaySuccess( 'Directory deleted' );
@@ -257,7 +257,7 @@ var WorkspaceService = function () {
 
 					AjaxService.getInstance().POST({
 						url: './private/?files/directories/'+ newDirectory
-						, input: {}
+						, input: { }
 						, success: functions.newDirectorySuccess
 						, 401: functions.displayLogin
 						, 498: functions.newDirectoryFailure

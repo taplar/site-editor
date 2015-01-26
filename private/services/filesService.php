@@ -38,7 +38,13 @@ final class FilesService {
 	}
 
 	public function deleteDirectory ( $pathArray ) {
+		$pathString = $this->validateExistingPath( $pathArray );
 
+		if ( $pathString != NULL ) {
+			$this->removeDirectory( $pathString );
+		} else {
+			Http::getInstance()->invalidPath();
+		}
 	}
 
 	public function createFile () {
@@ -70,6 +76,24 @@ final class FilesService {
 
 	public function listDirectoryStructure () {
 		return $this->getDirectoryStructure( Config::getInstance()->rootDirectory() );
+	}
+
+	private function removeDirectory ( $pathString ) {
+		$files = array_diff( scandir( $pathString ), array( '.', '..' ) );
+
+		foreach ( $files as $file ) {
+			if ( is_dir( $pathString ."/". $file ) ) {
+				$this->removeDirectory( $pathString ."/". $file );
+			} else {
+				$this->removeFile( $pathString ."/". $file );
+			}
+		}
+
+		rmdir( $pathString );
+	}
+
+	private function removeFile ( $pathString ) {
+
 	}
 
 	private function stringDoesNotContainInvalidCharacters ( $string ) {

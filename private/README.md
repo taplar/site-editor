@@ -110,10 +110,8 @@ Purpose: Delete (nested) directory and all contents
 ##### Request
 ```
 Method: DELETE
-URL: ~/private/?files/directories
-{
-	path: < array( 'root' [ , < string > [ , < string > [ ... ] ] ] ) >
-}
+URL: ~/private/?files/directories/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /existing-directory
+{ }
 ```
 ##### Response
 ```
