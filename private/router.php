@@ -23,6 +23,7 @@ final class Router {
 	private static function forwardToRestFunction ( $path ) {
 		$controller = ucwords( strtolower( $path[ 0 ] ) ."Controller" );
 		$controller = Router::getInstanceOfClass( $controller, NULL );
+		$path = array_splice( $path, 1 );
 
 		switch ( strtoupper( $_SERVER[ "REQUEST_METHOD" ] ) ) {
 			case "DELETE":

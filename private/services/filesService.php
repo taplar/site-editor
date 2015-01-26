@@ -18,9 +18,9 @@ final class FilesService {
 		return self::$instance;
 	}
 
-	public function createDirectory ( $path ) {
-		$filename = array_pop( $path );
-		$pathString = $this-> validateExistingPath( $path );
+	public function createDirectory ( $pathArray ) {
+		$filename = array_pop( $pathArray );
+		$pathString = $this->validateExistingPath( $pathArray );
 
 		if ( $pathString != NULL ) {
 			if ( $this->isAValidFilename( $filename ) && !file_exists( $pathString . $filename ) ) {
@@ -37,7 +37,7 @@ final class FilesService {
 
 	}
 
-	public function deleteDirectory ( $path ) {
+	public function deleteDirectory ( $pathArray ) {
 
 	}
 
@@ -45,13 +45,13 @@ final class FilesService {
 
 	}
 	
-	private function getDirectoryStructure ( $path ) {
+	private function getDirectoryStructure ( $pathString ) {
 		$array = array();
 
-		foreach ( scandir( $path ) as $key => $value ) {
+		foreach ( scandir( $pathString ) as $key => $value ) {
 			if ( $value[ 0 ] != "." ) {
-				if ( is_dir( $path.$value ) ) {
-					$array[ $value ] = $this->getDirectoryStructure( $path.$value ."/" );
+				if ( is_dir( $pathString . $value ) ) {
+					$array[ $value ] = $this->getDirectoryStructure( $pathString . $value ."/" );
 				} else {
 					array_push( $array, $value );
 				}
