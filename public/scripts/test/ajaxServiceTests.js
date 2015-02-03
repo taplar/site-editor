@@ -1,5 +1,6 @@
 describe ( 'AjaxService', function () {
 	beforeEach ( function () {
+		$body = $( 'body' );
 		loggingService = LoggingService.getInstance();
 
 		spyOn( LoggingService, 'getInstance' ).and.returnValue( loggingService );
@@ -228,25 +229,25 @@ describe ( 'AjaxService', function () {
 
 		describe ( 'ChangeMouseStateToBusy', function () {
 			afterEach ( function () {
-				$( 'body' ).removeClass( 'busy' );
+				$body.removeClass( 'busy' );
 			} );
 
 			it ( 'Should add the busy class to the body', function () {
-				expect( $( 'body' ).hasClass( 'busy' ) ).toBe( false );
+				expect( $body.hasClass( 'busy' ) ).toBe( false );
 				ajaxService.privateFunctions.changeMouseStateToBusy();
-				expect( $( 'body' ).hasClass( 'busy' ) ).toBe( true );
+				expect( $body.hasClass( 'busy' ) ).toBe( true );
 			} );
 		} );
 
 		describe ( 'ChangeMouseStateToDefault', function () {
 			beforeEach ( function () {
-				$( 'body' ).addClass( 'busy' );
+				$body.addClass( 'busy' );
 			} );
 
 			it ( 'Should remove the busy class from the body', function () {
-				expect( $( 'body' ).hasClass( 'busy' ) ).toBe( true );
+				expect( $body.hasClass( 'busy' ) ).toBe( true );
 				ajaxService.privateFunctions.changeMouseStateToDefault();
-				expect( $( 'body' ).hasClass( 'busy' ) ).toBe( false );
+				expect( $body.hasClass( 'busy' ) ).toBe( false );
 			} );
 		} );
 

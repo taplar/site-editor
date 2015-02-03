@@ -1,6 +1,8 @@
 describe ( 'SessionService', function () {
 	beforeEach ( function () {
-		$( '<div>', { class: 'container' } ).appendTo( $( 'body' ) );
+		$body = $( 'body' );
+		$container = $( '<div>', { class: 'container' } );
+		$container.appendTo( $body );
 
 		ajaxService = AjaxService.getInstance();
 		keyService = KeyService.getInstance();
@@ -16,7 +18,7 @@ describe ( 'SessionService', function () {
 	} );
 
 	afterEach ( function () {
-		$( '.container' ).remove();
+		$container.remove();
 	} );
 
 	describe ( 'API', function () {
@@ -83,8 +85,8 @@ describe ( 'SessionService', function () {
 
 				sessionService.privateFunctions.buildLoginForm( htmlData );
 
-				expect( $( '.container' ).html() ).toEqual( htmlData );
-				expect( $( '#userid' ).is( ':focus') ).toBe( true );
+				expect( $container.html() ).toEqual( htmlData );
+				expect( $container.find( '#userid' ).is( ':focus') ).toBe( true );
 			} );
 		} );
 
@@ -124,7 +126,7 @@ describe ( 'SessionService', function () {
 
 		describe ( 'SubmitLoginOnEnter', function () {
 			beforeEach ( function () {
-				$( '.container' ).html( '<input id="userid" value="admin"><input id="password" value="pass">' );
+				$container.html( '<input id="userid" value="admin"><input id="password" value="pass">' );
 			} );
 
 			it ( 'Should submit POST request if enter is pressed', function () {

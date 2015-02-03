@@ -1,6 +1,8 @@
 describe ( 'WorkspaceService', function () {
 	beforeEach ( function () {
-		$( '<div>', { class: 'container'} ).appendTo( $( 'body' ) );
+		$body = $( 'body' );
+		$container = $( '<div>', { class: 'container'} );
+		$container.appendTo( $body );
 
 		ajaxService = AjaxService.getInstance();
 		keyService = KeyService.getInstance();
@@ -15,7 +17,7 @@ describe ( 'WorkspaceService', function () {
 	} );
 
 	afterEach ( function () {
-		$( '.container' ).remove();
+		$container.remove();
 	} );
 
 	describe ( 'API', function () {
@@ -54,16 +56,16 @@ describe ( 'WorkspaceService', function () {
 
 				workspaceService.privateFunctions.buildDeleteDirectory( data.join( '' ), fileTreeArray );
 
-				expect( $( '.container .prompt-container' ).length ).toEqual( 1 );
-				expect( $( '.existing-directory' ).html() ).toEqual( fileTreeArray.join( '/') );
-				expect( $( '.prompt-container' ).prop( 'fileTree' ) ).toEqual( fileTreeArray );
+				expect( $container.find( '.prompt-container' ).length ).toEqual( 1 );
+				expect( $container.find( '.existing-directory' ).html() ).toEqual( fileTreeArray.join( '/') );
+				expect( $container.find( '.prompt-container' ).prop( 'fileTree' ) ).toEqual( fileTreeArray );
 				expect( workspaceService.privateFunctions.closePromptContainer.calls.count() ).toEqual( 1 );
 
 				expect( workspaceService.privateFunctions.deleteDirectory ).not.toHaveBeenCalled();
-				$( '.prompt-container .prompt-yes' ).trigger( 'click' );
+				$container.find( '.prompt-container .prompt-yes' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.deleteDirectory ).toHaveBeenCalled();
 
-				$( '.prompt-container .prompt-no' ).trigger( 'click' );
+				$container.find( '.prompt-container .prompt-no' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.closePromptContainer.calls.count() ).toEqual( 2 );
 			} );
 		} );
@@ -72,19 +74,19 @@ describe ( 'WorkspaceService', function () {
 			it ( 'Should remove existing ul and insert new one', function () {
 				spyOn( workspaceService.privateFunctions, 'displayFilesInDirectory' );
 
-				$( '<div>', { class: 'root' } ).appendTo( $( '.container' ) );
-				$( '<ul>', { class: 'existingUL' } ).appendTo( $( '.root' ) );
+				$( '<div>', { class: 'root' } ).appendTo( $container );
+				$( '<ul>', { class: 'existingUL' } ).appendTo( $container.find( '.root' ) );
 
 				var data = { key1: 'value1', key2: 'value2' };
 
 				workspaceService.privateFunctions.buildFilesystem( JSON.stringify( data ) );
 
-				expect( $( '.root ul' ).hasClass( 'existingURL' ) ).toBe( false );
+				expect( $container.find( '.root ul' ).hasClass( 'existingURL' ) ).toBe( false );
 				expect( workspaceService.privateFunctions.displayFilesInDirectory ).toHaveBeenCalled();
 
 				var args = workspaceService.privateFunctions.displayFilesInDirectory.calls.argsFor( 0 );
 
-				expect( args[ 0 ][ 0 ] ).toEqual( $( '.root ul' )[ 0 ] );
+				expect( args[ 0 ][ 0 ] ).toEqual( $container.find( '.root ul' )[ 0 ] );
 				expect( args[ 1 ] ).toEqual( data );
 			} );
 		} );
@@ -131,7 +133,7 @@ describe ( 'WorkspaceService', function () {
 
 		describe ( 'BuildMenu', function () {
 			it ( 'Should replace existing menu with new data and remove when control is activated', function () {
-				$( '<div>', { class: 'menu old' } ).appendTo( $( '.container' ) );
+				$( '<div>', { class: 'menu old' } ).appendTo( $container );
 
 				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
 				spyOn( workspaceService.privateFunctions, 'toggleSearchTips' );
@@ -141,17 +143,17 @@ describe ( 'WorkspaceService', function () {
 
 				workspaceService.privateFunctions.buildMenu( data );
 
-				expect( $( '.menu' ).hasClass( 'old' ) ).toBe( false );
-				expect( $( '.menu' ).hasClass( 'new' ) ).toBe( true );
+				expect( $container.find( '.menu' ).hasClass( 'old' ) ).toBe( false );
+				expect( $container.find( '.menu' ).hasClass( 'new' ) ).toBe( true );
 				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
 				expect( workspaceService.privateFunctions.toggleSearchTips ).toHaveBeenCalled();
 
 				expect( workspaceService.privateFunctions.filterMenu ).not.toHaveBeenCalled();
-				$( '.search .pattern' ).trigger( 'keyup' );
+				$container.find( '.search .pattern' ).trigger( 'keyup' );
 				expect( workspaceService.privateFunctions.filterMenu ).toHaveBeenCalled();
 
-				$( '.control' ).click();
-				expect( $( '.menu' ).length ).toEqual( 0 );
+				$container.find( '.control' ).click();
+				expect( $container.find( '.menu' ).length ).toEqual( 0 );
 			} );
 		} );
 
@@ -170,17 +172,15 @@ describe ( 'WorkspaceService', function () {
 
 				workspaceService.privateFunctions.buildNewDirectory( data.join( '' ), fileTreeArray );
 
-				var $container = $( '.container' );
-
-				expect( $( '.container > .prompt-container' ).length ).toEqual( 1 );
-				expect( $( '.existing-directory' ).html() ).toEqual( fileTreeArray.join( '/' ) +'/' );
+				expect( $container.find( '> .prompt-container' ).length ).toEqual( 1 );
+				expect( $container.find( '.existing-directory' ).html() ).toEqual( fileTreeArray.join( '/' ) +'/' );
 
 				expect( workspaceService.privateFunctions.submitNewDirectoryOnEnter ).not.toHaveBeenCalled();
-				$( '#newdirectory' ).trigger( 'keyup' );
+				$container.find( '#newdirectory' ).trigger( 'keyup' );
 				expect( workspaceService.privateFunctions.submitNewDirectoryOnEnter ).toHaveBeenCalled();
 
-				$( '.close' ).click();
-				expect( $( '.container > .prompt-container' ).length ).toEqual( 0 );
+				$container.find( '.close' ).click();
+				expect( $container.find( '> .prompt-container' ).length ).toEqual( 0 );
 			} );
 		} );
 
@@ -189,26 +189,26 @@ describe ( 'WorkspaceService', function () {
 				spyOn( sessionService, 'logout' );
 				spyOn( workspaceService.privateFunctions, 'displayMenu' );
 
-				$( '.container' ).html( 'existing data to be replaced' );
+				$container.html( 'existing data to be replaced' );
 				workspaceService.privateFunctions.buildWorkspace( '<i class="menuIndicator" /><i class="logout" />' );
-				expect( $( '.container' ).html() ).not.toEqual( 'existing data to be replaced' );
+				expect( $container.html() ).not.toEqual( 'existing data to be replaced' );
 
 				expect( workspaceService.privateFunctions.displayMenu ).not.toHaveBeenCalled();
-				$( '.menuIndicator' ).mouseover();
+				$container.find( '.menuIndicator' ).mouseover();
 				expect( workspaceService.privateFunctions.displayMenu ).toHaveBeenCalled();
 
 				expect( sessionService.logout ).not.toHaveBeenCalled();
-				$( '.logout' ).click();
+				$container.find( '.logout' ).click();
 				expect( sessionService.logout ).toHaveBeenCalled();
 			} );
 		} );
 
 		describe ( 'ClosePromptContainer', function () {
 			it ( 'Should remove the prompt container', function () {
-				$( '<div class="prompt-container">' ).appendTo( $( '.container' ) );
-				expect( $( '.container .prompt-container' ).length ).toEqual( 1 );
+				$( '<div class="prompt-container">' ).appendTo( $container );
+				expect( $container.find( '.prompt-container' ).length ).toEqual( 1 );
 				workspaceService.privateFunctions.closePromptContainer();
-				expect( $( '.container .prompt-container' ).length ).toEqual( 0 );
+				expect( $container.find( '.prompt-container' ).length ).toEqual( 0 );
 			} );
 		} );
 
@@ -218,7 +218,7 @@ describe ( 'WorkspaceService', function () {
 				var fileTree = [ 'root', 'dir1', 'dir2' ];
 
 				$prompt.prop( 'fileTree', fileTree );
-				$prompt.appendTo( $( '.container' ) );
+				$prompt.appendTo( $container );
 
 				spyOn( ajaxService, 'DELETE' );
 
@@ -531,11 +531,11 @@ describe ( 'WorkspaceService', function () {
 				workspaceService.privateFunctions.buildMenu( menuData.join( '' ) );
 				workspaceService.privateFunctions.buildFilesystem( JSON.stringify( fileData ) );
 
-				$liElements = $( '.directory-structure .file-name' ).parent().filter( ':not(.root)' )
+				$liElements = $container.find( '.directory-structure .file-name' ).parent().filter( ':not(.root)' )
 			} );
 
 			afterEach ( function () {
-				$( '.container .menu' ).remove();
+				$container.find( '.menu' ).remove();
 			} );
 
 			it ( 'Should default all files to visible', function () {
@@ -543,15 +543,15 @@ describe ( 'WorkspaceService', function () {
 			} );
 
 			it ( 'Should hide all files if no match', function () {
-				$( '.container .pattern' ).val( 'xyz' );
-				$( '.container .pattern' ).trigger( 'keyup' );
+				$container.find( '.pattern' ).val( 'xyz' );
+				$container.find( '.pattern' ).trigger( 'keyup' );
 
 				expect( $liElements.filter( ':visible' ).length ).toEqual( 0 );
 			} );
 
 			it ( 'Should filter specific file', function () {
-				$( '.container .pattern' ).val( 'index.css' );
-				$( '.container .pattern' ).trigger( 'keyup' );
+				$container.find( '.pattern' ).val( 'index.css' );
+				$container.find( '.pattern' ).trigger( 'keyup' );
 
 				$liElements.find( '.file-name' ).each( function () {
 					var $this = $( this );
@@ -563,8 +563,8 @@ describe ( 'WorkspaceService', function () {
 			} );
 
 			it ( 'Should filter with leading wildcard', function () {
-				$( '.container .pattern' ).val( '%.css' );
-				$( '.container .pattern' ).trigger( 'keyup' );
+				$container.find( '.pattern' ).val( '%.css' );
+				$container.find( '.pattern' ).trigger( 'keyup' );
 
 				var matcher = new RegExp( '[\\S]*.css' );
 
@@ -578,8 +578,8 @@ describe ( 'WorkspaceService', function () {
 			} );
 
 			it ( 'Should filter with following wildcard', function () {
-				$( '.container .pattern' ).val( 'index%' );
-				$( '.container .pattern' ).trigger( 'keyup' );
+				$container.find( '.pattern' ).val( 'index%' );
+				$container.find( '.pattern' ).trigger( 'keyup' );
 
 				var matcher = new RegExp( 'index[\\S]*' );
 
@@ -593,8 +593,8 @@ describe ( 'WorkspaceService', function () {
 			} );
 
 			it ( 'Should filter with leading and following wildcard', function () {
-				$( '.container .pattern' ).val( '%dex%' );
-				$( '.container .pattern' ).trigger( 'keyup' );
+				$container.find( '.pattern' ).val( '%dex%' );
+				$container.find( '.pattern' ).trigger( 'keyup' );
 
 				var matcher = new RegExp( '[\\S]*dex[\\S]*' );
 
@@ -608,8 +608,8 @@ describe ( 'WorkspaceService', function () {
 			} );
 
 			it ( 'Should filter with leading, middle, and following wildcard', function () {
-				$( '.container .pattern' ).val( '%Con%.p%' );
-				$( '.container .pattern' ).trigger( 'keyup' );
+				$container.find( '.pattern' ).val( '%Con%.p%' );
+				$container.find( '.pattern' ).trigger( 'keyup' );
 
 				var matcher = new RegExp( '[\\S]*Con[\\S]*.p[\\S]*' );
 
@@ -623,8 +623,8 @@ describe ( 'WorkspaceService', function () {
 			} );
 
 			it ( 'Should filter with single leading wildcard', function () {
-				$( '.container .pattern' ).val( '_ndex.css' );
-				$( '.container .pattern' ).trigger( 'keyup' );
+				$container.find( '.pattern' ).val( '_ndex.css' );
+				$container.find( '.pattern' ).trigger( 'keyup' );
 
 				var matcher = new RegExp( '[\\S]ndex.css' );
 
@@ -638,8 +638,8 @@ describe ( 'WorkspaceService', function () {
 			} );
 
 			it ( 'Should filter with single following wildcard', function () {
-				$( '.container .pattern' ).val( 'index.htm_' );
-				$( '.container .pattern' ).trigger( 'keyup' );
+				$container.find( '.pattern' ).val( 'index.htm_' );
+				$container.find( '.pattern' ).trigger( 'keyup' );
 
 				var matcher = new RegExp( 'index.htm[\\S]' );
 
@@ -653,8 +653,8 @@ describe ( 'WorkspaceService', function () {
 			} );
 
 			it ( 'Should filter with leading and following wildcard', function () {
-				$( '.container .pattern' ).val( '_ndex.htm_' );
-				$( '.container .pattern' ).trigger( 'keyup' );
+				$container.find( '.pattern' ).val( '_ndex.htm_' );
+				$container.find( '.pattern' ).trigger( 'keyup' );
 
 				var matcher = new RegExp( '[\\S]ndex.htm[\\S]' );
 
@@ -668,8 +668,8 @@ describe ( 'WorkspaceService', function () {
 			} );
 
 			it ( 'Should filter with leading, middle, and following wildcard', function () {
-				$( '.container .pattern' ).val( '_nde_.htm_' );
-				$( '.container .pattern' ).trigger( 'keyup' );
+				$container.find( '.pattern' ).val( '_nde_.htm_' );
+				$container.find( '.pattern' ).trigger( 'keyup' );
 
 				var matcher = new RegExp( '[\\S]nde[\\S].htm[\\S]' );
 
@@ -688,11 +688,11 @@ describe ( 'WorkspaceService', function () {
 				spyOn( loggingService, 'displayError' );
 				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
 
-				$( '<div class="prompt-container" />' ).appendTo( $( '.container' ) );
+				$( '<div class="prompt-container" />' ).appendTo( $container );
 
 				workspaceService.privateFunctions.invalidReference();
 
-				expect( $( '.prompt-container' ).length ).toEqual( 0 );
+				expect( $container.find( '.prompt-container' ).length ).toEqual( 0 );
 				expect( workspaceService.privateFunctions.displayFilesystem );
 				expect( loggingService.displayError ).toHaveBeenCalled();
 
@@ -706,11 +706,11 @@ describe ( 'WorkspaceService', function () {
 			it ( 'Should display error message', function () {
 				spyOn( loggingService, 'displayError' );
 
-				$( '<div class="prompt-container" />' ).appendTo( $( '.container' ) );
+				$( '<div class="prompt-container" />' ).appendTo( $container );
 
 				workspaceService.privateFunctions.newDirectoryFailure();
 
-				expect( $( '.prompt-container' ).length ).toEqual( 1 );
+				expect( $container.find( '.prompt-container' ).length ).toEqual( 1 );
 				expect( loggingService.displayError ).toHaveBeenCalled();
 
 				var args = loggingService.displayError.calls.argsFor( 0 );
@@ -724,11 +724,11 @@ describe ( 'WorkspaceService', function () {
 				spyOn( loggingService, 'displaySuccess' );
 				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
 
-				$( '<div class="prompt-container" />' ).appendTo( $( '.container' ) );
+				$( '<div class="prompt-container" />' ).appendTo( $container );
 
 				workspaceService.privateFunctions.newDirectorySuccess();
 
-				expect( $( '.prompt-container' ).length ).toEqual( 0 );
+				expect( $container.find( '.prompt-container' ).length ).toEqual( 0 );
 				expect( workspaceService.privateFunctions.displayFilesystem );
 				expect( loggingService.displaySuccess ).toHaveBeenCalled();
 
@@ -747,7 +747,7 @@ describe ( 'WorkspaceService', function () {
 				$prompt.prop( 'fileTree', fileTree );
 				$prompt.find( '#newdirectory' ).val( newDirectoryName );
 				$prompt.find( '#newdirectory' ).keyup( workspaceService.privateFunctions.submitNewDirectoryOnEnter );
-				$prompt.appendTo( $( '.container' ) );
+				$prompt.appendTo( $container );
 
 				spyOn( ajaxService, 'POST' );
 				spyOn( keyService, 'enter' ).and.returnValue( true );
@@ -775,7 +775,7 @@ describe ( 'WorkspaceService', function () {
 				$prompt.prop( 'fileTree', fileTree );
 				$prompt.find( '#newdirectory' ).val( newDirectoryName );
 				$prompt.find( '#newdirectory' ).keyup( workspaceService.privateFunctions.submitNewDirectoryOnEnter );
-				$prompt.appendTo( $( '.container' ) );
+				$prompt.appendTo( $container );
 
 				spyOn( ajaxService, 'POST' );
 				spyOn( keyService, 'enter' ).and.returnValue( false );
