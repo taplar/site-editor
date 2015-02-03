@@ -79,7 +79,7 @@ var WorkspaceService = function () {
 			, closePromptContainer: function () {
 				$container.find( '.prompt-container' ).remove();
 			}
-			, deleteDirectory: function () { //TODO: TEST THIS
+			, deleteDirectory: function () {
 				var directory = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
 
 				AjaxService.getInstance().DELETE({
@@ -92,12 +92,12 @@ var WorkspaceService = function () {
 					, 500: AjaxService.getInstance().logInternalError
 				});
 			}
-			, deleteDirectoryFailure: function ( data ) { //TODO: TEST THIS
+			, deleteDirectoryFailure: function ( data ) {
 				LoggingService.getInstance().displayError( 'Directory not deleted' );
 				functions.closePromptContainer();
 				functions.displayFilesystem();
 			}
-			, deleteDirectorySuccess: function ( data ) { //TODO: TEST THIS
+			, deleteDirectorySuccess: function ( data ) {
 				LoggingService.getInstance().displaySuccess( 'Directory deleted' );
 				functions.closePromptContainer();
 				functions.displayFilesystem();

@@ -212,6 +212,62 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'DeleteDirectory', function () {
+			it ( 'Should DELETE directory', function () {
+				var $prompt = $( '<div class="prompt-container" />' );
+				var fileTree = [ 'root', 'dir1', 'dir2' ];
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.appendTo( $( '.container' ) );
+
+				spyOn( ajaxService, 'DELETE' );
+
+				workspaceService.privateFunctions.deleteDirectory();
+
+				expect( ajaxService.DELETE ).toHaveBeenCalled();
+
+				var args = ajaxService.DELETE.calls.argsFor( 0 );
+
+				expect( args[ 0 ].url ).toEqual( './private/?files/directories/root/dir1/dir2' );
+				expect( args[ 0 ].input ).toEqual( { } );
+				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.deleteDirectorySuccess );
+				expect( args[ 0 ][ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
+				expect( args[ 0 ][ 497 ] ).toEqual( workspaceService.privateFunctions.deleteDirectoryFailure );
+				expect( args[ 0 ][ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
+				expect( args[ 0 ][ 500 ] ).toEqual( ajaxService.logInternalError );
+			} );
+		} );
+
+		describe ( 'DeleteDirectoryFailure', function () {
+			it ( 'Should display error, close prompt, and refresh menu', function () {
+				spyOn( loggingService, 'displayError' );
+				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
+				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+
+				workspaceService.privateFunctions.deleteDirectoryFailure();
+
+				expect( loggingService.displayError ).toHaveBeenCalled();
+				expect( loggingService.displayError.calls.argsFor( 0 )[ 0 ] ).toEqual( 'Directory not deleted' );
+				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
+			} );
+		} );
+
+		describe ( 'DeleteDirectorySuccess', function () {
+			it ( 'Should display success, close prompt, and refresh menu', function () {
+				spyOn( loggingService, 'displaySuccess' );
+				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
+				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+
+				workspaceService.privateFunctions.deleteDirectorySuccess();
+
+				expect( loggingService.displaySuccess ).toHaveBeenCalled();
+				expect( loggingService.displaySuccess.calls.argsFor( 0 )[ 0 ] ).toEqual( 'Directory deleted' );
+				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
+			} );
+		} );
+
 		describe ( 'DisplayDeleteDirectory', function () {
 			it ( 'Should call GET to retrieve delete directory view', function () {
 				spyOn( ajaxService, 'GET' );
