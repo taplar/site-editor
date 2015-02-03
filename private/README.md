@@ -9,7 +9,7 @@ Purpose: Determine if a session is active.
 ##### Request
 ```
 Method: GET
-URL: ~/private/?sessions
+URL: ~/private/?p=sessions
 ```
 ##### Response
 ```
@@ -26,7 +26,7 @@ Purpose: Validate authorization against provided input.
 ##### Request
 ```
 Method: POST
-URL: ~/private/?sessions
+URL: ~/private/?p=sessions
 {
 	userid: < string >
 	,password: < string >
@@ -47,7 +47,7 @@ Purpose: Terminate the active session.
 ##### Request
 ```
 Method: DELETE
-URL: ~/private/?sessions
+URL: ~/private/?p=sessions
 ```
 ##### Response
 ```
@@ -63,7 +63,7 @@ Purpose: Retrieve file tree for menu.
 ##### Request
 ```
 Method: GET
-URL: ~/private/?files
+URL: ~/private/?p=files
 ```
 ##### Response
 ```
@@ -91,7 +91,7 @@ Purpose: Create new (nested) directory
 ##### Request
 ```
 Method: POST
-URL: ~/private/?files/directories/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /new-directory
+URL: ~/private/?p=files/directories/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /new-directory
 { }
 ```
 ##### Response
@@ -111,7 +111,7 @@ Purpose: Delete (nested) directory and all contents
 ##### Request
 ```
 Method: DELETE
-URL: ~/private/?files/directories/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /existing-directory
+URL: ~/private/?p=files/directories/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /existing-directory
 { }
 ```
 ##### Response

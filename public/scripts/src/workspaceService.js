@@ -83,7 +83,7 @@ var WorkspaceService = function () {
 				var directory = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
 
 				AjaxService.getInstance().DELETE({
-					url: './private/?files/directories/'+ directory
+					url: './private/?p=files/directories/'+ directory
 					, input: { }
 					, success: functions.deleteDirectorySuccess
 					, 401: functions.displayLogin
@@ -139,7 +139,7 @@ var WorkspaceService = function () {
 			}
 			, displayFilesystem: function () {
 				AjaxService.getInstance().GET({
-					url: './private/?files'
+					url: './private/?p=files'
 					, success: functions.buildFilesystem
 					, 401: SessionService.getInstance().displayLogin
 					, 500: LoggingService.getInstance().logInternalError
@@ -262,7 +262,7 @@ var WorkspaceService = function () {
 					newDirectory += '/'+ $( this ).val(); 
 
 					AjaxService.getInstance().POST({
-						url: './private/?files/directories/'+ newDirectory
+						url: './private/?p=files/directories/'+ newDirectory
 						, input: { }
 						, success: functions.newDirectorySuccess
 						, 401: functions.displayLogin

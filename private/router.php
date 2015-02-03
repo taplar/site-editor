@@ -92,10 +92,8 @@ final class Router {
 	}
 
 	private function parseRequestPath () {
-		$keys = array_keys( $_GET );
-
-		if ( count( $keys ) > 0) {
-			return explode( "/", $keys[ 0 ] );
+		if ( isset( $_GET[ "p" ] ) ) {
+			return explode( "/", $_GET[ "p" ] );
 		}
 
 		return [];

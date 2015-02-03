@@ -52,7 +52,7 @@ describe ( 'SessionService', function () {
 
 				var args = ajaxService.DELETE.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './private/?sessions' );
+				expect( args[ 0 ].url ).toEqual( './private/?p=sessions' );
 				expect( args[ 0 ].success ).toEqual( sessionService.privateFunctions.logoutSuccess );
 				expect( args[ 0 ].failure ).toEqual( sessionService.displayLogin );
 			} );
@@ -68,7 +68,7 @@ describe ( 'SessionService', function () {
 
 				var args = ajaxService.GET.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './private/?sessions' );
+				expect( args[ 0 ].url ).toEqual( './private/?p=sessions' );
 				expect( args[ 0 ].success ).toEqual( workspaceService.displayWorkspace );
 				expect( args[ 0 ][ 401 ] ).toEqual( sessionService.displayLogin );
 				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
@@ -148,7 +148,7 @@ describe ( 'SessionService', function () {
 
 				var args = ajaxService.POST.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './private/?sessions' );
+				expect( args[ 0 ].url ).toEqual( './private/?p=sessions' );
 				expect( args[ 0 ].input ).toEqual( {
 					userid: 'admin'
 					, password: 'pass'

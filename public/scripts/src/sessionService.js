@@ -20,7 +20,7 @@ var SessionService = function () {
 			, submitLoginOnEnter: function ( event ) {
 				if ( KeyService.getInstance().enter( event ) ) {
 					AjaxService.getInstance().POST({
-						url: './private/?sessions'
+						url: './private/?p=sessions'
 						, input: {
 							userid: $( '#userid' ).val()
 							, password: $( '#password' ).val()
@@ -45,14 +45,14 @@ var SessionService = function () {
 			}
 			, logout: function () {
 				AjaxService.getInstance().DELETE({
-					url: './private/?sessions'
+					url: './private/?p=sessions'
 					, success: functions.logoutSuccess
 					, failure: api.displayLogin
 				});
 			}
 			, validateActiveSession: function () {
 				AjaxService.getInstance().GET({
-					url: './private/?sessions'
+					url: './private/?p=sessions'
 					, success: WorkspaceService.getInstance().displayWorkspace
 					, 401: api.displayLogin
 					, 500: LoggingService.getInstance().logInternalError

@@ -228,7 +228,7 @@ describe ( 'WorkspaceService', function () {
 
 				var args = ajaxService.DELETE.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './private/?files/directories/root/dir1/dir2' );
+				expect( args[ 0 ].url ).toEqual( './private/?p=files/directories/root/dir1/dir2' );
 				expect( args[ 0 ].input ).toEqual( { } );
 				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.deleteDirectorySuccess );
 				expect( args[ 0 ][ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
@@ -332,7 +332,7 @@ describe ( 'WorkspaceService', function () {
 
 				var args = ajaxService.GET.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './private/?files' );
+				expect( args[ 0 ].url ).toEqual( './private/?p=files' );
 				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.buildFilesystem );
 				expect( args[ 0 ][ 401 ] ).toEqual( sessionService.displayLogin );
 				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
@@ -758,7 +758,7 @@ describe ( 'WorkspaceService', function () {
 
 				var args = ajaxService.POST.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './private/?files/directories/dir1/dir2/dir777' );
+				expect( args[ 0 ].url ).toEqual( './private/?p=files/directories/dir1/dir2/dir777' );
 				expect( args[ 0 ].input ).toEqual( { } );
 				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.newDirectorySuccess );
 				expect( args[ 0 ][ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
