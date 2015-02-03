@@ -83,7 +83,7 @@ input:focus, select:focus, textarea:focus, button:focus {
 }
 .delete {
 	position: relative;
-	left: -6px;
+	left: -12px;
 
 	color: rgb(255, 0, 0);
 }
@@ -100,13 +100,17 @@ input:focus, select:focus, textarea:focus, button:focus {
 .fa-power-off:hover {
 	color: rgb(255, 0, 0);
 }
-.new-directory .fa-plus {
+.new-directory .fa-plus, .new-file .fa-plus {
 	position: relative;
 	left: -9px;
 	top: -1px;
 
 	color: rgb(0, 0, 0);
 	font-size: 8px;
+}
+.new-file {
+	position: relative;
+	left: -6px;
 }
 
 /********** LAYERS **********/
@@ -132,6 +136,9 @@ input:focus, select:focus, textarea:focus, button:focus {
 	margin-left: -12px;
 
 	font-size: 0;
+}
+.directory-structure li {
+	line-height: 14px;
 }
 .file-name {
 	font-size: 12px;
