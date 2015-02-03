@@ -71,6 +71,19 @@ var WorkspaceService = function () {
 				$prompt.find( '#newdirectory' ).keyup( functions.submitNewDirectoryOnEnter  );
 				$prompt.find( '#newdirectory' ).focus();
 			}
+			, buildNewFile: function ( data, fileTreeArray ) {
+				var $prompt = $( data );
+
+				$prompt.find( '.existing-directory' ).html( fileTreeArray.join( '/' ) +'/' );
+				$prompt.prop( 'fileTree', fileTreeArray );
+
+				functions.closePromptContainer();
+				$prompt.appendTo( $container );
+
+				$prompt.find( '.close' ).click( functions.closePromptContainer );
+				$prompt.find( '#newfile' ).keyup( functions.submitNewFileOnEnter  );
+				$prompt.find( '#newfile' ).focus();
+			}
 			, buildWorkspace: function ( data ) {
 				$container.html( data );
 				$container.find( '.menuIndicator' ).mouseover( functions.displayMenu );
@@ -194,7 +207,7 @@ var WorkspaceService = function () {
 					, 500: LoggingService.getInstance().logInternalError
 				});
 			}
-			, displayNewFile: function () { //TODO: TEST THIS
+			, displayNewFile: function () {
 				var fileTree = functions.buildFileTreeArray( $( this ) );
 
 				AjaxService.getInstance().GET({
@@ -273,6 +286,14 @@ var WorkspaceService = function () {
 				functions.closePromptContainer();
 				functions.displayFilesystem();
 			}
+			, newFileFailure: function ( data ) {
+				LoggingService.getInstance().displayError( 'New file already exists or is invalid syntax' );
+			}
+			, newFileSuccess: function ( data ) {
+				LoggingService.getInstance().displaySuccess( 'File created' );
+				functions.closePromptContainer();
+				functions.displayFilesystem();
+			}
 			, submitNewDirectoryOnEnter: function ( event ) {
 				if ( KeyService.getInstance().enter( event ) ) {
 					var newDirectory = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
@@ -284,6 +305,22 @@ var WorkspaceService = function () {
 						, success: functions.newDirectorySuccess
 						, 401: functions.displayLogin
 						, 498: functions.newDirectoryFailure
+						, 499: functions.invalidReference
+						, 500: AjaxService.getInstance().logInternalError
+					});
+				}
+			}
+			, submitNewFileOnEnter: function ( event ) {
+				if ( KeyService.getInstance().enter( event ) ) {
+					var newFile = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
+					newFile += '/'+ $( this ).val(); 
+
+					AjaxService.getInstance().POST({
+						url: './private/?p=files/'+ newFile
+						, input: { }
+						, success: functions.newFileSuccess
+						, 401: functions.displayLogin
+						, 498: functions.newFileFailure
 						, 499: functions.invalidReference
 						, 500: AjaxService.getInstance().logInternalError
 					});

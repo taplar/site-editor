@@ -184,6 +184,33 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'BuildNewFile', function () {
+			it ( 'Should build prompt and bind close and submit actions', function () {
+				var data = [
+					'<div class="prompt-container">'
+						,'<div class="existing-directory"></div>'
+						,'<div><i class="close" /></div>'
+						,'<div><input type="text" id="newfile" /></div>'
+					,'</div>'
+				];
+				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
+
+				spyOn( workspaceService.privateFunctions, 'submitNewFileOnEnter' );
+
+				workspaceService.privateFunctions.buildNewFile( data.join( '' ), fileTreeArray );
+
+				expect( $container.find( '> .prompt-container' ).length ).toEqual( 1 );
+				expect( $container.find( '.existing-directory' ).html() ).toEqual( fileTreeArray.join( '/' ) +'/' );
+
+				expect( workspaceService.privateFunctions.submitNewFileOnEnter ).not.toHaveBeenCalled();
+				$container.find( '#newfile' ).trigger( 'keyup' );
+				expect( workspaceService.privateFunctions.submitNewFileOnEnter ).toHaveBeenCalled();
+
+				$container.find( '.close' ).click();
+				expect( $container.find( '> .prompt-container' ).length ).toEqual( 0 );
+			} );
+		} );
+
 		describe ( 'BuildWorkspace', function () {
 			it ( 'Should replace container html and bind events', function () {
 				spyOn( sessionService, 'logout' );
@@ -425,6 +452,31 @@ describe ( 'WorkspaceService', function () {
 				args[ 0 ].success( 'myData' );
 
 				var args = workspaceService.privateFunctions.buildNewDirectory.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'myData' );
+				expect( args[ 1 ] ).toEqual( [ 'root' ] );
+			} );
+		} );
+
+		describe ( 'DisplayNewFile', function () {
+			it ( 'Should call GET to retrieve new file view', function () {
+				spyOn( ajaxService, 'GET' );
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( [ 'root' ] );
+				spyOn( workspaceService.privateFunctions, 'buildNewFile' );
+
+				workspaceService.privateFunctions.displayNewFile();
+
+				expect( ajaxService.GET ).toHaveBeenCalled();
+
+				var args = ajaxService.GET.calls.argsFor( 0 );
+
+				expect( args[ 0 ].url ).toEqual( './public/views/newFile.view' );
+				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
+				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
+
+				args[ 0 ].success( 'myData' );
+
+				var args = workspaceService.privateFunctions.buildNewFile.calls.argsFor( 0 );
 
 				expect( args[ 0 ] ).toEqual( 'myData' );
 				expect( args[ 1 ] ).toEqual( [ 'root' ] );
@@ -747,6 +799,42 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'NewFileFailure', function () {
+			it ( 'Should display error message', function () {
+				spyOn( loggingService, 'displayError' );
+
+				$( '<div class="prompt-container" />' ).appendTo( $container );
+
+				workspaceService.privateFunctions.newFileFailure();
+
+				expect( $container.find( '.prompt-container' ).length ).toEqual( 1 );
+				expect( loggingService.displayError ).toHaveBeenCalled();
+
+				var args = loggingService.displayError.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'New file already exists or is invalid syntax' );
+			} );
+		} );
+
+		describe ( 'NewFileSuccess', function () {
+			it ( 'Should display success message, close prompt, and reload menu', function () {
+				spyOn( loggingService, 'displaySuccess' );
+				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+
+				$( '<div class="prompt-container" />' ).appendTo( $container );
+
+				workspaceService.privateFunctions.newFileSuccess();
+
+				expect( $container.find( '.prompt-container' ).length ).toEqual( 0 );
+				expect( workspaceService.privateFunctions.displayFilesystem );
+				expect( loggingService.displaySuccess ).toHaveBeenCalled();
+
+				var args = loggingService.displaySuccess.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'File created' );
+			} );
+		} );
+
 		describe ( 'SubmitNewDirectoryOnEnter', function () {
 			it ( 'Should POST new directory request on enter', function () {
 				var $prompt = $( '<div class="prompt-container"><input type="text" id="newdirectory" /></div>' );
@@ -790,6 +878,54 @@ describe ( 'WorkspaceService', function () {
 				spyOn( keyService, 'enter' ).and.returnValue( false );
 
 				$prompt.find( '#newdirectory' ).trigger( 'keyup' );
+
+				expect( ajaxService.POST ).not.toHaveBeenCalled();
+			} );
+		} );
+
+		describe ( 'SubmitNewFileOnEnter', function () {
+			it ( 'Should POST new file request on enter', function () {
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newfile" /></div>' );
+				var fileTree = [ 'dir1', 'dir2' ];
+				var newFileName = 'dir777';
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.find( '#newfile' ).val( newFileName );
+				$prompt.find( '#newfile' ).keyup( workspaceService.privateFunctions.submitNewFileOnEnter );
+				$prompt.appendTo( $container );
+
+				spyOn( ajaxService, 'POST' );
+				spyOn( keyService, 'enter' ).and.returnValue( true );
+
+				$prompt.find( '#newfile' ).trigger( 'keyup' );
+
+				expect( ajaxService.POST ).toHaveBeenCalled();
+
+				var args = ajaxService.POST.calls.argsFor( 0 );
+
+				expect( args[ 0 ].url ).toEqual( './private/?p=files/dir1/dir2/dir777' );
+				expect( args[ 0 ].input ).toEqual( { } );
+				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.newFileSuccess );
+				expect( args[ 0 ][ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
+				expect( args[ 0 ][ 498 ] ).toEqual( workspaceService.privateFunctions.newFileFailure );
+				expect( args[ 0 ][ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
+				expect( args[ 0 ][ 500 ] ).toEqual( ajaxService.logInternalError );
+			} );
+
+			it ( 'Should not POST new file request on non-enter', function () {
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newfile" /></div>' );
+				var fileTree = [ 'dir1', 'dir2' ];
+				var newFileName = 'dir777';
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.find( '#newfile' ).val( newFileName );
+				$prompt.find( '#newfile' ).keyup( workspaceService.privateFunctions.submitNewFileOnEnter );
+				$prompt.appendTo( $container );
+
+				spyOn( ajaxService, 'POST' );
+				spyOn( keyService, 'enter' ).and.returnValue( false );
+
+				$prompt.find( '#newfile' ).trigger( 'keyup' );
 
 				expect( ajaxService.POST ).not.toHaveBeenCalled();
 			} );
