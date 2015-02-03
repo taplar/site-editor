@@ -344,6 +344,7 @@ describe ( 'WorkspaceService', function () {
 				spyOn( workspaceService.privateFunctions, 'displayFilesInDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayNewDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayDeleteDirectory' );
+				spyOn( workspaceService.privateFunctions, 'displayNewFile' );
 
 				var $ul = $( '<ul>' );
 				var $subfiles = { 'file': 'blah' };
@@ -356,6 +357,10 @@ describe ( 'WorkspaceService', function () {
 						+ '<span class="file-name">directoryForPurchase</span>'
 						+ '<span class="new-directory">'
 							+ '<i class="fa fa-folder actionable"></i>'
+							+ '<i class="fa fa-plus actionable"></i>'
+						+ '</span>'
+						+ '<span class="new-file">'
+							+ '<i class="fa fa-file actionable"></i>'
 							+ '<i class="fa fa-plus actionable"></i>'
 						+ '</span>'
 						+ '<i class="fa fa-times delete delete-directory actionable"></i>'
@@ -377,6 +382,10 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.displayDeleteDirectory ).not.toHaveBeenCalled();
 				$ul.find( '.delete-directory' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.displayDeleteDirectory ).toHaveBeenCalled();
+
+				expect( workspaceService.privateFunctions.displayNewFile ).not.toHaveBeenCalled();
+				$ul.find( '.new-file' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.displayNewFile ).toHaveBeenCalled();
 			} );
 		} );
 

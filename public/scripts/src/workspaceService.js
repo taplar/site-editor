@@ -160,6 +160,11 @@ var WorkspaceService = function () {
 						.append( $( '<i class="fa fa-folder actionable">' ) )
 						.append( $( '<i class="fa fa-plus actionable">' ) )
 					.end()
+					.append( $( '<span class="new-file">' ) )
+					.find( '.new-file' )
+						.append( $( '<i class="fa fa-file actionable">' ) )
+						.append( $( '<i class="fa fa-plus actionable">' ) )
+					.end()
 					.append( $( '<i class="fa fa-times delete delete-directory actionable">' ) )
 					.append( $sublist )
 					.appendTo( $directory );
@@ -167,6 +172,7 @@ var WorkspaceService = function () {
 					functions.displayFilesInDirectory( $sublist, $subfiles );
 					$listItem.find( '> .new-directory' ).click( functions.displayNewDirectory );
 					$listItem.find( '> .delete-directory' ).click( functions.displayDeleteDirectory );
+					$listItem.find( '> .new-file' ).click( functions.displayNewFile );
 			}
 			, displayMenu: function () {
 				AjaxService.getInstance().GET({
@@ -183,6 +189,17 @@ var WorkspaceService = function () {
 				AjaxService.getInstance().GET({
 					url: './public/views/newDirectory.view'
 					, success: function ( data ) { functions.buildNewDirectory( data, fileTree ); }
+					, 401: SessionService.getInstance().displayLogin
+					, 404: LoggingService.getInstance().logNotFound
+					, 500: LoggingService.getInstance().logInternalError
+				});
+			}
+			, displayNewFile: function () { //TODO: TEST THIS
+				var fileTree = functions.buildFileTreeArray( $( this ) );
+
+				AjaxService.getInstance().GET({
+					url: './public/views/newFile.view'
+					, success: function ( data ) { functions.buildNewFile( data, fileTree ); }
 					, 401: SessionService.getInstance().displayLogin
 					, 404: LoggingService.getInstance().logNotFound
 					, 500: LoggingService.getInstance().logInternalError
