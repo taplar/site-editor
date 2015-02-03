@@ -34,8 +34,20 @@ final class FilesService {
 		}
 	}
 
-	public function createFile () {
+	public function createFile ( $pathArray ) {
+		$filename = array_pop( $pathArray );
+		$pathString = $this->pathExists( $pathArray );
+		$pathString = $this->editorIsNotParentOfPath( $pathString );
 
+		if ( $pathString != NULL ) {
+			if ( $this->isAValidFilename( $filename ) && !file_exists( $pathString . $filename ) ) {
+				touch( $pathString . $filename );
+			} else {
+				Http::getInstance()->invalidName();
+			}
+		} else {
+			Http::getInstance()->invalidPath();
+		}
 	}
 
 	public function deleteFile () {

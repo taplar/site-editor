@@ -40,10 +40,10 @@ final class FilesController {
 			if ( strtolower( $path[ 0 ] ) == "directories" ) {
 				$this->filesService->createDirectory( array_slice( $path, 1 ) );
 			} else {
-				Http::getInstance()->badRequest();
+				$this->filesService->createFile( $path );
 			}
 		} else {
-			$this->filesService->createFile();
+			Http::getInstance()->badRequest();
 		}
 	}
 
