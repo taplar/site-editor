@@ -1,0 +1,20 @@
+<div class="prompt-container prompt-container-overlay flexbox-h">
+	<div class="flexible-h"></div>
+	
+	<div class="inflexible flexbox-v">
+		<div class="flexible-v"></div>
+		
+		<div class="prompt inflexible">
+			<div class="title center new-file-title">New File<i class="fa fa-times close actionable" /></div>
+
+			<div class="content center">
+				<span class="existing-directory"></span>
+				<span class="input new-file-name"><input type="text" id="newfile" /></span>
+			</div>
+		</div>
+		
+		<div class="flexible-v"></div>
+	</div>
+	
+	<div class="flexible-h"></div>
+</div>

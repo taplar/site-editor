@@ -252,15 +252,15 @@ input:focus, select:focus, textarea:focus, button:focus {
 	background-color: rgba(0, 128, 0, 0.5);
 }
 
-/********** NEW DIRECTORY **********/
-.prompt-container-overlay .new-directory-name {
+/********** NEW DIRECTORY/FILE **********/
+.prompt-container-overlay .new-directory-name, .prompt-container-overlay .new-file-name {
 	position: relative;
 	left: -4px;
 }
-.prompt-container-overlay .new-directory-name input {
+.prompt-container-overlay .new-directory-name input, .prompt-container-overlay .new-file-name input {
 	margin-right: 4px !important;
 }
-.prompt-container-overlay .new-directory-title {
+.prompt-container-overlay .new-directory-title, .prompt-container-overlay .new-file-title {
 	padding-right: 24px;
 }
 .prompt-container-overlay .existing-directory {
@@ -269,7 +269,7 @@ input:focus, select:focus, textarea:focus, button:focus {
 	font-weight: bold;
 	margin-left: 4px;
 }
-.prompt-container-overlay #newdirectory {
+.prompt-container-overlay #newdirectory, .prompt-container-overlay #newfile {
 	margin-left: 4px;
 }
 
