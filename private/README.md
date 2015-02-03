@@ -123,3 +123,23 @@ URL: ~/private/?p=files/directories/root [ /sub-directory1 [ /sub-directory2 [ .
 	* 499 - Directory not deleted due to invalid path
 	* 500 - Internal Error
 ```
+
+### Create new file
+
+Purpose: Create new (nested) file
+
+##### Request
+```
+Method: POST
+URL: ~/private/?p=files/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /new-file
+{ }
+```
+##### Response
+```
+* HTTP Response Codes
+	* 200 - File Created
+	* 401 - Inactive Session
+	* 498 - File not created due to invalid name
+	* 499 - File not created due to invalid path
+	* 500 - Internal Error
+```
