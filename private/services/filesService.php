@@ -136,20 +136,20 @@ final class FilesService {
 
 	private function removeDirectory ( $pathString ) {
 		$files = array_diff( scandir( $pathString ), array( '.', '..' ) );
-
 		foreach ( $files as $file ) {
+
 			if ( is_dir( $pathString ."/". $file ) ) {
-				if ( !$this->removeDirectory( $pathString ."/". $file ) ) {
+				if ( !$this->removeDirectory( $pathString . $file ) ) {
 					return false;
 				}
 			} else {
-				if ( !$this->removeFile( $pathString ."/". $file ) ) {
+				if ( !$this->removeFile( $pathString . $file ) ) {
 					return false;
 				}
 			}
 		}
 
-		rmdir( $pathString );
+		rmdir( realpath( $pathString ) );
 
 		if ( is_dir( $pathString ) ) {
 			Http::getInstance()->deleteFailure();
@@ -160,7 +160,7 @@ final class FilesService {
 	}
 
 	private function removeFile ( $pathString ) {
-		unlink( $pathString );
+		unlink( realpath( $pathString ) );
 
 		if ( file_exists( $pathString ) ) {
 			Http::getInstance()->deleteFailure();
