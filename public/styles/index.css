@@ -24,6 +24,9 @@ input:focus, select:focus, textarea:focus, button:focus {
 .center {
 	text-align: center;
 }
+.left {
+	text-align: left;
+}
 
 /********** COLORS **********/
 .red {
@@ -82,7 +85,7 @@ input:focus, select:focus, textarea:focus, button:focus {
 
 	color: rgb(255, 0, 0);
 }
-.delete, .fa-file, .fa-folder {
+.delete, .fa-file, .fa-folder, .rename {
 	font-size: 12px;
 	margin-left: 4px;
 }
@@ -268,7 +271,7 @@ input:focus, select:focus, textarea:focus, button:focus {
 .prompt-container-overlay .new-title {
 	padding-right: 24px;
 }
-.prompt-container-overlay .file-path {
+.prompt-container-overlay .file-path, .prompt-container-overlay .new-file-path {
 	color: rgb(192, 192, 192);
 	font-family: monospace;
 	font-weight: bold;

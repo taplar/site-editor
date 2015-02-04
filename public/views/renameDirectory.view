@@ -1,0 +1,24 @@
+<div class="prompt-container prompt-container-overlay flexbox-h">
+	<div class="flexible-h"></div>
+	
+	<div class="inflexible flexbox-v">
+		<div class="flexible-v"></div>
+		
+		<div class="prompt inflexible">
+			<div class="title center new-title">Rename Directory<i class="fa fa-times close actionable" /></div>
+
+			<div class="content center">
+				<div class="file-path left"></div>
+
+				<div class="left">
+					<span class="new-file-path left"></span>
+					<span class="input new-name"><input type="text" id="newdirectory" /></span>
+				</div>
+			</div>
+		</div>
+		
+		<div class="flexible-v"></div>
+	</div>
+	
+	<div class="flexible-h"></div>
+</div>

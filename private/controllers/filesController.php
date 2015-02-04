@@ -35,7 +35,7 @@ final class FilesController {
 		echo json_encode( $this->filesService->listDirectoryStructure() );
 	}
 
-	public function save ( $path ) {
+	public function save ( $path, $content ) {
 		if ( count( $path ) > 1 ) {
 			if ( strtolower( $path[ 0 ] ) == "directories" ) {
 				$this->filesService->createDirectory( array_slice( $path, 1 ) );
@@ -47,8 +47,16 @@ final class FilesController {
 		}
 	}
 
-	public function update ( $path ) {
-		Http::getInstance()->badRequest();
+	public function update ( $path, $content ) {
+		if ( count( $path ) > 1 ) {
+			if ( strtolower( $path[ 0 ] ) == "directories" ) {
+				$this->filesService->renameDirectory( array_slice( $path, 1 ), $content );
+			} else {
+				Http::getInstance()->badRequest();
+			}
+		} else {
+			Http::getInstance()->badRequest();
+		}
 	}
 }
 

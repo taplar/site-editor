@@ -27,11 +27,11 @@ final class SessionsController {
 		return $this->sessionService->isSessionActive();
 	}
 
-	public function save ( $path ) {
+	public function save ( $path, $content ) {
 		$this->sessionService->validateSession();
 	}
 
-	public function update ( $path ) {
+	public function update ( $path, $content ) {
 		Http::getInstance()->badRequest();
 	}
 }

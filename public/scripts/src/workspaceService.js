@@ -44,7 +44,7 @@ var WorkspaceService = function () {
 				$root.find( 'ul' ).remove();
 				$ul.appendTo( $root );
 				$root.find( '> .new-directory' ).click( functions.displayNewDirectory );
-				$root.find( '> .new-file' ).click( functions.displayNewFile ); //TODO: TEST THIS
+				$root.find( '> .new-file' ).click( functions.displayNewFile );
 				$menu.find( '.search .pattern' ).trigger( 'keyup' );
 			}
 			, buildFileTreeArray: function ( $fileActionObject ) {
@@ -98,6 +98,20 @@ var WorkspaceService = function () {
 				$prompt.find( '.close' ).click( functions.closePromptContainer );
 				$prompt.find( '#newfile' ).keyup( functions.submitNewFileOnEnter  );
 				$prompt.find( '#newfile' ).focus();
+			}
+			, buildRenameDirectory: function ( data, fileTreeArray ) { //TODO: TEST THIS
+				var $prompt = $( data );
+
+				$prompt.find( '.file-path' ).html( fileTreeArray.join( '/' ) +'/' );
+				$prompt.find( '.new-file-path' ).html( fileTreeArray.slice(0, -1).join( '/' ) +'/' );
+				$prompt.prop( 'fileTree', fileTreeArray );
+
+				functions.closePromptContainer();
+				$prompt.appendTo( $container );
+
+				$prompt.find( '.close' ).click( functions.closePromptContainer );
+				$prompt.find( '#newdirectory' ).keyup( functions.submitRenameDirectoryOnEnter  );
+				$prompt.find( '#newdirectory' ).focus();
 			}
 			, buildWorkspace: function ( data ) {
 				$container.html( data );
@@ -222,6 +236,7 @@ var WorkspaceService = function () {
 						class: 'file-name'
 						, html: $directoryName
 					} ) )
+					.append( $( '<i class="fa fa-pencil-square-o rename rename-directory actionable" title="Rename">' ) ) //TODO: TEST THIS
 					.append( $( '<span class="new-directory" title="New Directory">' ) )
 					.find( '.new-directory' )
 						.append( $( '<i class="fa fa-folder actionable">' ) )
@@ -239,6 +254,7 @@ var WorkspaceService = function () {
 					functions.displayFilesInDirectory( $sublist, $subfiles );
 					$listItem.find( '> .new-directory' ).click( functions.displayNewDirectory );
 					$listItem.find( '> .delete-directory' ).click( functions.displayDeleteDirectory );
+					$listItem.find( '> .rename-directory' ).click( functions.displayRenameDirectory ); //TODO: TEST THIS
 					$listItem.find( '> .new-file' ).click( functions.displayNewFile );
 			}
 			, displayMenu: function () {
@@ -267,6 +283,17 @@ var WorkspaceService = function () {
 				AjaxService.getInstance().GET({
 					url: './public/views/newFile.view'
 					, success: function ( data ) { functions.buildNewFile( data, fileTree ); }
+					, 401: SessionService.getInstance().displayLogin
+					, 404: LoggingService.getInstance().logNotFound
+					, 500: LoggingService.getInstance().logInternalError
+				});
+			}
+			, displayRenameDirectory: function () { //TODO: TEST THIS
+				var fileTree = functions.buildFileTreeArray( $( this ) );
+
+				AjaxService.getInstance().GET({
+					url: './public/views/renameDirectory.view'
+					, success: function ( data ) { functions.buildRenameDirectory( data, fileTree ); }
 					, 401: SessionService.getInstance().displayLogin
 					, 404: LoggingService.getInstance().logNotFound
 					, 500: LoggingService.getInstance().logInternalError
@@ -348,6 +375,14 @@ var WorkspaceService = function () {
 				functions.closePromptContainer();
 				functions.displayFilesystem();
 			}
+			, renameDirectoryFailure: function ( data ) { //TODO: TEST THIS
+				LoggingService.getInstance().displayError( 'New directory already exists or is invalid syntax' );
+			}
+			, renameDirectorySuccess: function ( data ) { //TODO: TEST THIS
+				LoggingService.getInstance().displaySuccess( 'Directory renamed' );
+				functions.closePromptContainer();
+				functions.displayFilesystem();
+			}
 			, submitNewDirectoryOnEnter: function ( event ) {
 				if ( KeyService.getInstance().enter( event ) ) {
 					var newDirectory = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
@@ -375,6 +410,22 @@ var WorkspaceService = function () {
 						, success: functions.newFileSuccess
 						, 401: functions.displayLogin
 						, 498: functions.newFileFailure
+						, 499: functions.invalidReference
+						, 500: AjaxService.getInstance().logInternalError
+					});
+				}
+			}
+			, submitRenameDirectoryOnEnter: function ( event ) {
+				if ( KeyService.getInstance().enter( event ) ) {
+					var existingDirectory = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
+					newDirectoryName = $( this ).val();
+
+					AjaxService.getInstance().PUT({
+						url: './private/?p=files/directories/'+ existingDirectory
+						, input: newDirectoryName
+						, success: functions.renameDirectorySuccess
+						, 401: functions.displayLogin
+						, 498: functions.renameDirectoryFailure
 						, 499: functions.invalidReference
 						, 500: AjaxService.getInstance().logInternalError
 					});

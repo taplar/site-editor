@@ -24,6 +24,7 @@ final class Router {
 		$controller = ucwords( strtolower( $path[ 0 ] ) ."Controller" );
 		$controller = Router::getInstanceOfClass( $controller, NULL );
 		$path = array_splice( $path, 1 );
+		$content = file_get_contents('php://input');
 
 		switch ( strtoupper( $_SERVER[ "REQUEST_METHOD" ] ) ) {
 			case "DELETE":
@@ -33,10 +34,10 @@ final class Router {
 				$controller->index( $path );
 				break;
 			case "POST":
-				$controller->save( $path );
+				$controller->save( $path, $content );
 				break;
 			case "PUT":
-				$controller->update( $path );
+				$controller->update( $path, $content );
 				break;
 			default:
 				$this->http->badRequest();
