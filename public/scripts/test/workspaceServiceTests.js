@@ -442,7 +442,7 @@ describe ( 'WorkspaceService', function () {
 					'<li>'
 						+ '<i class="fa fa-file"></i>'
 						+ '<span class="file-name">fileForSale</span>'
-						+ '<i class="fa fa-times delete delete-file actionable"></i>'
+						+ '<i class="fa fa-times delete delete-file actionable" title="Delete"></i>'
 					+ '</li>'
 				);
 
@@ -499,15 +499,15 @@ describe ( 'WorkspaceService', function () {
 					'<li>'
 						+ '<i class="fa fa-folder subdirectory"></i>'
 						+ '<span class="file-name">directoryForPurchase</span>'
-						+ '<span class="new-directory">'
+						+ '<span class="new-directory" title="New Directory">'
 							+ '<i class="fa fa-folder actionable"></i>'
 							+ '<i class="fa fa-plus actionable"></i>'
 						+ '</span>'
-						+ '<span class="new-file">'
+						+ '<span class="new-file" title="New File">'
 							+ '<i class="fa fa-file actionable"></i>'
 							+ '<i class="fa fa-plus actionable"></i>'
 						+ '</span>'
-						+ '<i class="fa fa-times delete delete-directory actionable"></i>'
+						+ '<i class="fa fa-times delete delete-directory actionable" title="Delete"></i>'
 						+ '<ul></ul>'
 					+ '</li>'
 				);

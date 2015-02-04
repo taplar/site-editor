@@ -44,6 +44,7 @@ var WorkspaceService = function () {
 				$root.find( 'ul' ).remove();
 				$ul.appendTo( $root );
 				$root.find( '> .new-directory' ).click( functions.displayNewDirectory );
+				$root.find( '> .new-file' ).click( functions.displayNewFile ); //TODO: TEST THIS
 				$menu.find( '.search .pattern' ).trigger( 'keyup' );
 			}
 			, buildFileTreeArray: function ( $fileActionObject ) {
@@ -183,7 +184,7 @@ var WorkspaceService = function () {
 						class: 'file-name'
 						, html: $filename
 					} ) )
-					.append( $( '<i class="fa fa-times delete delete-file actionable">' ) )
+					.append( $( '<i class="fa fa-times delete delete-file actionable" title="Delete">' ) )
 					.appendTo( $directory );
 
 				$listItem.find( '> .delete-file' ).click( functions.displayDeleteFile );
@@ -221,17 +222,17 @@ var WorkspaceService = function () {
 						class: 'file-name'
 						, html: $directoryName
 					} ) )
-					.append( $( '<span class="new-directory">' ) )
+					.append( $( '<span class="new-directory" title="New Directory">' ) )
 					.find( '.new-directory' )
 						.append( $( '<i class="fa fa-folder actionable">' ) )
 						.append( $( '<i class="fa fa-plus actionable">' ) )
 					.end()
-					.append( $( '<span class="new-file">' ) )
+					.append( $( '<span class="new-file" title="New File">' ) )
 					.find( '.new-file' )
 						.append( $( '<i class="fa fa-file actionable">' ) )
 						.append( $( '<i class="fa fa-plus actionable">' ) )
 					.end()
-					.append( $( '<i class="fa fa-times delete delete-directory actionable">' ) )
+					.append( $( '<i class="fa fa-times delete delete-directory actionable" title="Delete">' ) )
 					.append( $sublist )
 					.appendTo( $directory );
 

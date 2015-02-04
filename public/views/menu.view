@@ -15,8 +15,13 @@
 
 				<span class="file-name">root</span>
 
-				<span class="new-directory">
+				<span class="new-directory" title="New Directory">
 					<i class="fa fa-folder actionable" />
+					<i class="fa fa-plus actionable" />
+				</span>
+
+				<span class="new-file" title="New File">
+					<i class="fa fa-file actionable" />
 					<i class="fa fa-plus actionable" />
 				</span>
 
