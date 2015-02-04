@@ -50,12 +50,13 @@ final class FilesService {
 		}
 	}
 
-	public function deleteFile () {
+	public function deleteFile ( $pathArray ) {
+		$filename = array_pop( $pathArray );
 		$pathString = $this->pathExists( $pathArray );
 		$pathString = $this->editorIsNotParentOfOrSubdirectoryInPath( $pathString );
 
 		if ( $pathString != NULL ) {
-			$this->removeFile( $pathString );
+			$this->removeFile( $pathString . $filename );
 		} else {
 			Http::getInstance()->invalidPath();
 		}
@@ -167,7 +168,7 @@ final class FilesService {
 	}
 
 	private function removeFile ( $pathString ) {
-		if ( !is_dir( $pathString ) ) {
+		if ( !is_dir( realpath( $pathString ) ) ) {
 			unlink( realpath( $pathString ) );
 		}
 
