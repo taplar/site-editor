@@ -143,3 +143,23 @@ URL: ~/private/?p=files/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /ne
 	* 499 - File not created due to invalid path
 	* 500 - Internal Error
 ```
+
+### Delete file
+
+Purpose: Delete (nested) file
+
+##### Request
+```
+Method: DELETE
+URL: ~/private/?p=files/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /existing-file
+{ }
+```
+##### Response
+```
+* HTTP Response Codes
+	* 200 - File Deleted
+	* 401 - Inactive Session
+	* 497 - File not deleted due to recursive delete/unlink failure
+	* 499 - File not deleted due to invalid path
+	* 500 - Internal Error
+```

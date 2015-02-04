@@ -77,15 +77,20 @@ input:focus, select:focus, textarea:focus, button:focus {
 }
 
 /********** FONT AWESOME **********/
+.delete {
+	position: relative;
+
+	color: rgb(255, 0, 0);
+}
 .delete, .fa-file, .fa-folder {
 	font-size: 12px;
 	margin-left: 4px;
 }
-.delete {
-	position: relative;
+.delete.delete-directory {
 	left: -12px;
-
-	color: rgb(255, 0, 0);
+}
+.delete.delete-file {
+	left: 0px;
 }
 .fa {
 	cursor: default;
@@ -253,17 +258,17 @@ input:focus, select:focus, textarea:focus, button:focus {
 }
 
 /********** NEW DIRECTORY/FILE **********/
-.prompt-container-overlay .new-directory-name, .prompt-container-overlay .new-file-name {
+.prompt-container-overlay .new-name {
 	position: relative;
 	left: -4px;
 }
-.prompt-container-overlay .new-directory-name input, .prompt-container-overlay .new-file-name input {
+.prompt-container-overlay .new-name input {
 	margin-right: 4px !important;
 }
-.prompt-container-overlay .new-directory-title, .prompt-container-overlay .new-file-title {
+.prompt-container-overlay .new-title {
 	padding-right: 24px;
 }
-.prompt-container-overlay .existing-directory {
+.prompt-container-overlay .file-path {
 	color: rgb(192, 192, 192);
 	font-family: monospace;
 	font-weight: bold;
@@ -385,7 +390,6 @@ input:focus, select:focus, textarea:focus, button:focus {
 	top: 6px;
 	right: 6px;
 }
-.red { color: rgb(255, 0, 0); }
 .unselectable {
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;

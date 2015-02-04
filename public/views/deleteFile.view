@@ -5,11 +5,15 @@
 		<div class="flexible-v"></div>
 		
 		<div class="prompt inflexible">
-			<div class="title center new-title">New File<i class="fa fa-times close actionable" /></div>
+			<div class="title center new-title">Delete File</div>
 
 			<div class="content center">
 				<span class="file-path"></span>
-				<span class="input new-name"><input type="text" id="newfile" /></span>
+				<p class="yellow bold center">Are you sure you want to delete this file?</p>
+				<div class="center">
+					<button class="prompt-yes actionable">Yes</button>
+					<button class="prompt-no actionable">No</button>
+				</div>
 			</div>
 		</div>
 		

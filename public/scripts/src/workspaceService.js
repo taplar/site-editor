@@ -9,7 +9,7 @@ var WorkspaceService = function () {
 			buildDeleteDirectory: function ( data, fileTreeArray ) {
 				var $prompt = $( data );
 
-				$prompt.find( '.existing-directory' ).html( fileTreeArray.join( '/' ) );
+				$prompt.find( '.file-path' ).html( fileTreeArray.join( '/' ) );
 				$prompt.prop( 'fileTree', fileTreeArray );
 
 				functions.closePromptContainer();
@@ -18,6 +18,20 @@ var WorkspaceService = function () {
 				var $promptContainer = $container.find( '.prompt-container' );
 
 				$promptContainer.find( '.prompt-yes' ).click( functions.deleteDirectory );
+				$promptContainer.find( '.prompt-no' ).click( functions.closePromptContainer );
+			}
+			, buildDeleteFile: function ( data, fileTreeArray ) {
+				var $prompt = $( data );
+
+				$prompt.find( '.file-path' ).html( fileTreeArray.join( '/' ) );
+				$prompt.prop( 'fileTree', fileTreeArray );
+
+				functions.closePromptContainer();
+				$prompt.appendTo( $container );
+
+				var $promptContainer = $container.find( '.prompt-container' );
+
+				$promptContainer.find( '.prompt-yes' ).click( functions.deleteFile );
 				$promptContainer.find( '.prompt-no' ).click( functions.closePromptContainer );
 			}
 			, buildFilesystem: function ( data ) {
@@ -61,7 +75,7 @@ var WorkspaceService = function () {
 			, buildNewDirectory: function ( data, fileTreeArray ) {
 				var $prompt = $( data );
 
-				$prompt.find( '.existing-directory' ).html( fileTreeArray.join( '/' ) +'/' );
+				$prompt.find( '.file-path' ).html( fileTreeArray.join( '/' ) +'/' );
 				$prompt.prop( 'fileTree', fileTreeArray );
 
 				functions.closePromptContainer();
@@ -74,7 +88,7 @@ var WorkspaceService = function () {
 			, buildNewFile: function ( data, fileTreeArray ) {
 				var $prompt = $( data );
 
-				$prompt.find( '.existing-directory' ).html( fileTreeArray.join( '/' ) +'/' );
+				$prompt.find( '.file-path' ).html( fileTreeArray.join( '/' ) +'/' );
 				$prompt.prop( 'fileTree', fileTreeArray );
 
 				functions.closePromptContainer();
@@ -115,6 +129,29 @@ var WorkspaceService = function () {
 				functions.closePromptContainer();
 				functions.displayFilesystem();
 			}
+			, deleteFile: function () {
+				var directory = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
+
+				AjaxService.getInstance().DELETE({
+					url: './private/?p=files/'+ directory
+					, input: { }
+					, success: functions.deleteFileSuccess
+					, 401: functions.displayLogin
+					, 497: functions.deleteFileFailure
+					, 499: functions.invalidReference
+					, 500: AjaxService.getInstance().logInternalError
+				});
+			}
+			, deleteFileFailure: function ( data ) {
+				LoggingService.getInstance().displayError( 'File not deleted' );
+				functions.closePromptContainer();
+				functions.displayFilesystem();
+			}
+			, deleteFileSuccess: function ( data ) {
+				LoggingService.getInstance().displaySuccess( 'File deleted' );
+				functions.closePromptContainer();
+				functions.displayFilesystem();
+			}
 			, displayDeleteDirectory: function () {
 				var fileTree = functions.buildFileTreeArray( $( this ) );
 
@@ -126,14 +163,30 @@ var WorkspaceService = function () {
 					, 500: LoggingService.getInstance().logInternalError
 				});
 			}
-			, displayFileInDirectory: function ( $filename, $directory ) {
-				$( '<li>' )
+			, displayDeleteFile: function () {
+				var fileTree = functions.buildFileTreeArray( $( this ) );
+
+				AjaxService.getInstance().GET({
+					url: './public/views/deleteFile.view'
+					, success: function ( data ) { functions.buildDeleteFile( data, fileTree ); }
+					, 401: SessionService.getInstance().displayLogin
+					, 404: LoggingService.getInstance().logNotFound
+					, 500: LoggingService.getInstance().logInternalError
+				});
+			}
+			, displayFileInDirectory: function ( $filename, $directory ) { 
+				var $listItem = $( '<li>' );
+
+				$listItem
 					.append( $( '<i class="fa fa-file">' ) )
 					.append( $( '<span>', {
 						class: 'file-name'
 						, html: $filename
 					} ) )
+					.append( $( '<i class="fa fa-times delete delete-file actionable">' ) )
 					.appendTo( $directory );
+
+				$listItem.find( '> .delete-file' ).click( functions.displayDeleteFile );
 			}
 			, displayFilesInDirectory: function ( $directory, $files ) {
 				var filenames = [];

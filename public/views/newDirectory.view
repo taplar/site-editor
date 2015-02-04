@@ -5,11 +5,11 @@
 		<div class="flexible-v"></div>
 		
 		<div class="prompt inflexible">
-			<div class="title center new-directory-title">New Directory<i class="fa fa-times close actionable" /></div>
+			<div class="title center new-title">New Directory<i class="fa fa-times close actionable" /></div>
 
 			<div class="content center">
-				<span class="existing-directory"></span>
-				<span class="input new-directory-name"><input type="text" id="newdirectory" /></span>
+				<span class="file-path"></span>
+				<span class="input new-name"><input type="text" id="newdirectory" /></span>
 			</div>
 		</div>
 		

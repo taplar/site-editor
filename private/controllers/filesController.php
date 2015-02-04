@@ -24,10 +24,10 @@ final class FilesController {
 			if ( strtolower( $path[ 0 ] ) == "directories" ) {
 				$this->filesService->deleteDirectory( array_slice( $path, 1 ) );
 			} else {
-				Http::getInstance()->badRequest();
+				$this->filesService->deleteFile( $path );
 			}
 		} else {
-			$this->filesService->deleteFile();
+			Http::getInstance()->badRequest();
 		}
 	}
 

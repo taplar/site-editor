@@ -44,7 +44,7 @@ describe ( 'WorkspaceService', function () {
 			it ( 'Should build delete directory prompt and bind actions', function () {
 				var data = [
 					'<div class="prompt-container">'
-						, '<div class="existing-directory"></div>'
+						, '<div class="file-path"></div>'
 						, '<button class="prompt-yes" />'
 						, '<button class="prompt-no" />'
 					, '</div>'
@@ -57,13 +57,43 @@ describe ( 'WorkspaceService', function () {
 				workspaceService.privateFunctions.buildDeleteDirectory( data.join( '' ), fileTreeArray );
 
 				expect( $container.find( '.prompt-container' ).length ).toEqual( 1 );
-				expect( $container.find( '.existing-directory' ).html() ).toEqual( fileTreeArray.join( '/') );
+				expect( $container.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/') );
 				expect( $container.find( '.prompt-container' ).prop( 'fileTree' ) ).toEqual( fileTreeArray );
 				expect( workspaceService.privateFunctions.closePromptContainer.calls.count() ).toEqual( 1 );
 
 				expect( workspaceService.privateFunctions.deleteDirectory ).not.toHaveBeenCalled();
 				$container.find( '.prompt-container .prompt-yes' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.deleteDirectory ).toHaveBeenCalled();
+
+				$container.find( '.prompt-container .prompt-no' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.closePromptContainer.calls.count() ).toEqual( 2 );
+			} );
+		} );
+
+		describe ( 'BuildDeleteFile', function () {
+			it ( 'Should build delete file prompt and bind actions', function () {
+				var data = [
+					'<div class="prompt-container">'
+						, '<div class="file-path"></div>'
+						, '<button class="prompt-yes" />'
+						, '<button class="prompt-no" />'
+					, '</div>'
+				];
+				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
+
+				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
+				spyOn( workspaceService.privateFunctions, 'deleteFile' );
+
+				workspaceService.privateFunctions.buildDeleteFile( data.join( '' ), fileTreeArray );
+
+				expect( $container.find( '.prompt-container' ).length ).toEqual( 1 );
+				expect( $container.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/') );
+				expect( $container.find( '.prompt-container' ).prop( 'fileTree' ) ).toEqual( fileTreeArray );
+				expect( workspaceService.privateFunctions.closePromptContainer.calls.count() ).toEqual( 1 );
+
+				expect( workspaceService.privateFunctions.deleteFile ).not.toHaveBeenCalled();
+				$container.find( '.prompt-container .prompt-yes' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.deleteFile ).toHaveBeenCalled();
 
 				$container.find( '.prompt-container .prompt-no' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.closePromptContainer.calls.count() ).toEqual( 2 );
@@ -161,7 +191,7 @@ describe ( 'WorkspaceService', function () {
 			it ( 'Should build prompt and bind close and submit actions', function () {
 				var data = [
 					'<div class="prompt-container">'
-						,'<div class="existing-directory"></div>'
+						,'<div class="file-path"></div>'
 						,'<div><i class="close" /></div>'
 						,'<div><input type="text" id="newdirectory" /></div>'
 					,'</div>'
@@ -173,7 +203,7 @@ describe ( 'WorkspaceService', function () {
 				workspaceService.privateFunctions.buildNewDirectory( data.join( '' ), fileTreeArray );
 
 				expect( $container.find( '> .prompt-container' ).length ).toEqual( 1 );
-				expect( $container.find( '.existing-directory' ).html() ).toEqual( fileTreeArray.join( '/' ) +'/' );
+				expect( $container.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/' ) +'/' );
 
 				expect( workspaceService.privateFunctions.submitNewDirectoryOnEnter ).not.toHaveBeenCalled();
 				$container.find( '#newdirectory' ).trigger( 'keyup' );
@@ -188,7 +218,7 @@ describe ( 'WorkspaceService', function () {
 			it ( 'Should build prompt and bind close and submit actions', function () {
 				var data = [
 					'<div class="prompt-container">'
-						,'<div class="existing-directory"></div>'
+						,'<div class="file-path"></div>'
 						,'<div><i class="close" /></div>'
 						,'<div><input type="text" id="newfile" /></div>'
 					,'</div>'
@@ -200,7 +230,7 @@ describe ( 'WorkspaceService', function () {
 				workspaceService.privateFunctions.buildNewFile( data.join( '' ), fileTreeArray );
 
 				expect( $container.find( '> .prompt-container' ).length ).toEqual( 1 );
-				expect( $container.find( '.existing-directory' ).html() ).toEqual( fileTreeArray.join( '/' ) +'/' );
+				expect( $container.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/' ) +'/' );
 
 				expect( workspaceService.privateFunctions.submitNewFileOnEnter ).not.toHaveBeenCalled();
 				$container.find( '#newfile' ).trigger( 'keyup' );
@@ -295,6 +325,62 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'DeleteFile', function () {
+			it ( 'Should DELETE file', function () {
+				var $prompt = $( '<div class="prompt-container" />' );
+				var fileTree = [ 'root', 'dir1', 'dir2' ];
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.appendTo( $container );
+
+				spyOn( ajaxService, 'DELETE' );
+
+				workspaceService.privateFunctions.deleteFile();
+
+				expect( ajaxService.DELETE ).toHaveBeenCalled();
+
+				var args = ajaxService.DELETE.calls.argsFor( 0 );
+
+				expect( args[ 0 ].url ).toEqual( './private/?p=files/root/dir1/dir2' );
+				expect( args[ 0 ].input ).toEqual( { } );
+				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.deleteFileSuccess );
+				expect( args[ 0 ][ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
+				expect( args[ 0 ][ 497 ] ).toEqual( workspaceService.privateFunctions.deleteFileFailure );
+				expect( args[ 0 ][ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
+				expect( args[ 0 ][ 500 ] ).toEqual( ajaxService.logInternalError );
+			} );
+		} );
+
+		describe ( 'DeleteFileFailure', function () {
+			it ( 'Should display error, close prompt, and refresh menu', function () {
+				spyOn( loggingService, 'displayError' );
+				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
+				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+
+				workspaceService.privateFunctions.deleteFileFailure();
+
+				expect( loggingService.displayError ).toHaveBeenCalled();
+				expect( loggingService.displayError.calls.argsFor( 0 )[ 0 ] ).toEqual( 'File not deleted' );
+				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
+			} );
+		} );
+
+		describe ( 'DeleteFileSuccess', function () {
+			it ( 'Should display success, close prompt, and refresh menu', function () {
+				spyOn( loggingService, 'displaySuccess' );
+				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
+				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+
+				workspaceService.privateFunctions.deleteFileSuccess();
+
+				expect( loggingService.displaySuccess ).toHaveBeenCalled();
+				expect( loggingService.displaySuccess.calls.argsFor( 0 )[ 0 ] ).toEqual( 'File deleted' );
+				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
+			} );
+		} );
+
 		describe ( 'DisplayDeleteDirectory', function () {
 			it ( 'Should call GET to retrieve delete directory view', function () {
 				spyOn( ajaxService, 'GET' );
@@ -320,8 +406,34 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'DisplayDeleteFile', function () {
+			it ( 'Should call GET to retrieve delete file view', function () {
+				spyOn( ajaxService, 'GET' );
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( [ 'root', 'site-editor' ] );
+				spyOn( workspaceService.privateFunctions, 'buildDeleteFile' );
+
+				workspaceService.privateFunctions.displayDeleteFile();
+
+				expect( ajaxService.GET ).toHaveBeenCalled();
+
+				var args = ajaxService.GET.calls.argsFor( 0 );
+
+				expect( args[ 0 ].url ).toEqual( './public/views/deleteFile.view' );
+				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
+				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
+
+				args[ 0 ].success( 'myData' );
+
+				var args = workspaceService.privateFunctions.buildDeleteFile.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'myData' );
+				expect( args[ 1 ] ).toEqual( [ 'root', 'site-editor' ] );
+			} );
+		} );
+
 		describe ( 'DisplayFileInDirectory', function () {
 			it ( 'Should add directory to directory listing', function () {
+				spyOn( workspaceService.privateFunctions, 'displayDeleteFile' );
 				var $ul = $( '<ul>' );
 
 				workspaceService.privateFunctions.displayFileInDirectory( 'fileForSale', $ul );
@@ -330,8 +442,13 @@ describe ( 'WorkspaceService', function () {
 					'<li>'
 						+ '<i class="fa fa-file"></i>'
 						+ '<span class="file-name">fileForSale</span>'
+						+ '<i class="fa fa-times delete delete-file actionable"></i>'
 					+ '</li>'
 				);
+
+				expect( workspaceService.privateFunctions.displayDeleteFile ).not.toHaveBeenCalled();
+				$ul.find( '.delete-file' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.displayDeleteFile ).toHaveBeenCalled();
 			} );
 		} );
 
