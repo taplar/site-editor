@@ -163,3 +163,23 @@ URL: ~/private/?p=files/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /ex
 	* 499 - File not deleted due to invalid path
 	* 500 - Internal Error
 ```
+
+### Rename directory
+
+Purpose: Rename (nested) directory
+
+##### Request
+```
+Method: PUT
+URL: ~/private/?p=files/directories/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /existing-directory
+new-directory-name
+```
+##### Response
+```
+* HTTP Response Codes
+	* 200 - Directory Renamed
+	* 401 - Inactive Session
+	* 497 - Directory not renamed due to invalid old/new name
+	* 499 - Directory not renamed due to invalid path
+	* 500 - Internal Error
+```
