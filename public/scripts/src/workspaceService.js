@@ -99,10 +99,10 @@ var WorkspaceService = function () {
 				$prompt.find( '#newfile' ).keyup( functions.submitNewFileOnEnter  );
 				$prompt.find( '#newfile' ).focus();
 			}
-			, buildRenameDirectory: function ( data, fileTreeArray ) { //TODO: TEST THIS
+			, buildRenameDirectory: function ( data, fileTreeArray ) {
 				var $prompt = $( data );
 
-				$prompt.find( '.file-path' ).html( fileTreeArray.join( '/' ) +'/' );
+				$prompt.find( '.file-path' ).html( fileTreeArray.join( '/' ) );
 				$prompt.find( '.new-file-path' ).html( fileTreeArray.slice(0, -1).join( '/' ) +'/' );
 				$prompt.prop( 'fileTree', fileTreeArray );
 
@@ -236,7 +236,7 @@ var WorkspaceService = function () {
 						class: 'file-name'
 						, html: $directoryName
 					} ) )
-					.append( $( '<i class="fa fa-pencil-square-o rename rename-directory actionable" title="Rename">' ) ) //TODO: TEST THIS
+					.append( $( '<i class="fa fa-pencil-square-o rename rename-directory actionable" title="Rename">' ) )
 					.append( $( '<span class="new-directory" title="New Directory">' ) )
 					.find( '.new-directory' )
 						.append( $( '<i class="fa fa-folder actionable">' ) )
@@ -254,7 +254,7 @@ var WorkspaceService = function () {
 					functions.displayFilesInDirectory( $sublist, $subfiles );
 					$listItem.find( '> .new-directory' ).click( functions.displayNewDirectory );
 					$listItem.find( '> .delete-directory' ).click( functions.displayDeleteDirectory );
-					$listItem.find( '> .rename-directory' ).click( functions.displayRenameDirectory ); //TODO: TEST THIS
+					$listItem.find( '> .rename-directory' ).click( functions.displayRenameDirectory );
 					$listItem.find( '> .new-file' ).click( functions.displayNewFile );
 			}
 			, displayMenu: function () {
@@ -288,7 +288,7 @@ var WorkspaceService = function () {
 					, 500: LoggingService.getInstance().logInternalError
 				});
 			}
-			, displayRenameDirectory: function () { //TODO: TEST THIS
+			, displayRenameDirectory: function () {
 				var fileTree = functions.buildFileTreeArray( $( this ) );
 
 				AjaxService.getInstance().GET({
@@ -375,10 +375,10 @@ var WorkspaceService = function () {
 				functions.closePromptContainer();
 				functions.displayFilesystem();
 			}
-			, renameDirectoryFailure: function ( data ) { //TODO: TEST THIS
+			, renameDirectoryFailure: function ( data ) {
 				LoggingService.getInstance().displayError( 'New directory already exists or is invalid syntax' );
 			}
-			, renameDirectorySuccess: function ( data ) { //TODO: TEST THIS
+			, renameDirectorySuccess: function ( data ) {
 				LoggingService.getInstance().displaySuccess( 'Directory renamed' );
 				functions.closePromptContainer();
 				functions.displayFilesystem();

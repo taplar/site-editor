@@ -241,6 +241,35 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'BuildRenameDirectory', function () {
+			it ( 'Should build prompt and bind close and submit actions', function () {
+				var data = [
+					'<div class="prompt-container">'
+						,'<div class="file-path"></div>'
+						,'<div class="new-file-path"></div>'
+						,'<div><i class="close" /></div>'
+						,'<div><input type="text" id="newdirectory" /></div>'
+					,'</div>'
+				];
+				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
+
+				spyOn( workspaceService.privateFunctions, 'submitRenameDirectoryOnEnter' );
+
+				workspaceService.privateFunctions.buildRenameDirectory( data.join( '' ), fileTreeArray );
+
+				expect( $container.find( '> .prompt-container' ).length ).toEqual( 1 );
+				expect( $container.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/' ) );
+				expect( $container.find( '.new-file-path' ).html() ).toEqual( fileTreeArray.slice(0, -1).join( '/' ) +'/' );
+
+				expect( workspaceService.privateFunctions.submitRenameDirectoryOnEnter ).not.toHaveBeenCalled();
+				$container.find( '#newdirectory' ).trigger( 'keyup' );
+				expect( workspaceService.privateFunctions.submitRenameDirectoryOnEnter ).toHaveBeenCalled();
+
+				$container.find( '.close' ).click();
+				expect( $container.find( '> .prompt-container' ).length ).toEqual( 0 );
+			} );
+		} );
+
 		describe ( 'BuildWorkspace', function () {
 			it ( 'Should replace container html and bind events', function () {
 				spyOn( sessionService, 'logout' );
@@ -489,6 +518,7 @@ describe ( 'WorkspaceService', function () {
 				spyOn( workspaceService.privateFunctions, 'displayNewDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayDeleteDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayNewFile' );
+				spyOn( workspaceService.privateFunctions, 'displayRenameDirectory' );
 
 				var $ul = $( '<ul>' );
 				var $subfiles = { 'file': 'blah' };
@@ -499,6 +529,7 @@ describe ( 'WorkspaceService', function () {
 					'<li>'
 						+ '<i class="fa fa-folder subdirectory"></i>'
 						+ '<span class="file-name">directoryForPurchase</span>'
+						+ '<i class="fa fa-pencil-square-o rename rename-directory actionable" title="Rename"></i>'
 						+ '<span class="new-directory" title="New Directory">'
 							+ '<i class="fa fa-folder actionable"></i>'
 							+ '<i class="fa fa-plus actionable"></i>'
@@ -530,6 +561,10 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.displayNewFile ).not.toHaveBeenCalled();
 				$ul.find( '.new-file' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.displayNewFile ).toHaveBeenCalled();
+
+				expect( workspaceService.privateFunctions.displayRenameDirectory ).not.toHaveBeenCalled();
+				$ul.find( '.rename-directory' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.displayRenameDirectory ).toHaveBeenCalled();
 			} );
 		} );
 
@@ -594,6 +629,31 @@ describe ( 'WorkspaceService', function () {
 				args[ 0 ].success( 'myData' );
 
 				var args = workspaceService.privateFunctions.buildNewFile.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'myData' );
+				expect( args[ 1 ] ).toEqual( [ 'root' ] );
+			} );
+		} );
+
+		describe ( 'DisplayRenameDirectory', function () {
+			it ( 'Should call GET to retrieve rename directory view', function () {
+				spyOn( ajaxService, 'GET' );
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( [ 'root' ] );
+				spyOn( workspaceService.privateFunctions, 'buildRenameDirectory' );
+
+				workspaceService.privateFunctions.displayRenameDirectory();
+
+				expect( ajaxService.GET ).toHaveBeenCalled();
+
+				var args = ajaxService.GET.calls.argsFor( 0 );
+
+				expect( args[ 0 ].url ).toEqual( './public/views/renameDirectory.view' );
+				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
+				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
+
+				args[ 0 ].success( 'myData' );
+
+				var args = workspaceService.privateFunctions.buildRenameDirectory.calls.argsFor( 0 );
 
 				expect( args[ 0 ] ).toEqual( 'myData' );
 				expect( args[ 1 ] ).toEqual( [ 'root' ] );
@@ -949,6 +1009,42 @@ describe ( 'WorkspaceService', function () {
 				var args = loggingService.displaySuccess.calls.argsFor( 0 );
 
 				expect( args[ 0 ] ).toEqual( 'File created' );
+			} );
+		} );
+
+		describe ( 'RenameDirectoryFailure', function () {
+			it ( 'Should display error message', function () {
+				spyOn( loggingService, 'displayError' );
+
+				$( '<div class="prompt-container" />' ).appendTo( $container );
+
+				workspaceService.privateFunctions.renameDirectoryFailure();
+
+				expect( $container.find( '.prompt-container' ).length ).toEqual( 1 );
+				expect( loggingService.displayError ).toHaveBeenCalled();
+
+				var args = loggingService.displayError.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'New directory already exists or is invalid syntax' );
+			} );
+		} );
+
+		describe ( 'RenameDirectorySuccess', function () {
+			it ( 'Should display success message, close prompt, and reload menu', function () {
+				spyOn( loggingService, 'displaySuccess' );
+				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+
+				$( '<div class="prompt-container" />' ).appendTo( $container );
+
+				workspaceService.privateFunctions.renameDirectorySuccess();
+
+				expect( $container.find( '.prompt-container' ).length ).toEqual( 0 );
+				expect( workspaceService.privateFunctions.displayFilesystem );
+				expect( loggingService.displaySuccess ).toHaveBeenCalled();
+
+				var args = loggingService.displaySuccess.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'Directory renamed' );
 			} );
 		} );
 
