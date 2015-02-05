@@ -1,11 +1,11 @@
 <div class="menu flexbox-v">
 	<div class="search-container">
 		<div class="search">
-			<i class="fa fa-search"></i>
+			<i class="fa fa-search icon"></i>
 		</div>
 
 		<div class="pattern-container"></div>
-		<input type="text" class="pattern">
+		<input type="text" class="pattern"></input>
 	</div>
 
 	<div class="content-container flexible-v">
@@ -30,6 +30,6 @@
 	</div>
 
 	<div class="control-container inflexible">
-		<i class="fa fa-angle-double-up"></i>
+		<i class="fa fa-angle-double-up close"></i>
 	</div>
 </div>

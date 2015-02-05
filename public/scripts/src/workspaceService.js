@@ -39,13 +39,13 @@ var WorkspaceService = function () {
 
 				functions.displayFilesInDirectory( $ul, $.parseJSON( data ) );
 
-				var $root = $menu.find( '.root' );
+				var $root = $menu.find( '.content-container .root' );
 
 				$root.find( 'ul' ).remove();
 				$ul.appendTo( $root );
 				$root.find( '> .new-directory' ).click( functions.displayNewDirectory );
 				$root.find( '> .new-file' ).click( functions.displayNewFile );
-				$menu.find( '.search .pattern' ).trigger( 'keyup' );
+				$menu.find( '.search-container .pattern' ).trigger( 'keyup' );
 			}
 			, buildFileTreeArray: function ( $fileActionObject ) {
 				var fileTree = [];
@@ -64,14 +64,14 @@ var WorkspaceService = function () {
 
 				$menu = $container.find( '.menu' );
 
-				$container.find( '.menu .control' ).click( function() {
+				$container.find( '.menu .control-container' ).click( function() {
 					$container.find( '.menu' ).remove();
 				} );
 
 				functions.toggleSearchTips();
 				functions.displayFilesystem();
-				$menu.find( '.search .pattern' ).keyup( functions.filterMenu );
-				$menu.find( '.search .pattern' ).focus();
+				$menu.find( '.search-container .pattern' ).keyup( functions.filterMenu );
+				$menu.find( '.search-container .pattern' ).focus();
 			}
 			, buildNewDirectory: function ( data, fileTreeArray ) {
 				var $prompt = $( data );
@@ -102,8 +102,8 @@ var WorkspaceService = function () {
 			, buildRenameDirectory: function ( data, fileTreeArray ) {
 				var $prompt = $( data );
 
-				$prompt.find( '.file-path' ).html( fileTreeArray.join( '/' ) );
-				$prompt.find( '.new-file-path' ).html( fileTreeArray.slice(0, -1).join( '/' ) +'/' );
+				$prompt.find( '.file-path' ).html( fileTreeArray.slice(0, -1).join( '/' ) + '/');
+				$prompt.find( '.old-name' ).html( fileTreeArray.slice(-1) );
 				$prompt.prop( 'fileTree', fileTreeArray );
 
 				functions.closePromptContainer();
@@ -190,15 +190,15 @@ var WorkspaceService = function () {
 				});
 			}
 			, displayFileInDirectory: function ( $filename, $directory ) { 
-				var $listItem = $( '<li>' );
+				var $listItem = $( '<li class="menu-item">' );
 
 				$listItem
-					.append( $( '<i class="fa fa-file">' ) )
+					.append( $( '<i class="fa fa-file file">' ) )
 					.append( $( '<span>', {
 						class: 'file-name'
 						, html: $filename
 					} ) )
-					.append( $( '<i class="fa fa-times delete delete-file actionable" title="Delete">' ) )
+					.append( $( '<i class="fa fa-times delete delete-file" title="Delete">' ) )
 					.appendTo( $directory );
 
 				$listItem.find( '> .delete-file' ).click( functions.displayDeleteFile );
@@ -228,26 +228,26 @@ var WorkspaceService = function () {
 			}
 			, displaySubdirectory: function ( $directoryName, $directory, $subfiles ) {
 				var $sublist = $( '<ul>' );
-				var $listItem = $( '<li>' );
+				var $listItem = $( '<li class="menu-item">' );
 
 				$listItem
-					.append( $( '<i class="fa fa-folder subdirectory">' ) )
+					.append( $( '<i class="fa fa-folder folder subdirectory">' ) )
 					.append( $( '<span>', {
 						class: 'file-name'
 						, html: $directoryName
 					} ) )
-					.append( $( '<i class="fa fa-pencil-square-o rename rename-directory actionable" title="Rename">' ) )
+					.append( $( '<i class="fa fa-pencil-square-o rename rename-directory" title="Rename">' ) )
 					.append( $( '<span class="new-directory" title="New Directory">' ) )
 					.find( '.new-directory' )
-						.append( $( '<i class="fa fa-folder actionable">' ) )
-						.append( $( '<i class="fa fa-plus actionable">' ) )
+						.append( $( '<i class="fa fa-folder folder">' ) )
+						.append( $( '<i class="fa fa-plus plus">' ) )
 					.end()
 					.append( $( '<span class="new-file" title="New File">' ) )
 					.find( '.new-file' )
-						.append( $( '<i class="fa fa-file actionable">' ) )
-						.append( $( '<i class="fa fa-plus actionable">' ) )
+						.append( $( '<i class="fa fa-file file">' ) )
+						.append( $( '<i class="fa fa-plus plus">' ) )
 					.end()
-					.append( $( '<i class="fa fa-times delete delete-directory actionable" title="Delete">' ) )
+					.append( $( '<i class="fa fa-times delete delete-directory" title="Delete">' ) )
 					.append( $sublist )
 					.appendTo( $directory );
 

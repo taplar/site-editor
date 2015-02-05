@@ -1,18 +1,20 @@
-<div class="prompt-container prompt-container-overlay flexbox-h">
+<div class="prompt-container overlay flexbox-h">
 	<div class="flexible-h"></div>
 	
 	<div class="inflexible flexbox-v">
 		<div class="flexible-v"></div>
 		
 		<div class="prompt inflexible">
-			<div class="title center new-title">Delete File</div>
+			<div class="title">Delete File</div>
 
-			<div class="content center">
-				<span class="file-path"></span>
-				<p class="yellow bold center">Are you sure you want to delete this file?</p>
-				<div class="center">
-					<button class="prompt-yes actionable">Yes</button>
-					<button class="prompt-no actionable">No</button>
+			<div class="content delete-file">
+				<div><span class="file-path"></span></div>
+
+				<p class="confirmation">Are you sure you want to delete this file?</p>
+
+				<div>
+					<button class="prompt-yes">Yes</button>
+					<button class="prompt-no">No</button>
 				</div>
 			</div>
 		</div>

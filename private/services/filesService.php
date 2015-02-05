@@ -185,9 +185,9 @@ final class FilesService {
 		$newFilename = $content;
 		$pathString = $this->pathExists( $pathArray );
 		$pathString = $this->editorIsNotParentOfPath( $pathString );
-		$pathString = $this->editorIsNotParentOfPath( $pathString . $oldFilename );
+		$oldPathString = $this->editorIsNotParentOfPath( $pathString . $oldFilename );
 
-		if ( $pathString != NULL ) {
+		if ( $pathString != NULL && $oldPathString != NULL ) {
 			if ( $this->isAValidFilename( $oldFilename ) && file_exists( $pathString . $oldFilename )
 			&& $this->isAValidFilename( $newFilename ) && !file_exists( $pathString . $newFilename ) ) {
 				rename( $pathString . $oldFilename, $pathString . $newFilename );

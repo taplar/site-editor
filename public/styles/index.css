@@ -28,6 +28,7 @@ input:focus, select:focus, textarea:focus, button:focus {
 	position: absolute;
 	right: 0;
 	top: 0;
+	z-index: 500;
 
 	color: rgb(255, 255, 0);
 	cursor: pointer;
@@ -40,10 +41,16 @@ input:focus, select:focus, textarea:focus, button:focus {
 	color: rgb(255, 255, 0);
 	cursor: pointer;
 }
+.container > .workspace-container > .tip-search {
+	left: 0;
+	position: absolute;
+	top: 29px;
+	z-index: 201;
 
-/********** FONT AWESOME **********/
-.fa {
-	cursor: default;
+	background-color: rgba(0, 0, 0, 0.95);
+	border-radius: 10px;
+	color: rgb(255, 255, 0);
+	padding: 8px;
 }
 
 /********** MENU **********/
@@ -78,33 +85,77 @@ input:focus, select:focus, textarea:focus, button:focus {
 .menu > .content-container > .content .menu-item {
 	line-height: 14px;
 }
+.menu > .content-container > .content .menu-item .delete {
+	left: 0px;
+	position: relative;
+
+	color: rgb(255, 0, 0);
+	cursor: pointer;
+	font-size: 12px;
+	margin-left: 4px;
+}
+.menu > .content-container > .content .menu-item .delete.delete-directory {
+	left: -11px;
+	position: relative;
+}
+.menu > .content-container > .content .menu-item .file {
+	cursor: default;
+	font-size: 12px;
+	margin-left: 4px;
+}
 .menu > .content-container > .content .menu-item > .file-name {
 	font-size: 12px;
 	margin-left: 4px;
 }
-.menu > .content-container > .content .menu-item .file {
+.menu > .content-container > .content .menu-item .folder {
+	cursor: default;
 	font-size: 12px;
 	margin-left: 4px;
+}
+.menu > .content-container > .content .menu-item > .new-directory {
+	cursor: pointer;
 }
 .menu > .content-container > .content .menu-item > .new-directory > .plus {
+	left: -9px;
 	position: relative;
-	left: 0px;
-	top: 0px;
+	top: -1px;
 
 	color: rgb(0, 0, 0);
 	font-size: 8px;
+}
+.menu > .content-container > .content .menu-item > .new-file {
+	left: -5px;
+	position: relative;
+
+	cursor: pointer;
 }
 .menu > .content-container > .content .menu-item > .new-file > .plus {
+	left: -9px;
 	position: relative;
-	left: 0px;
-	top: 0px;
+	top: -1px;
 
 	color: rgb(0, 0, 0);
 	font-size: 8px;
 }
-.menu > .content-container > .content .menu-item .folder {
+.menu > .content-container > .content .menu-item .rename {
+	cursor: pointer;
 	font-size: 12px;
 	margin-left: 4px;
+}
+.menu > .control-container {
+	height: 25px;
+
+	background-color: rgba(128, 128, 128, 0.5);
+	color: black;
+	cursor: pointer;
+	font-size: 24px;
+	font-weight: bold;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	text-align: center;
+}
+.menu > .control-container > .close {
+	cursor: pointer;
 }
 .menu > .search-container {
 	position: relative;
@@ -115,6 +166,8 @@ input:focus, select:focus, textarea:focus, button:focus {
 	background-color: rgb(0, 0, 0);
 }
 .menu > .search-container > .pattern {
+	position: absolute;
+
 	left: 18px;
 	min-height: 17px;
 	min-width: 262px;
@@ -153,8 +206,9 @@ input:focus, select:focus, textarea:focus, button:focus {
 
 	background-color: rgb(32, 32, 32);
 	border-radius: 10px;
+	cursor: default;
 }
-.menu > .search-container > .search > .fa-search {
+.menu > .search-container > .search > .icon {
 	width: 100%;
 
 	color: rgb(255, 255, 0);
@@ -205,14 +259,47 @@ input:focus, select:focus, textarea:focus, button:focus {
 
 	cursor: default;
 }
+.prompt-container.overlay {
+	background-color: rgba(0, 0, 0, 0.35);
+}
 .prompt-container .prompt {
+	min-width: 320px;
+
 	background: rgba(16, 16, 16, 0.65);
 	border: 1px solid #000;
 	border-radius: 12px;
 	padding: 6px;
 }
+.prompt-container .prompt .close {
+	position: absolute;
+	right: 0;
+	top: 0;
+
+	color: rgb(255, 0, 0);
+	cursor: pointer;
+	font-size: 12px;
+}
 .prompt-container .prompt > .content {
 	margin-bottom: 36px;
+}
+.prompt-container .prompt > .content.delete-directory {
+	text-align: center;
+}
+.prompt-container .prompt > .content.delete-file {
+	text-align: center;
+}
+.prompt-container .prompt > .content.new-directory {
+	text-align: center;
+}
+.prompt-container .prompt > .content.new-file {
+	text-align: center;
+}
+.prompt-container .prompt > .content > .confirmation {
+	color: rgb(255, 255, 0);
+	font-weight: bold;
+}
+.prompt-container .prompt > .content .input.login {
+	text-align: center;
 }
 .prompt-container .prompt > .content .input input {
 	background: rgba(0, 0, 0, 0.5);
@@ -221,9 +308,38 @@ input:focus, select:focus, textarea:focus, button:focus {
 	color: rgb(128, 128, 128);
 	font-family: monospace;
 	font-weight: bold;
-	margin: 1px 62px;
+	margin: 1px;
 	padding: 8px;
-	width: 160px;
+}
+.prompt-container .prompt > .content .file-path {
+	color: rgb(192, 192, 192);
+	font-family: monospace;
+	font-weight: bold;
+	margin-left: 4px;
+}
+.prompt-container .prompt > .content .old-name {
+	color: rgb(192, 192, 192);
+	font-family: monospace;
+	font-weight: bold;
+	margin-left: 4px;
+}
+.prompt-container .prompt > .content .prompt-no {
+	color: #000;
+	cursor: pointer;
+	background: rgba(0, 128, 0, 0.5);
+	border: 1px solid #000;
+	border-radius: 8px;
+	font-weight: bold;
+	padding: 8px;
+}
+.prompt-container .prompt > .content .prompt-yes {
+	color: #000;
+	cursor: pointer;
+	background: rgba(255, 0, 0, 0.5);
+	border: 1px solid #000;
+	border-radius: 8px;
+	font-weight: bold;
+	padding: 8px;
 }
 .prompt-container .prompt > .title {
 	position: relative;
@@ -232,341 +348,9 @@ input:focus, select:focus, textarea:focus, button:focus {
 	font-size: 30px;
 	margin-bottom: 12px;
 }
-.prompt-container .prompt > .title.login {
+.prompt-container .prompt > .title {
 	text-align: center;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/********** ALIGNMENT **********/
-/*.center {
-	text-align: center;
-}
-.left {
-	text-align: left;
-}
-*/
-/********** COLORS **********/
-/*.red {
-	color: rgb(255, 0, 0);
-}
-.yellow {
-	color: rgb(255, 255, 0);
-}
-*/
-/********** CONTAINERS **********/
-/*.container, .prompt-container {
-	position: absolute;
-	top: 0;
-	left: 0;
-
-	max-height: 100vh;
-	min-height: 600px;
-	max-width: 100vw;
-	min-width: 800px;
-	height: 100vh;
-	width: 100vw;
-
-	cursor: default;
-}
-.prompt-container-overlay {
-	background-color: rgba(0, 0, 0, 0.35);
-}
-.prompt-container-overlay .close {
-	position: absolute;
-	top: 0;
-	right: 0;
-
-	color: rgb(255, 0, 0);
-	font-size: 12px;
-}
-.prompt-container-overlay .content {
-	margin-bottom: 12px !important;
-}
-*/
-/********** CURSOR **********/
-/*.busy {
-	cursor: wait;
-}
-*/
-/********** DECORATIONS **********/
-/*.actionable {
-	cursor: pointer!important;
-}
-.bold {
-	font-weight: bold;
-}
-*/
-/********** FONT AWESOME **********/
-/*.delete {
-	position: relative;
-
-	color: rgb(255, 0, 0);
-}
-.delete, .fa-file, .fa-folder, .rename {
-	font-size: 12px;
-	margin-left: 4px;
-}
-.delete.delete-directory {
-	left: -12px;
-}
-.delete.delete-file {
-	left: 0px;
-}
-.fa {
-	cursor: default;
-}
-.fa-power-off {
-	position: absolute;
-	top: 0;
-	right: 0;
-
-	padding: 4px;
-}
-.fa-power-off:hover {
-	color: rgb(255, 0, 0);
-}
-.new-directory .fa-plus, .new-file .fa-plus {
-	position: relative;
-	left: -9px;
-	top: -1px;
-
-	color: rgb(0, 0, 0);
-	font-size: 8px;
-}
-.new-file {
-	position: relative;
-	left: -6px;
-}
-*/
-/********** LAYERS **********/
-/*.logout {
-	z-index: 500;
-}
-.error, .info, .success {
-	z-index: 400;
-}
-.prompt-container {
-	z-index: 300;
-}
-.menu {
-	z-index: 200;
-}
-.container {
-	z-index: 100;
-}
-*/
-/********** MENU **********/
-/*.directory-structure {
-	margin: 4px;
-	margin-left: -12px;
-
-	font-size: 0;
-}
-.directory-structure li {
-	line-height: 14px;
-}
-.file-name {
-	font-size: 12px;
-	margin-left: 4px;
-}
-.menu {
-	position: absolute;
-	top: 0;
-	left: 0;
-	min-width: 300px;
-	min-height: 600px;
-	max-height: 99.7vh;
-	height: 99.7vh;
-
-	background: rgba(16, 16, 16, 0.8);
-	border: 1px solid #000;
-	color: rgb(255, 255, 255);
-	font-family: 'Droid Sans Mono', monospace;
-}
-.menu .content {
-	height: auto;
-	overflow: auto;
-	padding-right: 6px;
-}
-.menu .control {
-	background-color: rgba(128, 128, 128, 0.5);
-	color: black;
-	font-size: 24px;
-	font-weight: bold;
-	height: 25px;
-
-	padding-top: 3px;
-	padding-bottom: 3px;
-}
-.menu .search {
-	display: inline-block;
-	min-height: 26px;
-	position: relative;
-
-	background-color: rgb(0, 0, 0);
-}
-.menu .search div, .menu .search input {
-	display: inline-block;
-	position: absolute;
-}
-.menu .search input {
-	background-color: rgba(0, 0, 0, 0.25);
-	border-radius: 10px;
-	border-width: 0;
-	color: rgb(231, 231, 231);
-	padding-left: 12px;
-	padding-right: 6px;
-
-	top: 3px;
-	left: 18px;
-	min-width: 262px;
-	min-height: 17px;
-	z-index: 202;
-}
-.menu .search .pattern-container {
-	background-color: rgba(128, 128, 128, 0.5);
-	border-radius: 10px;
-
-	top: 2px;
-	left: 12px;
-	min-width: 287px;
-	min-height: 21px;
-	z-index: 201;
-}
-.menu .search .search-container {
-	background-color: rgb(32, 32, 32);
-	border-radius: 10px;
-
-	top: 2px;
-	left: 2px;
-	width: 26px;
-	height: 21px;
-	z-index: 203;
-}
-.menu .search .search-container .fa-search {
-	color: rgb(255, 255, 0);
-	font-size: 12px;
-	text-align: center;
-
-	width: 100%;
-	line-height: 21px;
-}
-*/
-/********** MESSAGES **********/
-/*.error, .info, .success {
-	min-width: 250px;
-	overflow: hidden;
-	transition: top 2s, right 2s;
-	
-	position: absolute;
-	top: 35%;
-	right: 50%;
-	margin-top: -7px;
-	margin-right: -125px;
-	
-	padding: 6px;
-	border-radius: 6px;
-}
-.error {
-	background-color: rgba(255, 0, 0, 0.5);
-}
-.info {
-	background-color: rgba(255, 255, 0, 0.5);
-}
-.success {
-	background-color: rgba(0, 128, 0, 0.5);
-}
-*/
-/********** NEW DIRECTORY/FILE **********/
-/*.prompt-container-overlay .new-name {
-	position: relative;
-	left: -4px;
-}
-.prompt-container-overlay .new-name input {
-	margin-right: 4px !important;
-}
-.prompt-container-overlay .new-title {
-	padding-right: 24px;
-}
-.prompt-container-overlay .file-path, .prompt-container-overlay .new-file-path {
-	color: rgb(192, 192, 192);
-	font-family: monospace;
-	font-weight: bold;
-	margin-left: 4px;
-}
-.prompt-container-overlay #newdirectory, .prompt-container-overlay #newfile {
-	margin-left: 4px;
-}
-*/
-/********** PROMPT **********/
-/*.prompt {
-	background: rgba(16, 16, 16, 0.65);
-	border: 1px solid #000;
-	border-radius: 12px;
-	padding: 6px;
-}
-.prompt > .content {
-	margin-bottom: 36px;
-}
-.prompt .input input {
-	background: rgba(0, 0, 0, 0.5);
-	border-width: 0;
-	border-radius: 6px;
-	color: rgb(128, 128, 128);
-	font-family: monospace;
-	font-weight: bold;
-	margin: 1px 62px;
-	padding: 8px;
-	width: 160px;
-}
-.prompt > .title {
-	position: relative;
-
-	color: rgb(255, 255, 255);
-	font-size: 30px;
-	margin-bottom: 12px;
-}
-.prompt-no {
-	background: rgba(0, 128, 0, 0.5);
-}
-.prompt-yes {
-	background: rgba(255, 0, 0, 0.5);
-}
-.prompt-no, .prompt-yes {
-	border: 1px solid #000;
-	border-radius: 8px;
-	padding: 8px;
-
-	color: #000;
-	font-weight: bold;
-}
-*/
-/********** TIPS **********/
-/*.tip-search {
-	background-color: rgba(0, 0, 0, 0.95);
-	border-radius: 10px;
-	color: rgb(255, 255, 0);
-	padding: 8px;
-	
-	position: absolute;
-	top: 29px;
-	left: 0;
-	z-index: 201;
-}
-*/
 
 
 
