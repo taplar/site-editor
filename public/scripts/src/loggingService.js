@@ -7,7 +7,7 @@ var LoggingService = function () {
 		var functions = {
 			displayMessage: function ( message, messageClass ) {
 				var $msg = $( '<div>', {
-					class: messageClass
+					class: 'message '+ messageClass
 					, html: message
 				} );
 

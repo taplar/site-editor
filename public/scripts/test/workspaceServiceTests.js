@@ -22,81 +22,90 @@ describe ( 'WorkspaceService', function () {
 
 	describe ( 'API', function () {
 		describe ( 'DisplayWorkspace', function () {
-			it ( 'Should call GET to retrieve workspace view', function () {
-				spyOn( ajaxService, 'GET' );
+			it ( 'Should retrieve workspace view', function () {
+				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
 
 				workspaceService.displayWorkspace();
 
-				expect( ajaxService.GET ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = ajaxService.GET.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './public/views/workspace.view' );
-				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.buildWorkspace );
-				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
-				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
+				expect( args[ 0 ] ).toEqual( './public/views/workspace.view' );
+				expect( args[ 1 ] ).toEqual( workspaceService.privateFunctions.buildWorkspace );
 			} );
 		} );
 	} );
 
 	describe ( 'PrivateFunctions', function () {
-		describe ( 'BuildDeleteDirectory', function () {
-			it ( 'Should build delete directory prompt and bind actions', function () {
+		describe ( 'BuildDelete', function () {
+			it ( 'Should build delete prompt and bind actions', function () {
 				var data = [
 					'<div class="prompt-container">'
-						, '<div class="file-path"></div>'
-						, '<button class="prompt-yes" />'
-						, '<button class="prompt-no" />'
+						, '<div class="content">'
+							, '<div class="file-path"></div>'
+							, '<button class="prompt-yes"></button>'
+							, '<button class="prompt-no"></button>'
+						, '</div>'
 					, '</div>'
 				];
 				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
+				workspaceService.privateFunctions.someRandomConfirmationCallback = function() {};
 
 				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
-				spyOn( workspaceService.privateFunctions, 'deleteDirectory' );
+				spyOn( workspaceService.privateFunctions, 'someRandomConfirmationCallback' );
 
-				workspaceService.privateFunctions.buildDeleteDirectory( data.join( '' ), fileTreeArray );
+				workspaceService.privateFunctions.buildDelete( data.join( '' ), fileTreeArray, workspaceService.privateFunctions.someRandomConfirmationCallback );
 
 				expect( $container.find( '.prompt-container' ).length ).toEqual( 1 );
 				expect( $container.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/') );
 				expect( $container.find( '.prompt-container' ).prop( 'fileTree' ) ).toEqual( fileTreeArray );
 				expect( workspaceService.privateFunctions.closePromptContainer.calls.count() ).toEqual( 1 );
 
-				expect( workspaceService.privateFunctions.deleteDirectory ).not.toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.someRandomConfirmationCallback ).not.toHaveBeenCalled();
 				$container.find( '.prompt-container .prompt-yes' ).trigger( 'click' );
-				expect( workspaceService.privateFunctions.deleteDirectory ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.someRandomConfirmationCallback ).toHaveBeenCalled();
 
 				$container.find( '.prompt-container .prompt-no' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.closePromptContainer.calls.count() ).toEqual( 2 );
 			} );
 		} );
 
-		describe ( 'BuildDeleteFile', function () {
-			it ( 'Should build delete file prompt and bind actions', function () {
-				var data = [
-					'<div class="prompt-container">'
-						, '<div class="file-path"></div>'
-						, '<button class="prompt-yes" />'
-						, '<button class="prompt-no" />'
-					, '</div>'
-				];
+		describe ( 'BuildDeleteDirectory', function () {
+			it ( 'Should use build delete', function () {
+				var data = { somekey: 'somevalue' };
 				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
 
-				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
-				spyOn( workspaceService.privateFunctions, 'deleteFile' );
+				spyOn( workspaceService.privateFunctions, 'buildDelete' );
 
-				workspaceService.privateFunctions.buildDeleteFile( data.join( '' ), fileTreeArray );
+				workspaceService.privateFunctions.buildDeleteDirectory( data, fileTreeArray );
 
-				expect( $container.find( '.prompt-container' ).length ).toEqual( 1 );
-				expect( $container.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/') );
-				expect( $container.find( '.prompt-container' ).prop( 'fileTree' ) ).toEqual( fileTreeArray );
-				expect( workspaceService.privateFunctions.closePromptContainer.calls.count() ).toEqual( 1 );
+				expect( workspaceService.privateFunctions.buildDelete ).toHaveBeenCalled();
 
-				expect( workspaceService.privateFunctions.deleteFile ).not.toHaveBeenCalled();
-				$container.find( '.prompt-container .prompt-yes' ).trigger( 'click' );
-				expect( workspaceService.privateFunctions.deleteFile ).toHaveBeenCalled();
+				var args = workspaceService.privateFunctions.buildDelete.calls.argsFor( 0 );
 
-				$container.find( '.prompt-container .prompt-no' ).trigger( 'click' );
-				expect( workspaceService.privateFunctions.closePromptContainer.calls.count() ).toEqual( 2 );
+				expect( args[ 0 ] ).toEqual( data );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+				expect( args[ 2 ] ).toEqual( workspaceService.privateFunctions.deleteDirectory );
+			} );
+		} );
+
+		describe ( 'BuildDeleteFile', function () {
+			it ( 'Should use build delete', function () {
+				var data = { somekey: 'somevalue' };
+				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildDelete' );
+
+				workspaceService.privateFunctions.buildDeleteFile( data, fileTreeArray );
+
+				expect( workspaceService.privateFunctions.buildDelete ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.buildDelete.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( data );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+				expect( args[ 2 ] ).toEqual( workspaceService.privateFunctions.deleteFile );
 			} );
 		} );
 
@@ -169,9 +178,14 @@ describe ( 'WorkspaceService', function () {
 				spyOn( workspaceService.privateFunctions, 'toggleSearchTips' );
 				spyOn( workspaceService.privateFunctions, 'filterMenu' );
 
-				var data = '<div class="menu new"><div class="search"><input class="pattern" type="text"></div><i class="control" /></div>'
+				var data = [
+					'<div class="menu new">'
+						, '<div class="search-container"><input class="pattern" type="text"></input></div>'
+						, '<div class="control-container"><i class="control"></i></div>'
+					, '</div>'
+				];
 
-				workspaceService.privateFunctions.buildMenu( data );
+				workspaceService.privateFunctions.buildMenu( data.join( '' ) );
 
 				expect( $container.find( '.menu' ).hasClass( 'old' ) ).toBe( false );
 				expect( $container.find( '.menu' ).hasClass( 'new' ) ).toBe( true );
@@ -179,67 +193,97 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.toggleSearchTips ).toHaveBeenCalled();
 
 				expect( workspaceService.privateFunctions.filterMenu ).not.toHaveBeenCalled();
-				$container.find( '.search .pattern' ).trigger( 'keyup' );
+				$container.find( '.search-container .pattern' ).trigger( 'keyup' );
 				expect( workspaceService.privateFunctions.filterMenu ).toHaveBeenCalled();
 
-				$container.find( '.control' ).click();
+				$container.find( '.control-container .control' ).click();
 				expect( $container.find( '.menu' ).length ).toEqual( 0 );
 			} );
 		} );
 
-		describe ( 'BuildNewDirectory', function () {
+		describe ( 'BuildNew', function () {
 			it ( 'Should build prompt and bind close and submit actions', function () {
 				var data = [
 					'<div class="prompt-container">'
 						,'<div class="file-path"></div>'
-						,'<div><i class="close" /></div>'
-						,'<div><input type="text" id="newdirectory" /></div>'
+						,'<div><i class="close"></i></div>'
+						,'<div><input type="text" id="newentry"></input></div>'
 					,'</div>'
 				];
 				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
+				workspaceService.privateFunctions.someRandomConfirmationCallback = function() {};
 
-				spyOn( workspaceService.privateFunctions, 'submitNewDirectoryOnEnter' );
+				spyOn( workspaceService.privateFunctions, 'someRandomConfirmationCallback' );
 
-				workspaceService.privateFunctions.buildNewDirectory( data.join( '' ), fileTreeArray );
+				workspaceService.privateFunctions.buildNew( data.join( '' )
+					, fileTreeArray, '#newentry', workspaceService.privateFunctions.someRandomConfirmationCallback );
 
 				expect( $container.find( '> .prompt-container' ).length ).toEqual( 1 );
 				expect( $container.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/' ) +'/' );
 
-				expect( workspaceService.privateFunctions.submitNewDirectoryOnEnter ).not.toHaveBeenCalled();
-				$container.find( '#newdirectory' ).trigger( 'keyup' );
-				expect( workspaceService.privateFunctions.submitNewDirectoryOnEnter ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.someRandomConfirmationCallback ).not.toHaveBeenCalled();
+				$container.find( '#newentry' ).trigger( 'keyup' );
+				expect( workspaceService.privateFunctions.someRandomConfirmationCallback ).toHaveBeenCalled();
 
 				$container.find( '.close' ).click();
 				expect( $container.find( '> .prompt-container' ).length ).toEqual( 0 );
+			} );
+		} );
+
+		describe ( 'BuildNewDirectory', function () {
+			it ( 'Should use build new', function () {
+				var data = { somekey: "somevalue" };
+				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildNew' );
+
+				workspaceService.privateFunctions.buildNewDirectory( data, fileTreeArray );
+
+				expect( workspaceService.privateFunctions.buildNew ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.buildNew.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( data );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+				expect( args[ 2 ] ).toEqual( '#newdirectory' );
+				expect( args[ 3 ] ).toEqual( workspaceService.privateFunctions.submitNewDirectoryOnEnter );
 			} );
 		} );
 
 		describe ( 'BuildNewFile', function () {
-			it ( 'Should build prompt and bind close and submit actions', function () {
-				var data = [
-					'<div class="prompt-container">'
-						,'<div class="file-path"></div>'
-						,'<div><i class="close" /></div>'
-						,'<div><input type="text" id="newfile" /></div>'
-					,'</div>'
-				];
+			it ( 'Should use build new', function () {
+				var data = { somekey: "somevalue" };
 				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
 
-				spyOn( workspaceService.privateFunctions, 'submitNewFileOnEnter' );
+				spyOn( workspaceService.privateFunctions, 'buildNew' );
 
-				workspaceService.privateFunctions.buildNewFile( data.join( '' ), fileTreeArray );
+				workspaceService.privateFunctions.buildNewFile( data, fileTreeArray );
 
-				expect( $container.find( '> .prompt-container' ).length ).toEqual( 1 );
-				expect( $container.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/' ) +'/' );
+				expect( workspaceService.privateFunctions.buildNew ).toHaveBeenCalled();
 
-				expect( workspaceService.privateFunctions.submitNewFileOnEnter ).not.toHaveBeenCalled();
-				$container.find( '#newfile' ).trigger( 'keyup' );
-				expect( workspaceService.privateFunctions.submitNewFileOnEnter ).toHaveBeenCalled();
+				var args = workspaceService.privateFunctions.buildNew.calls.argsFor( 0 );
 
-				$container.find( '.close' ).click();
-				expect( $container.find( '> .prompt-container' ).length ).toEqual( 0 );
+				expect( args[ 0 ] ).toEqual( data );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+				expect( args[ 2 ] ).toEqual( '#newfile' );
+				expect( args[ 3 ] ).toEqual( workspaceService.privateFunctions.submitNewFileOnEnter );
 			} );
 		} );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		describe ( 'BuildRenameDirectory', function () {
 			it ( 'Should build prompt and bind close and submit actions', function () {

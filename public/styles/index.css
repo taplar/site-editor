@@ -218,7 +218,7 @@ input:focus, select:focus, textarea:focus, button:focus {
 }
 
 /********** MESSAGES **********/
-.error, .info, .success {
+.message {
 	min-width: 250px;
 	overflow: hidden;
 	transition: top 2s, right 2s;
@@ -233,13 +233,13 @@ input:focus, select:focus, textarea:focus, button:focus {
 	padding: 6px;
 	border-radius: 6px;
 }
-.error {
+.message.error {
 	background-color: rgba(255, 0, 0, 0.5);
 }
-.info {
+.message.info {
 	background-color: rgba(255, 255, 0, 0.5);
 }
-.success {
+.message.success {
 	background-color: rgba(0, 128, 0, 0.5);
 }
 

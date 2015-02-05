@@ -6,7 +6,7 @@ var WorkspaceService = function () {
 		var $menu = $( '.menu' );
 
 		var functions = {
-			buildDeleteDirectory: function ( data, fileTreeArray ) {
+			buildDelete: function ( data, fileTreeArray, confirmationCallback ) {
 				var $prompt = $( data );
 
 				$prompt.find( '.file-path' ).html( fileTreeArray.join( '/' ) );
@@ -15,24 +15,16 @@ var WorkspaceService = function () {
 				functions.closePromptContainer();
 				$prompt.appendTo( $container );
 
-				var $promptContainer = $container.find( '.prompt-container' );
+				var $promptContainer = $container.find( '.prompt-container .content' );
 
-				$promptContainer.find( '.prompt-yes' ).click( functions.deleteDirectory );
+				$promptContainer.find( '.prompt-yes' ).click( confirmationCallback );
 				$promptContainer.find( '.prompt-no' ).click( functions.closePromptContainer );
 			}
+			, buildDeleteDirectory: function ( data, fileTreeArray ) {
+				functions.buildDelete( data, fileTreeArray, functions.deleteDirectory );
+			}
 			, buildDeleteFile: function ( data, fileTreeArray ) {
-				var $prompt = $( data );
-
-				$prompt.find( '.file-path' ).html( fileTreeArray.join( '/' ) );
-				$prompt.prop( 'fileTree', fileTreeArray );
-
-				functions.closePromptContainer();
-				$prompt.appendTo( $container );
-
-				var $promptContainer = $container.find( '.prompt-container' );
-
-				$promptContainer.find( '.prompt-yes' ).click( functions.deleteFile );
-				$promptContainer.find( '.prompt-no' ).click( functions.closePromptContainer );
+				functions.buildDelete( data, fileTreeArray, functions.deleteFile );
 			}
 			, buildFilesystem: function ( data ) {
 				var $ul = $( '<ul>' );
@@ -64,8 +56,8 @@ var WorkspaceService = function () {
 
 				$menu = $container.find( '.menu' );
 
-				$container.find( '.menu .control-container' ).click( function() {
-					$container.find( '.menu' ).remove();
+				$menu.find( '.control-container' ).click( function() {
+					$menu.remove();
 				} );
 
 				functions.toggleSearchTips();
@@ -73,7 +65,7 @@ var WorkspaceService = function () {
 				$menu.find( '.search-container .pattern' ).keyup( functions.filterMenu );
 				$menu.find( '.search-container .pattern' ).focus();
 			}
-			, buildNewDirectory: function ( data, fileTreeArray ) {
+			, buildNew: function ( data, fileTreeArray, inputField, actionCallback ) {
 				var $prompt = $( data );
 
 				$prompt.find( '.file-path' ).html( fileTreeArray.join( '/' ) +'/' );
@@ -83,21 +75,14 @@ var WorkspaceService = function () {
 				$prompt.appendTo( $container );
 
 				$prompt.find( '.close' ).click( functions.closePromptContainer );
-				$prompt.find( '#newdirectory' ).keyup( functions.submitNewDirectoryOnEnter  );
-				$prompt.find( '#newdirectory' ).focus();
+				$prompt.find( inputField ).keyup( actionCallback );
+				$prompt.find( inputField ).focus();
+			}
+			, buildNewDirectory: function ( data, fileTreeArray ) {
+				functions.buildNew( data, fileTreeArray, '#newdirectory', functions.submitNewDirectoryOnEnter );
 			}
 			, buildNewFile: function ( data, fileTreeArray ) {
-				var $prompt = $( data );
-
-				$prompt.find( '.file-path' ).html( fileTreeArray.join( '/' ) +'/' );
-				$prompt.prop( 'fileTree', fileTreeArray );
-
-				functions.closePromptContainer();
-				$prompt.appendTo( $container );
-
-				$prompt.find( '.close' ).click( functions.closePromptContainer );
-				$prompt.find( '#newfile' ).keyup( functions.submitNewFileOnEnter  );
-				$prompt.find( '#newfile' ).focus();
+				functions.buildNew( data, fileTreeArray, '#newfile', functions.submitNewFileOnEnter );
 			}
 			, buildRenameDirectory: function ( data, fileTreeArray ) {
 				var $prompt = $( data );
@@ -118,76 +103,65 @@ var WorkspaceService = function () {
 				$container.find( '.menuIndicator' ).mouseover( functions.displayMenu );
 				$container.find( '.logout' ).click( SessionService.getInstance().logout );
 			}
+			, closeMenuPromptWithError: function ( message ) {
+				LoggingService.getInstance().displayError( message );
+				functions.closePromptContainer();
+				functions.displayFilesystem();
+			}
+			, closeMenuPromptWithSuccess: function ( message ) {
+				LoggingService.getInstance().displaySuccess( message );
+				functions.closePromptContainer();
+				functions.displayFilesystem();
+			}
 			, closePromptContainer: function () {
 				$container.find( '.prompt-container' ).remove();
 			}
-			, deleteDirectory: function () {
-				var directory = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
+			, delete: function ( url, successCallback, failureCallback ) {
+				var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
 
 				AjaxService.getInstance().DELETE({
-					url: './private/?p=files/directories/'+ directory
+					url: url + filepath
 					, input: { }
-					, success: functions.deleteDirectorySuccess
+					, success: successCallback
 					, 401: functions.displayLogin
-					, 497: functions.deleteDirectoryFailure
+					, 497: failureCallback
 					, 499: functions.invalidReference
 					, 500: AjaxService.getInstance().logInternalError
 				});
+			}
+			, deleteDirectory: function () {
+				functions.delete( './private/?p=files/directories/', functions.deleteDirectorySuccess, functions.deleteDirectoryFailure );
 			}
 			, deleteDirectoryFailure: function ( data ) {
-				LoggingService.getInstance().displayError( 'Directory not deleted' );
-				functions.closePromptContainer();
-				functions.displayFilesystem();
+				functions.closeMenuPromptWithError( 'Directory not deleted' );
 			}
 			, deleteDirectorySuccess: function ( data ) {
-				LoggingService.getInstance().displaySuccess( 'Directory deleted' );
-				functions.closePromptContainer();
-				functions.displayFilesystem();
+				functions.closeMenuPromptWithSuccess( 'Directory deleted' );
 			}
 			, deleteFile: function () {
-				var directory = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
-
-				AjaxService.getInstance().DELETE({
-					url: './private/?p=files/'+ directory
-					, input: { }
-					, success: functions.deleteFileSuccess
-					, 401: functions.displayLogin
-					, 497: functions.deleteFileFailure
-					, 499: functions.invalidReference
-					, 500: AjaxService.getInstance().logInternalError
-				});
+				functions.delete( './private/?p=files/', functions.deleteFileSuccess, functions.deleteFileFailure );
 			}
 			, deleteFileFailure: function ( data ) {
-				LoggingService.getInstance().displayError( 'File not deleted' );
-				functions.closePromptContainer();
-				functions.displayFilesystem();
+				functions.closeMenuPromptWithError( 'File not deleted' );
 			}
 			, deleteFileSuccess: function ( data ) {
-				LoggingService.getInstance().displaySuccess( 'File deleted' );
-				functions.closePromptContainer();
-				functions.displayFilesystem();
+				functions.closeMenuPromptWithSuccess( 'File deleted' );
 			}
 			, displayDeleteDirectory: function () {
 				var fileTree = functions.buildFileTreeArray( $( this ) );
+				var successCallback = function ( data ) {
+					functions.buildDeleteDirectory( data, fileTree );
+				};
 
-				AjaxService.getInstance().GET({
-					url: './public/views/deleteDirectory.view'
-					, success: function ( data ) { functions.buildDeleteDirectory( data, fileTree ); }
-					, 401: SessionService.getInstance().displayLogin
-					, 404: LoggingService.getInstance().logNotFound
-					, 500: LoggingService.getInstance().logInternalError
-				});
+				functions.displayStaticResource( './public/views/deleteDirectory.view', successCallback );
 			}
 			, displayDeleteFile: function () {
 				var fileTree = functions.buildFileTreeArray( $( this ) );
+				var successCallback = function ( data ) {
+					functions.buildDeleteFile( data, fileTree );
+				};
 
-				AjaxService.getInstance().GET({
-					url: './public/views/deleteFile.view'
-					, success: function ( data ) { functions.buildDeleteFile( data, fileTree ); }
-					, 401: SessionService.getInstance().displayLogin
-					, 404: LoggingService.getInstance().logNotFound
-					, 500: LoggingService.getInstance().logInternalError
-				});
+				functions.displayStaticResource( './public/views/deleteFile.view', successCallback );
 			}
 			, displayFileInDirectory: function ( $filename, $directory ) { 
 				var $listItem = $( '<li class="menu-item">' );
@@ -226,6 +200,42 @@ var WorkspaceService = function () {
 					, 500: LoggingService.getInstance().logInternalError
 				});
 			}
+			, displayMenu: function () {
+				functions.displayStaticResource( './public/views/menu.view', functions.buildMenu );
+			}
+			, displayNewDirectory: function () {
+				var fileTree = functions.buildFileTreeArray( $( this ) );
+				var successCallback = function ( data ) {
+					functions.buildNewDirectory( data, fileTree );
+				};
+
+				functions.displayStaticResource( './public/views/newDirectory.view', successCallback );
+			}
+			, displayNewFile: function () {
+				var fileTree = functions.buildFileTreeArray( $( this ) );
+				var successCallback = function ( data ) {
+					functions.buildNewFile( data, fileTree );
+				};
+
+				functions.displayStaticResource( './public/views/newFile.view', successCallback );
+			}
+			, displayRenameDirectory: function () {
+				var fileTree = functions.buildFileTreeArray( $( this ) );
+				var successCallback = function ( data ) {
+					functions.buildRenameDirectory( data, fileTree );
+				};
+
+				functions.displayStaticResource( './public/views/renameDirectory.view', successCallback );
+			}
+			, displayStaticResource: function ( url, successCallback ) {
+				AjaxService.getInstance().GET({
+					url: url
+					, success: successCallback
+					, 401: SessionService.getInstance().displayLogin
+					, 404: LoggingService.getInstance().logNotFound
+					, 500: LoggingService.getInstance().logInternalError
+				});
+			}
 			, displaySubdirectory: function ( $directoryName, $directory, $subfiles ) {
 				var $sublist = $( '<ul>' );
 				var $listItem = $( '<li class="menu-item">' );
@@ -251,58 +261,16 @@ var WorkspaceService = function () {
 					.append( $sublist )
 					.appendTo( $directory );
 
-					functions.displayFilesInDirectory( $sublist, $subfiles );
-					$listItem.find( '> .new-directory' ).click( functions.displayNewDirectory );
-					$listItem.find( '> .delete-directory' ).click( functions.displayDeleteDirectory );
-					$listItem.find( '> .rename-directory' ).click( functions.displayRenameDirectory );
-					$listItem.find( '> .new-file' ).click( functions.displayNewFile );
-			}
-			, displayMenu: function () {
-				AjaxService.getInstance().GET({
-					url: './public/views/menu.view'
-					, success: functions.buildMenu
-					, 401: SessionService.getInstance().displayLogin
-					, 404: LoggingService.getInstance().logNotFound
-					, 500: LoggingService.getInstance().logInternalError
-				});
-			}
-			, displayNewDirectory: function () {
-				var fileTree = functions.buildFileTreeArray( $( this ) );
-
-				AjaxService.getInstance().GET({
-					url: './public/views/newDirectory.view'
-					, success: function ( data ) { functions.buildNewDirectory( data, fileTree ); }
-					, 401: SessionService.getInstance().displayLogin
-					, 404: LoggingService.getInstance().logNotFound
-					, 500: LoggingService.getInstance().logInternalError
-				});
-			}
-			, displayNewFile: function () {
-				var fileTree = functions.buildFileTreeArray( $( this ) );
-
-				AjaxService.getInstance().GET({
-					url: './public/views/newFile.view'
-					, success: function ( data ) { functions.buildNewFile( data, fileTree ); }
-					, 401: SessionService.getInstance().displayLogin
-					, 404: LoggingService.getInstance().logNotFound
-					, 500: LoggingService.getInstance().logInternalError
-				});
-			}
-			, displayRenameDirectory: function () {
-				var fileTree = functions.buildFileTreeArray( $( this ) );
-
-				AjaxService.getInstance().GET({
-					url: './public/views/renameDirectory.view'
-					, success: function ( data ) { functions.buildRenameDirectory( data, fileTree ); }
-					, 401: SessionService.getInstance().displayLogin
-					, 404: LoggingService.getInstance().logNotFound
-					, 500: LoggingService.getInstance().logInternalError
-				});
+				functions.displayFilesInDirectory( $sublist, $subfiles );
+				$listItem.find( '> .new-directory' ).click( functions.displayNewDirectory );
+				$listItem.find( '> .delete-directory' ).click( functions.displayDeleteDirectory );
+				$listItem.find( '> .rename-directory' ).click( functions.displayRenameDirectory );
+				$listItem.find( '> .new-file' ).click( functions.displayNewFile );
 			}
 			, filterMenu: function ( event ) {
 				var $filter = $( this );
 				var pattern = $filter.val().trim().replace( /[%]/g, "[\\S]*" ).replace( /[_]/g, "[\\S]" );
-				var $menu = $container.find( '.menu .content .directory-structure .root > ul' );
+				var $menu = $container.find( '.menu .content-container .content .root > ul' );
 
 				try {
 					$menu.find( 'li' ).show();
@@ -320,7 +288,7 @@ var WorkspaceService = function () {
 
 						$menu.find( 'li' ).hide();
 
-						$menu.find( '.fa-file' ).next().each( function() {
+						$menu.find( '.file' ).next().each( function() {
 							var $thiz = $( this );
 
 							if ( matcher.test( $thiz.html() ) ) {
@@ -334,7 +302,7 @@ var WorkspaceService = function () {
 							}
 						} );
 
-						$menu.find( '.fa-folder' ).next().each( function() {
+						$menu.find( '.folder' ).next().each( function() {
 							var $thiz = $( this );
 
 							if ( matcher.test( $thiz.html() ) ) {
@@ -355,61 +323,54 @@ var WorkspaceService = function () {
 				}
 			}
 			, invalidReference: function ( data ) {
-				LoggingService.getInstance().displayError( 'Parent directory no longer exists or has restricted access' );
-				functions.closePromptContainer();
-				functions.displayFilesystem();
+				functions.closeMenuPromptWithError( 'Parent directory no longer exists or has restricted access' );
 			}
 			, newDirectoryFailure: function ( data ) {
 				LoggingService.getInstance().displayError( 'New directory already exists or is invalid syntax' );
 			}
 			, newDirectorySuccess: function ( data ) {
-				LoggingService.getInstance().displaySuccess( 'Directory created' );
-				functions.closePromptContainer();
-				functions.displayFilesystem();
+				functions.closeMenuPromptWithSuccess( 'Directory created' );
 			}
 			, newFileFailure: function ( data ) {
 				LoggingService.getInstance().displayError( 'New file already exists or is invalid syntax' );
 			}
 			, newFileSuccess: function ( data ) {
-				LoggingService.getInstance().displaySuccess( 'File created' );
-				functions.closePromptContainer();
-				functions.displayFilesystem();
+				functions.closeMenuPromptWithSuccess( 'File created' );
 			}
 			, renameDirectoryFailure: function ( data ) {
 				LoggingService.getInstance().displayError( 'New directory already exists or is invalid syntax' );
 			}
 			, renameDirectorySuccess: function ( data ) {
-				LoggingService.getInstance().displaySuccess( 'Directory renamed' );
-				functions.closePromptContainer();
-				functions.displayFilesystem();
+				functions.closeMenuPromptWithSuccess( 'Directory renamed' );
 			}
 			, submitNewDirectoryOnEnter: function ( event ) {
 				if ( KeyService.getInstance().enter( event ) ) {
-					var newDirectory = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
-					newDirectory += '/'+ $( this ).val(); 
+					var input = { };
+					var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
+					filepath += '/'+ $( this ).val();
 
-					AjaxService.getInstance().POST({
-						url: './private/?p=files/directories/'+ newDirectory
-						, input: { }
-						, success: functions.newDirectorySuccess
-						, 401: functions.displayLogin
-						, 498: functions.newDirectoryFailure
-						, 499: functions.invalidReference
-						, 500: AjaxService.getInstance().logInternalError
-					});
+					functions.submitPostOnEnter( event, './private/?p=files/directories/'
+						, filepath, input, functions.newDirectorySuccess, functions.newDirectoryFailure );
 				}
 			}
 			, submitNewFileOnEnter: function ( event ) {
 				if ( KeyService.getInstance().enter( event ) ) {
-					var newFile = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
-					newFile += '/'+ $( this ).val(); 
+					var input = { };
+					var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
+					filepath += '/'+ $( this ).val(); 
 
+					functions.submitPostOnEnter( event, './private/?p=files/'
+						, filepath, input, functions.newFileSuccess, functions.newFileFailure );
+				}
+			}
+			, submitPostOnEnter: function ( event, url, filepath, input, successCallback, failureCallback ) {
+				if ( KeyService.getInstance().enter( event ) ) {
 					AjaxService.getInstance().POST({
-						url: './private/?p=files/'+ newFile
-						, input: { }
-						, success: functions.newFileSuccess
+						url: url + filepath
+						, input: input
+						, success: successCallback
 						, 401: functions.displayLogin
-						, 498: functions.newFileFailure
+						, 498: failureCallback
 						, 499: functions.invalidReference
 						, 500: AjaxService.getInstance().logInternalError
 					});
@@ -417,12 +378,12 @@ var WorkspaceService = function () {
 			}
 			, submitRenameDirectoryOnEnter: function ( event ) {
 				if ( KeyService.getInstance().enter( event ) ) {
-					var existingDirectory = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
-					newDirectoryName = $( this ).val();
+					var input = $( this ).val();
+					var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
 
 					AjaxService.getInstance().PUT({
-						url: './private/?p=files/directories/'+ existingDirectory
-						, input: newDirectoryName
+						url: './private/?p=files/directories/'+ filepath
+						, input: input
 						, success: functions.renameDirectorySuccess
 						, 401: functions.displayLogin
 						, 498: functions.renameDirectoryFailure
@@ -447,13 +408,7 @@ var WorkspaceService = function () {
 		var api = {
 			privateFunctions: functions
 			, displayWorkspace: function () {
-				AjaxService.getInstance().GET({
-					url: './public/views/workspace.view'
-					, success: functions.buildWorkspace
-					, 401: SessionService.getInstance().displayLogin
-					, 404: LoggingService.getInstance().logNotFound
-					, 500: LoggingService.getInstance().logInternalError
-				});
+				functions.displayStaticResource( './public/views/workspace.view', functions.buildWorkspace );
 			}
 		};
 
