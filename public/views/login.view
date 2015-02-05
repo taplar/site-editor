@@ -5,15 +5,15 @@
 		<div class="flexible-v"></div>
 		
 		<div class="prompt inflexible">
-			<div class="title center">Login</div>
+			<div class="title login">Login</div>
 
 			<div class="content">
-				<div class="input center">
-					<input type="text" placeholder="userid" id="userid" value="" />
+				<div class="input login">
+					<input type="text" placeholder="userid" id="userid" value="">
 				</div>
 
-				<div class="input center">
-					<input type="password" placeholder="password" id="password" value="" />
+				<div class="input login">
+					<input type="password" placeholder="password" id="password" value="">
 				</div>
 			</div>
 		</div>
