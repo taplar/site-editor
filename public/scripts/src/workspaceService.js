@@ -79,10 +79,12 @@ var WorkspaceService = function () {
 				$prompt.find( inputField ).focus();
 			}
 			, buildNewDirectory: function ( data, fileTreeArray ) {
-				functions.buildNew( data, fileTreeArray, '#newdirectory', functions.submitNewDirectoryOnEnter );
+				functions.buildNew( data, fileTreeArray, '#newdirectory'
+					, functions.submitNewDirectoryOnEnter );
 			}
 			, buildNewFile: function ( data, fileTreeArray ) {
-				functions.buildNew( data, fileTreeArray, '#newfile', functions.submitNewFileOnEnter );
+				functions.buildNew( data, fileTreeArray, '#newfile'
+					, functions.submitNewFileOnEnter );
 			}
 			, buildRenameDirectory: function ( data, fileTreeArray ) {
 				var $prompt = $( data );
@@ -130,7 +132,9 @@ var WorkspaceService = function () {
 				});
 			}
 			, deleteDirectory: function () {
-				functions.delete( './private/?p=files/directories/', functions.deleteDirectorySuccess, functions.deleteDirectoryFailure );
+				functions.delete( './private/?p=files/directories/'
+					, functions.deleteDirectorySuccess
+					, functions.deleteDirectoryFailure );
 			}
 			, deleteDirectoryFailure: function ( data ) {
 				functions.closeMenuPromptWithError( 'Directory not deleted' );
@@ -139,7 +143,8 @@ var WorkspaceService = function () {
 				functions.closeMenuPromptWithSuccess( 'Directory deleted' );
 			}
 			, deleteFile: function () {
-				functions.delete( './private/?p=files/', functions.deleteFileSuccess, functions.deleteFileFailure );
+				functions.delete( './private/?p=files/', functions.deleteFileSuccess
+					, functions.deleteFileFailure );
 			}
 			, deleteFileFailure: function ( data ) {
 				functions.closeMenuPromptWithError( 'File not deleted' );
@@ -153,7 +158,8 @@ var WorkspaceService = function () {
 					functions.buildDeleteDirectory( data, fileTree );
 				};
 
-				functions.displayStaticResource( './public/views/deleteDirectory.view', successCallback );
+				functions.displayStaticResource( './public/views/deleteDirectory.view'
+					, successCallback );
 			}
 			, displayDeleteFile: function () {
 				var fileTree = functions.buildFileTreeArray( $( this ) );
@@ -161,7 +167,8 @@ var WorkspaceService = function () {
 					functions.buildDeleteFile( data, fileTree );
 				};
 
-				functions.displayStaticResource( './public/views/deleteFile.view', successCallback );
+				functions.displayStaticResource( './public/views/deleteFile.view'
+					, successCallback );
 			}
 			, displayFileInDirectory: function ( $filename, $directory ) { 
 				var $listItem = $( '<li class="menu-item">' );

@@ -72,7 +72,7 @@ describe ( 'WorkspaceService', function () {
 		} );
 
 		describe ( 'BuildDeleteDirectory', function () {
-			it ( 'Should use build delete', function () {
+			it ( 'Should use private function', function () {
 				var data = { somekey: 'somevalue' };
 				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
 
@@ -91,7 +91,7 @@ describe ( 'WorkspaceService', function () {
 		} );
 
 		describe ( 'BuildDeleteFile', function () {
-			it ( 'Should use build delete', function () {
+			it ( 'Should use private function', function () {
 				var data = { somekey: 'somevalue' };
 				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
 
@@ -231,7 +231,7 @@ describe ( 'WorkspaceService', function () {
 		} );
 
 		describe ( 'BuildNewDirectory', function () {
-			it ( 'Should use build new', function () {
+			it ( 'Should use private function', function () {
 				var data = { somekey: "somevalue" };
 				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
 
@@ -251,7 +251,7 @@ describe ( 'WorkspaceService', function () {
 		} );
 
 		describe ( 'BuildNewFile', function () {
-			it ( 'Should use build new', function () {
+			it ( 'Should use private function', function () {
 				var data = { somekey: "somevalue" };
 				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
 
@@ -270,27 +270,13 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		describe ( 'BuildRenameDirectory', function () {
 			it ( 'Should build prompt and bind close and submit actions', function () {
 				var data = [
 					'<div class="prompt-container">'
 						,'<div class="file-path"></div>'
-						,'<div class="new-file-path"></div>'
+						,'<div class="file-path"></div>'
+						,'<div class="old-name"></div>'
 						,'<div><i class="close" /></div>'
 						,'<div><input type="text" id="newdirectory" /></div>'
 					,'</div>'
@@ -302,8 +288,8 @@ describe ( 'WorkspaceService', function () {
 				workspaceService.privateFunctions.buildRenameDirectory( data.join( '' ), fileTreeArray );
 
 				expect( $container.find( '> .prompt-container' ).length ).toEqual( 1 );
-				expect( $container.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/' ) );
-				expect( $container.find( '.new-file-path' ).html() ).toEqual( fileTreeArray.slice(0, -1).join( '/' ) +'/' );
+				expect( $container.find( '.file-path' ).html() ).toEqual( fileTreeArray.slice(0, -1).join( '/' ) +'/' );
+				expect( $container.find( '.old-name' ).html() ).toEqual( fileTreeArray.slice( -1 )[ 0 ] );
 
 				expect( workspaceService.privateFunctions.submitRenameDirectoryOnEnter ).not.toHaveBeenCalled();
 				$container.find( '#newdirectory' ).trigger( 'keyup' );
@@ -320,7 +306,9 @@ describe ( 'WorkspaceService', function () {
 				spyOn( workspaceService.privateFunctions, 'displayMenu' );
 
 				$container.html( 'existing data to be replaced' );
-				workspaceService.privateFunctions.buildWorkspace( '<i class="menuIndicator" /><i class="logout" />' );
+
+				workspaceService.privateFunctions.buildWorkspace( '<i class="menuIndicator"></i><i class="logout"></i>' );
+
 				expect( $container.html() ).not.toEqual( 'existing data to be replaced' );
 
 				expect( workspaceService.privateFunctions.displayMenu ).not.toHaveBeenCalled();
@@ -333,6 +321,42 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'CloseMenuPromptWithError', function () {
+			it ( 'Should log error message, close prompt, and reload filesystem', function () {
+				spyOn( loggingService, 'displayError' );
+				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
+				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+
+				workspaceService.privateFunctions.closeMenuPromptWithError( 'This is my message' );
+
+				expect( loggingService.displayError ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
+
+				var args = loggingService.displayError.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'This is my message' );
+			} );
+		} );
+
+		describe ( 'CloseMenuPromptWithSuccess', function () {
+			it ( 'Should log success message, close prompt, and reload filesystem', function () {
+				spyOn( loggingService, 'displaySuccess' );
+				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
+				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+
+				workspaceService.privateFunctions.closeMenuPromptWithSuccess( 'This is my message' );
+
+				expect( loggingService.displaySuccess ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
+
+				var args = loggingService.displaySuccess.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'This is my message' );
+			} );
+		} );
+
 		describe ( 'ClosePromptContainer', function () {
 			it ( 'Should remove the prompt container', function () {
 				$( '<div class="prompt-container">' ).appendTo( $container );
@@ -342,165 +366,181 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
-		describe ( 'DeleteDirectory', function () {
-			it ( 'Should DELETE directory', function () {
+		describe ( 'Delete', function () {
+			it ( 'Should call DELETE with url, filepath, and callbacks', function () {
 				var $prompt = $( '<div class="prompt-container" />' );
 				var fileTree = [ 'root', 'dir1', 'dir2' ];
 
 				$prompt.prop( 'fileTree', fileTree );
 				$prompt.appendTo( $container );
+				workspaceService.privateFunctions.someRandomFailureCallback = function () {};
+				workspaceService.privateFunctions.someRandomSuccessCallback = function () {};
 
 				spyOn( ajaxService, 'DELETE' );
+				spyOn( workspaceService.privateFunctions, 'someRandomFailureCallback' );
+				spyOn( workspaceService.privateFunctions, 'someRandomSuccessCallback' );
 
-				workspaceService.privateFunctions.deleteDirectory();
+				workspaceService.privateFunctions.delete( 'aUrl/?p='
+					, workspaceService.privateFunctions.someRandomSuccessCallback
+					, workspaceService.privateFunctions.someRandomFailureCallback );
 
 				expect( ajaxService.DELETE ).toHaveBeenCalled();
 
 				var args = ajaxService.DELETE.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './private/?p=files/directories/root/dir1/dir2' );
+				expect( args[ 0 ].url ).toEqual( 'aUrl/?p=root/dir1/dir2' );
 				expect( args[ 0 ].input ).toEqual( { } );
-				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.deleteDirectorySuccess );
+				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.someRandomSuccessCallback );
 				expect( args[ 0 ][ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
-				expect( args[ 0 ][ 497 ] ).toEqual( workspaceService.privateFunctions.deleteDirectoryFailure );
+				expect( args[ 0 ][ 497 ] ).toEqual( workspaceService.privateFunctions.someRandomFailureCallback );
 				expect( args[ 0 ][ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
 				expect( args[ 0 ][ 500 ] ).toEqual( ajaxService.logInternalError );
+			} );
+		} );
+
+		describe ( 'DeleteDirectory', function () {
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'delete' );
+
+				workspaceService.privateFunctions.deleteDirectory();
+
+				expect( workspaceService.privateFunctions.delete ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.delete.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( './private/?p=files/directories/' );
+				expect( args[ 1 ] ).toEqual( workspaceService.privateFunctions.deleteDirectorySuccess );
+				expect( args[ 2 ] ).toEqual( workspaceService.privateFunctions.deleteDirectoryFailure );
 			} );
 		} );
 
 		describe ( 'DeleteDirectoryFailure', function () {
-			it ( 'Should display error, close prompt, and refresh menu', function () {
-				spyOn( loggingService, 'displayError' );
-				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
-				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithError' );
 
 				workspaceService.privateFunctions.deleteDirectoryFailure();
 
-				expect( loggingService.displayError ).toHaveBeenCalled();
-				expect( loggingService.displayError.calls.argsFor( 0 )[ 0 ] ).toEqual( 'Directory not deleted' );
-				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
-				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.closeMenuPromptWithError ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'Directory not deleted' );
 			} );
 		} );
 
 		describe ( 'DeleteDirectorySuccess', function () {
-			it ( 'Should display success, close prompt, and refresh menu', function () {
-				spyOn( loggingService, 'displaySuccess' );
-				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
-				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithSuccess' );
 
 				workspaceService.privateFunctions.deleteDirectorySuccess();
 
-				expect( loggingService.displaySuccess ).toHaveBeenCalled();
-				expect( loggingService.displaySuccess.calls.argsFor( 0 )[ 0 ] ).toEqual( 'Directory deleted' );
-				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
-				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'Directory deleted' );
 			} );
 		} );
 
 		describe ( 'DeleteFile', function () {
-			it ( 'Should DELETE file', function () {
-				var $prompt = $( '<div class="prompt-container" />' );
-				var fileTree = [ 'root', 'dir1', 'dir2' ];
-
-				$prompt.prop( 'fileTree', fileTree );
-				$prompt.appendTo( $container );
-
-				spyOn( ajaxService, 'DELETE' );
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'delete' );
 
 				workspaceService.privateFunctions.deleteFile();
 
-				expect( ajaxService.DELETE ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.delete ).toHaveBeenCalled();
 
-				var args = ajaxService.DELETE.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.delete.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './private/?p=files/root/dir1/dir2' );
-				expect( args[ 0 ].input ).toEqual( { } );
-				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.deleteFileSuccess );
-				expect( args[ 0 ][ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
-				expect( args[ 0 ][ 497 ] ).toEqual( workspaceService.privateFunctions.deleteFileFailure );
-				expect( args[ 0 ][ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
-				expect( args[ 0 ][ 500 ] ).toEqual( ajaxService.logInternalError );
+				expect( args[ 0 ] ).toEqual( './private/?p=files/' );
+				expect( args[ 1 ] ).toEqual( workspaceService.privateFunctions.deleteFileSuccess );
+				expect( args[ 2 ] ).toEqual( workspaceService.privateFunctions.deleteFileFailure );
 			} );
 		} );
 
 		describe ( 'DeleteFileFailure', function () {
-			it ( 'Should display error, close prompt, and refresh menu', function () {
-				spyOn( loggingService, 'displayError' );
-				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
-				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithError' );
 
 				workspaceService.privateFunctions.deleteFileFailure();
 
-				expect( loggingService.displayError ).toHaveBeenCalled();
-				expect( loggingService.displayError.calls.argsFor( 0 )[ 0 ] ).toEqual( 'File not deleted' );
-				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
-				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.closeMenuPromptWithError ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'File not deleted' );
 			} );
 		} );
 
 		describe ( 'DeleteFileSuccess', function () {
-			it ( 'Should display success, close prompt, and refresh menu', function () {
-				spyOn( loggingService, 'displaySuccess' );
-				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
-				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithSuccess' );
 
 				workspaceService.privateFunctions.deleteFileSuccess();
 
-				expect( loggingService.displaySuccess ).toHaveBeenCalled();
-				expect( loggingService.displaySuccess.calls.argsFor( 0 )[ 0 ] ).toEqual( 'File deleted' );
-				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
-				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'File deleted' );
 			} );
 		} );
 
 		describe ( 'DisplayDeleteDirectory', function () {
-			it ( 'Should call GET to retrieve delete directory view', function () {
-				spyOn( ajaxService, 'GET' );
-				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( [ 'root', 'site-editor' ] );
+			it ( 'Should use private function', function () {
+				var fileTreeArray = [ 'file1', 'file2', 'file3' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
 				spyOn( workspaceService.privateFunctions, 'buildDeleteDirectory' );
+				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
 
 				workspaceService.privateFunctions.displayDeleteDirectory();
 
-				expect( ajaxService.GET ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = ajaxService.GET.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './public/views/deleteDirectory.view' );
-				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
-				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
+				expect( args[ 0 ] ).toEqual( './public/views/deleteDirectory.view' );
 
-				args[ 0 ].success( 'myData' );
+				var successCallback = args[ 1 ];
 
-				var args = workspaceService.privateFunctions.buildDeleteDirectory.calls.argsFor( 0 );
+				expect( workspaceService.privateFunctions.buildDeleteDirectory ).not.toHaveBeenCalled();
+				successCallback( 'some data' );
+				expect( workspaceService.privateFunctions.buildDeleteDirectory ).toHaveBeenCalled();
 
-				expect( args[ 0 ] ).toEqual( 'myData' );
-				expect( args[ 1 ] ).toEqual( [ 'root', 'site-editor' ] );
+				args = workspaceService.privateFunctions.buildDeleteDirectory.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'some data' );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
 			} );
 		} );
 
 		describe ( 'DisplayDeleteFile', function () {
-			it ( 'Should call GET to retrieve delete file view', function () {
-				spyOn( ajaxService, 'GET' );
-				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( [ 'root', 'site-editor' ] );
+			it ( 'Should use private function', function () {
+				var fileTreeArray = [ 'file1', 'file2', 'file3' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
 				spyOn( workspaceService.privateFunctions, 'buildDeleteFile' );
+				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
 
 				workspaceService.privateFunctions.displayDeleteFile();
 
-				expect( ajaxService.GET ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = ajaxService.GET.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './public/views/deleteFile.view' );
-				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
-				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
+				expect( args[ 0 ] ).toEqual( './public/views/deleteFile.view' );
 
-				args[ 0 ].success( 'myData' );
+				var successCallback = args[ 1 ];
 
-				var args = workspaceService.privateFunctions.buildDeleteFile.calls.argsFor( 0 );
+				expect( workspaceService.privateFunctions.buildDeleteFile ).not.toHaveBeenCalled();
+				successCallback( 'some data' );
+				expect( workspaceService.privateFunctions.buildDeleteFile ).toHaveBeenCalled();
 
-				expect( args[ 0 ] ).toEqual( 'myData' );
-				expect( args[ 1 ] ).toEqual( [ 'root', 'site-editor' ] );
+				args = workspaceService.privateFunctions.buildDeleteFile.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'some data' );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
 			} );
 		} );
 
@@ -512,10 +552,10 @@ describe ( 'WorkspaceService', function () {
 				workspaceService.privateFunctions.displayFileInDirectory( 'fileForSale', $ul );
 
 				expect( $ul.html() ).toEqual(
-					'<li>'
-						+ '<i class="fa fa-file"></i>'
+					'<li class="menu-item">'
+						+ '<i class="fa fa-file file"></i>'
 						+ '<span class="file-name">fileForSale</span>'
-						+ '<i class="fa fa-times delete delete-file actionable" title="Delete"></i>'
+						+ '<i class="fa fa-times delete delete-file" title="Delete"></i>'
 					+ '</li>'
 				);
 
@@ -530,12 +570,36 @@ describe ( 'WorkspaceService', function () {
 				spyOn( workspaceService.privateFunctions, 'displaySubdirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayFileInDirectory' );
 
-				var data = {
+				var $directory = $( '<ul>' );
+				var $files = {
 					'0': 'file1.html'
 					, 'directory1': { '0': 'file1.1.html' }
 					, '1': 'file2.html'
 					, 'directory2': { '0': 'file2.1.html' }
 				}
+
+				workspaceService.privateFunctions.displayFilesInDirectory( $directory, $files );
+
+				expect( workspaceService.privateFunctions.displaySubdirectory ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.displayFileInDirectory ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displaySubdirectory.calls.argsFor( 0 );
+				expect( args[ 0 ] ).toEqual( 'directory1' );
+				expect( args[ 1 ] ).toEqual( $directory );
+				expect( args[ 2 ] ).toEqual( $files[ 'directory1' ] );
+
+				args = workspaceService.privateFunctions.displaySubdirectory.calls.argsFor( 1 );
+				expect( args[ 0 ] ).toEqual( 'directory2' );
+				expect( args[ 1 ] ).toEqual( $directory );
+				expect( args[ 2 ] ).toEqual( $files[ 'directory2' ] );
+
+				var args = workspaceService.privateFunctions.displayFileInDirectory.calls.argsFor( 0 );
+				expect( args[ 0 ] ).toEqual( 'file1.html' );
+				expect( args[ 1 ] ).toEqual( $directory );
+
+				var args = workspaceService.privateFunctions.displayFileInDirectory.calls.argsFor( 1 );
+				expect( args[ 0 ] ).toEqual( 'file2.html' );
+				expect( args[ 1 ] ).toEqual( $directory );
 			} );
 		} );
 
@@ -556,13 +620,136 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'DisplayMenu', function () {
+			it( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
+
+				workspaceService.privateFunctions.displayMenu();
+
+				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( './public/views/menu.view' );
+				expect( args[ 1 ] ).toEqual( workspaceService.privateFunctions.buildMenu );
+			} );
+		} );
+
+		describe ( 'DisplayNewDirectory', function () {
+			it ( 'Should use private function', function () {
+				var fileTreeArray = [ 'file1', 'file2', 'file3' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
+				spyOn( workspaceService.privateFunctions, 'buildNewDirectory' );
+				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
+
+				workspaceService.privateFunctions.displayNewDirectory();
+
+				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( './public/views/newDirectory.view' );
+
+				var successCallback = args[ 1 ];
+
+				expect( workspaceService.privateFunctions.buildNewDirectory ).not.toHaveBeenCalled();
+				successCallback( 'some data' );
+				expect( workspaceService.privateFunctions.buildNewDirectory ).toHaveBeenCalled();
+
+				args = workspaceService.privateFunctions.buildNewDirectory.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'some data' );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+			} );
+		} );
+
+		describe ( 'DisplayNewFile', function () {
+			it ( 'Should use private function', function () {
+				var fileTreeArray = [ 'file1', 'file2', 'file3' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
+				spyOn( workspaceService.privateFunctions, 'buildNewFile' );
+				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
+
+				workspaceService.privateFunctions.displayNewFile();
+
+				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( './public/views/newFile.view' );
+
+				var successCallback = args[ 1 ];
+
+				expect( workspaceService.privateFunctions.buildNewFile ).not.toHaveBeenCalled();
+				successCallback( 'some data' );
+				expect( workspaceService.privateFunctions.buildNewFile ).toHaveBeenCalled();
+
+				args = workspaceService.privateFunctions.buildNewFile.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'some data' );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+			} );
+		} );
+
+		describe ( 'DisplayRenameDirectory', function () {
+			it ( 'Should use private function', function () {
+				var fileTreeArray = [ 'file1', 'file2', 'file3' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
+				spyOn( workspaceService.privateFunctions, 'buildRenameDirectory' );
+				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
+
+				workspaceService.privateFunctions.displayRenameDirectory();
+
+				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( './public/views/renameDirectory.view' );
+
+				var successCallback = args[ 1 ];
+
+				expect( workspaceService.privateFunctions.buildRenameDirectory ).not.toHaveBeenCalled();
+				successCallback( 'some data' );
+				expect( workspaceService.privateFunctions.buildRenameDirectory ).toHaveBeenCalled();
+
+				args = workspaceService.privateFunctions.buildRenameDirectory.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'some data' );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+			} );
+		} );
+
+		describe ( 'DisplayStaticResource', function () {
+			it ( 'Should call GET to retrieve resource', function () {
+				spyOn( ajaxService, 'GET' );
+
+				var successCallback = function () {};
+				var url = 'some url';
+
+				workspaceService.privateFunctions.displayStaticResource( url, successCallback );
+
+				expect( ajaxService.GET ).toHaveBeenCalled();
+
+				var args = ajaxService.GET.calls.argsFor( 0 );
+
+				expect( args[ 0 ].url ).toEqual( url );
+				expect( args[ 0 ].success ).toEqual( successCallback );
+				expect( args[ 0 ][ 401 ] ).toEqual( sessionService.displayLogin );
+				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
+				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
+			} );
+		} );
+
 		describe ( 'DisplaySubdirectory', function () {
 			it ( 'Should add directory to directory listing', function () {
 				spyOn( workspaceService.privateFunctions, 'displayFilesInDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayNewDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayDeleteDirectory' );
-				spyOn( workspaceService.privateFunctions, 'displayNewFile' );
 				spyOn( workspaceService.privateFunctions, 'displayRenameDirectory' );
+				spyOn( workspaceService.privateFunctions, 'displayNewFile' );
 
 				var $ul = $( '<ul>' );
 				var $subfiles = { 'file': 'blah' };
@@ -570,19 +757,19 @@ describe ( 'WorkspaceService', function () {
 				workspaceService.privateFunctions.displaySubdirectory( 'directoryForPurchase', $ul, $subfiles );
 
 				expect( $ul.html() ).toEqual(
-					'<li>'
-						+ '<i class="fa fa-folder subdirectory"></i>'
+					'<li class="menu-item">'
+						+ '<i class="fa fa-folder folder subdirectory"></i>'
 						+ '<span class="file-name">directoryForPurchase</span>'
-						+ '<i class="fa fa-pencil-square-o rename rename-directory actionable" title="Rename"></i>'
+						+ '<i class="fa fa-pencil-square-o rename rename-directory" title="Rename"></i>'
 						+ '<span class="new-directory" title="New Directory">'
-							+ '<i class="fa fa-folder actionable"></i>'
-							+ '<i class="fa fa-plus actionable"></i>'
+							+ '<i class="fa fa-folder folder"></i>'
+							+ '<i class="fa fa-plus plus"></i>'
 						+ '</span>'
 						+ '<span class="new-file" title="New File">'
-							+ '<i class="fa fa-file actionable"></i>'
-							+ '<i class="fa fa-plus actionable"></i>'
+							+ '<i class="fa fa-file file"></i>'
+							+ '<i class="fa fa-plus plus"></i>'
 						+ '</span>'
-						+ '<i class="fa fa-times delete delete-directory actionable" title="Delete"></i>'
+						+ '<i class="fa fa-times delete delete-directory" title="Delete"></i>'
 						+ '<ul></ul>'
 					+ '</li>'
 				);
@@ -612,122 +799,30 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
-		describe ( 'DisplayMenu', function () {
-			it ( 'Should call GET to retrieve menu view', function () {
-				spyOn( ajaxService, 'GET' );
-
-				workspaceService.privateFunctions.displayMenu();
-
-				expect( ajaxService.GET ).toHaveBeenCalled();
-
-				var args = ajaxService.GET.calls.argsFor( 0 );
-
-				expect( args[ 0 ].url ).toEqual( './public/views/menu.view' );
-				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.buildMenu );
-				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
-				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
-			} );
-		} );
-
-		describe ( 'DisplayNewDirectory', function () {
-			it ( 'Should call GET to retrieve new directory view', function () {
-				spyOn( ajaxService, 'GET' );
-				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( [ 'root' ] );
-				spyOn( workspaceService.privateFunctions, 'buildNewDirectory' );
-
-				workspaceService.privateFunctions.displayNewDirectory();
-
-				expect( ajaxService.GET ).toHaveBeenCalled();
-
-				var args = ajaxService.GET.calls.argsFor( 0 );
-
-				expect( args[ 0 ].url ).toEqual( './public/views/newDirectory.view' );
-				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
-				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
-
-				args[ 0 ].success( 'myData' );
-
-				var args = workspaceService.privateFunctions.buildNewDirectory.calls.argsFor( 0 );
-
-				expect( args[ 0 ] ).toEqual( 'myData' );
-				expect( args[ 1 ] ).toEqual( [ 'root' ] );
-			} );
-		} );
-
-		describe ( 'DisplayNewFile', function () {
-			it ( 'Should call GET to retrieve new file view', function () {
-				spyOn( ajaxService, 'GET' );
-				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( [ 'root' ] );
-				spyOn( workspaceService.privateFunctions, 'buildNewFile' );
-
-				workspaceService.privateFunctions.displayNewFile();
-
-				expect( ajaxService.GET ).toHaveBeenCalled();
-
-				var args = ajaxService.GET.calls.argsFor( 0 );
-
-				expect( args[ 0 ].url ).toEqual( './public/views/newFile.view' );
-				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
-				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
-
-				args[ 0 ].success( 'myData' );
-
-				var args = workspaceService.privateFunctions.buildNewFile.calls.argsFor( 0 );
-
-				expect( args[ 0 ] ).toEqual( 'myData' );
-				expect( args[ 1 ] ).toEqual( [ 'root' ] );
-			} );
-		} );
-
-		describe ( 'DisplayRenameDirectory', function () {
-			it ( 'Should call GET to retrieve rename directory view', function () {
-				spyOn( ajaxService, 'GET' );
-				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( [ 'root' ] );
-				spyOn( workspaceService.privateFunctions, 'buildRenameDirectory' );
-
-				workspaceService.privateFunctions.displayRenameDirectory();
-
-				expect( ajaxService.GET ).toHaveBeenCalled();
-
-				var args = ajaxService.GET.calls.argsFor( 0 );
-
-				expect( args[ 0 ].url ).toEqual( './public/views/renameDirectory.view' );
-				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
-				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
-
-				args[ 0 ].success( 'myData' );
-
-				var args = workspaceService.privateFunctions.buildRenameDirectory.calls.argsFor( 0 );
-
-				expect( args[ 0 ] ).toEqual( 'myData' );
-				expect( args[ 1 ] ).toEqual( [ 'root' ] );
-			} );
-		} );
-
 		describe ( 'FilterMenu', function () {
 			var menuData = [
 				'<div class="menu">'
-					,'<div class="search">'
-						,'<div class="search-container">'
-							,'<i class="fa-search" />'
+					,'<div class="search-container">'
+						,'<div class="search">'
+							,'<i class="icon"></i>'
 						,'</div>'
-						,'<div class="pattern-container" />'
-						,'<input type="text" class="pattern" />'
+						,'<div class="pattern-container"></div>'
+						,'<input type="text" class="pattern"></div>'
 					,'</div>'
-					,'<div class="content">'
-						,'<ul class="directory-structure">'
-							,'<li class="root">'
-								,'<i class="fa-folder" />'
+					,'<div class="content-container">'
+						,'<ul class="content">'
+							,'<li class="root menu-item">'
+								,'<i class="folder"></i>'
 								,'<span class="file-name">root</span>'
 								,'<span class="new-directory">'
-									,'<i class="fa-folder" />'
-									,'<i class="fa-plus" />'
+									,'<i class="folder"></i>'
+									,'<i class="plus"></i>'
 								,'</span>'
 								,'<ul></ul>'
 							,'</li>'
 						,'</ul>'
 					,'</div>'
-					,'<div class="control"><i class="fa-angle-double-up" /></div>'
+					,'<div class="control-container"><i class="close"></i></div>'
 				,'</div>'
 			];
 
@@ -813,7 +908,7 @@ describe ( 'WorkspaceService', function () {
 				workspaceService.privateFunctions.buildMenu( menuData.join( '' ) );
 				workspaceService.privateFunctions.buildFilesystem( JSON.stringify( fileData ) );
 
-				$liElements = $container.find( '.directory-structure .file-name' ).parent().filter( ':not(.root)' )
+				$liElements = $container.find( '.content .file-name' ).parent().filter( ':not(.root)' )
 			} );
 
 			afterEach ( function () {
@@ -966,19 +1061,14 @@ describe ( 'WorkspaceService', function () {
 		} );
 
 		describe ( 'InvalidReference', function () {
-			it ( 'Should display error message, close prompt, and reload menu', function () {
-				spyOn( loggingService, 'displayError' );
-				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
-
-				$( '<div class="prompt-container" />' ).appendTo( $container );
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithError' );
 
 				workspaceService.privateFunctions.invalidReference();
 
-				expect( $container.find( '.prompt-container' ).length ).toEqual( 0 );
-				expect( workspaceService.privateFunctions.displayFilesystem );
-				expect( loggingService.displayError ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.closeMenuPromptWithError ).toHaveBeenCalled();
 
-				var args = loggingService.displayError.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.argsFor( 0 );
 
 				expect( args[ 0 ] ).toEqual( 'Parent directory no longer exists or has restricted access' );
 			} );
@@ -988,11 +1078,8 @@ describe ( 'WorkspaceService', function () {
 			it ( 'Should display error message', function () {
 				spyOn( loggingService, 'displayError' );
 
-				$( '<div class="prompt-container" />' ).appendTo( $container );
-
 				workspaceService.privateFunctions.newDirectoryFailure();
 
-				expect( $container.find( '.prompt-container' ).length ).toEqual( 1 );
 				expect( loggingService.displayError ).toHaveBeenCalled();
 
 				var args = loggingService.displayError.calls.argsFor( 0 );
@@ -1002,19 +1089,14 @@ describe ( 'WorkspaceService', function () {
 		} );
 
 		describe ( 'NewDirectorySuccess', function () {
-			it ( 'Should display success message, close prompt, and reload menu', function () {
-				spyOn( loggingService, 'displaySuccess' );
-				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
-
-				$( '<div class="prompt-container" />' ).appendTo( $container );
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithSuccess' );
 
 				workspaceService.privateFunctions.newDirectorySuccess();
 
-				expect( $container.find( '.prompt-container' ).length ).toEqual( 0 );
-				expect( workspaceService.privateFunctions.displayFilesystem );
-				expect( loggingService.displaySuccess ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
 
-				var args = loggingService.displaySuccess.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
 
 				expect( args[ 0 ] ).toEqual( 'Directory created' );
 			} );
@@ -1024,11 +1106,8 @@ describe ( 'WorkspaceService', function () {
 			it ( 'Should display error message', function () {
 				spyOn( loggingService, 'displayError' );
 
-				$( '<div class="prompt-container" />' ).appendTo( $container );
-
 				workspaceService.privateFunctions.newFileFailure();
 
-				expect( $container.find( '.prompt-container' ).length ).toEqual( 1 );
 				expect( loggingService.displayError ).toHaveBeenCalled();
 
 				var args = loggingService.displayError.calls.argsFor( 0 );
@@ -1038,19 +1117,14 @@ describe ( 'WorkspaceService', function () {
 		} );
 
 		describe ( 'NewFileSuccess', function () {
-			it ( 'Should display success message, close prompt, and reload menu', function () {
-				spyOn( loggingService, 'displaySuccess' );
-				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
-
-				$( '<div class="prompt-container" />' ).appendTo( $container );
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithSuccess' );
 
 				workspaceService.privateFunctions.newFileSuccess();
 
-				expect( $container.find( '.prompt-container' ).length ).toEqual( 0 );
-				expect( workspaceService.privateFunctions.displayFilesystem );
-				expect( loggingService.displaySuccess ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
 
-				var args = loggingService.displaySuccess.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
 
 				expect( args[ 0 ] ).toEqual( 'File created' );
 			} );
@@ -1060,11 +1134,8 @@ describe ( 'WorkspaceService', function () {
 			it ( 'Should display error message', function () {
 				spyOn( loggingService, 'displayError' );
 
-				$( '<div class="prompt-container" />' ).appendTo( $container );
-
 				workspaceService.privateFunctions.renameDirectoryFailure();
 
-				expect( $container.find( '.prompt-container' ).length ).toEqual( 1 );
 				expect( loggingService.displayError ).toHaveBeenCalled();
 
 				var args = loggingService.displayError.calls.argsFor( 0 );
@@ -1074,27 +1145,22 @@ describe ( 'WorkspaceService', function () {
 		} );
 
 		describe ( 'RenameDirectorySuccess', function () {
-			it ( 'Should display success message, close prompt, and reload menu', function () {
-				spyOn( loggingService, 'displaySuccess' );
-				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
-
-				$( '<div class="prompt-container" />' ).appendTo( $container );
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithSuccess' );
 
 				workspaceService.privateFunctions.renameDirectorySuccess();
 
-				expect( $container.find( '.prompt-container' ).length ).toEqual( 0 );
-				expect( workspaceService.privateFunctions.displayFilesystem );
-				expect( loggingService.displaySuccess ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
 
-				var args = loggingService.displaySuccess.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
 
 				expect( args[ 0 ] ).toEqual( 'Directory renamed' );
 			} );
 		} );
 
 		describe ( 'SubmitNewDirectoryOnEnter', function () {
-			it ( 'Should POST new directory request on enter', function () {
-				var $prompt = $( '<div class="prompt-container"><input type="text" id="newdirectory" /></div>' );
+			it ( 'Should use private function on enter', function () {
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newdirectory"></input></div>' );
 				var fileTree = [ 'dir1', 'dir2' ];
 				var newDirectoryName = 'dir777';
 
@@ -1103,88 +1169,202 @@ describe ( 'WorkspaceService', function () {
 				$prompt.find( '#newdirectory' ).keyup( workspaceService.privateFunctions.submitNewDirectoryOnEnter );
 				$prompt.appendTo( $container );
 
-				spyOn( ajaxService, 'POST' );
+				spyOn( workspaceService.privateFunctions, 'submitPostOnEnter' );
 				spyOn( keyService, 'enter' ).and.returnValue( true );
 
 				$prompt.find( '#newdirectory' ).trigger( 'keyup' );
+
+				expect( workspaceService.privateFunctions.submitPostOnEnter ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.submitPostOnEnter.calls.argsFor( 0 );
+
+				expect( args[ 1 ] ).toEqual( './private/?p=files/directories/' );
+				expect( args[ 2 ] ).toEqual( 'dir1/dir2/dir777' );
+				expect( args[ 3 ] ).toEqual( { } );
+				expect( args[ 4 ] ).toEqual( workspaceService.privateFunctions.newDirectorySuccess );
+				expect( args[ 5 ] ).toEqual( workspaceService.privateFunctions.newDirectoryFailure );
+			} );
+
+			it ( 'Should not use private function on non-enter', function () {
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newdirectory"></input></div>' );
+				var fileTree = [ 'dir1', 'dir2' ];
+				var newDirectoryName = 'dir777';
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.find( '#newdirectory' ).val( newDirectoryName );
+				$prompt.find( '#newdirectory' ).keyup( workspaceService.privateFunctions.submitNewDirectoryOnEnter );
+				$prompt.appendTo( $container );
+
+				spyOn( workspaceService.privateFunctions, 'submitPostOnEnter' );
+				spyOn( keyService, 'enter' ).and.returnValue( false );
+
+				$prompt.find( '#newdirectory' ).trigger( 'keyup' );
+
+				expect( workspaceService.privateFunctions.submitPostOnEnter ).not.toHaveBeenCalled();
+			} );
+		} );
+
+		describe ( 'SubmitNewFileOnEnter', function () {
+			it ( 'Should use private function on enter', function () {
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newfile"></input></div>' );
+				var fileTree = [ 'dir1', 'dir2' ];
+				var newFileName = 'dir777';
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.find( '#newfile' ).val( newFileName );
+				$prompt.find( '#newfile' ).keyup( workspaceService.privateFunctions.submitNewFileOnEnter );
+				$prompt.appendTo( $container );
+
+				spyOn( workspaceService.privateFunctions, 'submitPostOnEnter' );
+				spyOn( keyService, 'enter' ).and.returnValue( true );
+
+				$prompt.find( '#newfile' ).trigger( 'keyup' );
+
+				expect( workspaceService.privateFunctions.submitPostOnEnter ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.submitPostOnEnter.calls.argsFor( 0 );
+
+				expect( args[ 1 ] ).toEqual( './private/?p=files/' );
+				expect( args[ 2 ] ).toEqual( 'dir1/dir2/dir777' );
+				expect( args[ 3 ] ).toEqual( { } );
+				expect( args[ 4 ] ).toEqual( workspaceService.privateFunctions.newFileSuccess );
+				expect( args[ 5 ] ).toEqual( workspaceService.privateFunctions.newFileFailure );
+			} );
+
+			it ( 'Should not use private function on non-enter', function () {
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newfile"></input></div>' );
+				var fileTree = [ 'dir1', 'dir2' ];
+				var newFileName = 'dir777';
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.find( '#newfile' ).val( newFileName );
+				$prompt.find( '#newfile' ).keyup( workspaceService.privateFunctions.submitNewFileOnEnter );
+				$prompt.appendTo( $container );
+
+				spyOn( workspaceService.privateFunctions, 'submitPostOnEnter' );
+				spyOn( keyService, 'enter' ).and.returnValue( false );
+
+				$prompt.find( '#newfile' ).trigger( 'keyup' );
+
+				expect( workspaceService.privateFunctions.submitPostOnEnter ).not.toHaveBeenCalled();
+			} );
+		} );
+
+		describe ( 'SubmitPostOnEnter', function () {
+			it ( 'Should submit POST on enter', function () {
+				spyOn( ajaxService, 'POST' );
+				spyOn( keyService, 'enter' ).and.returnValue( true );
+
+				var event = {};
+				var url = 'some url';
+				var filepath = 'some file path';
+				var input = { aKey: 'aValue' };
+				var successCallback = function () {};
+				var failureCallback = function () {};
+
+				workspaceService.privateFunctions.submitPostOnEnter( event, url, filepath, input, successCallback, failureCallback );
 
 				expect( ajaxService.POST ).toHaveBeenCalled();
 
 				var args = ajaxService.POST.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './private/?p=files/directories/dir1/dir2/dir777' );
-				expect( args[ 0 ].input ).toEqual( { } );
-				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.newDirectorySuccess );
+				expect( args[ 0 ].url ).toEqual( url + filepath );
+				expect( args[ 0 ].input ).toEqual( input );
+				expect( args[ 0 ].success ).toEqual( successCallback );
 				expect( args[ 0 ][ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
-				expect( args[ 0 ][ 498 ] ).toEqual( workspaceService.privateFunctions.newDirectoryFailure );
+				expect( args[ 0 ][ 498 ] ).toEqual( failureCallback );
 				expect( args[ 0 ][ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
 				expect( args[ 0 ][ 500 ] ).toEqual( ajaxService.logInternalError );
 			} );
 
-			it ( 'Should not POST new directory request on non-enter', function () {
-				var $prompt = $( '<div class="prompt-container"><input type="text" id="newdirectory" /></div>' );
-				var fileTree = [ 'dir1', 'dir2' ];
-				var newDirectoryName = 'dir777';
-
-				$prompt.prop( 'fileTree', fileTree );
-				$prompt.find( '#newdirectory' ).val( newDirectoryName );
-				$prompt.find( '#newdirectory' ).keyup( workspaceService.privateFunctions.submitNewDirectoryOnEnter );
-				$prompt.appendTo( $container );
-
+			it ( 'Should not submit POST on non-enter', function () {
 				spyOn( ajaxService, 'POST' );
 				spyOn( keyService, 'enter' ).and.returnValue( false );
 
-				$prompt.find( '#newdirectory' ).trigger( 'keyup' );
+				var event = {};
+				var url = 'some url';
+				var filepath = 'some file path';
+				var input = { aKey: 'aValue' };
+				var successCallback = function () {};
+				var failureCallback = function () {};
+
+				workspaceService.privateFunctions.submitPostOnEnter( event, url, filepath, input, successCallback, failureCallback );
 
 				expect( ajaxService.POST ).not.toHaveBeenCalled();
 			} );
 		} );
 
-		describe ( 'SubmitNewFileOnEnter', function () {
-			it ( 'Should POST new file request on enter', function () {
-				var $prompt = $( '<div class="prompt-container"><input type="text" id="newfile" /></div>' );
+		describe ( 'SubmitRenameDirectoryOnEnter', function () {
+			it ( 'Should submit PUT on enter', function () {
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newdirectory"></input></div>' );
 				var fileTree = [ 'dir1', 'dir2' ];
-				var newFileName = 'dir777';
+				var newDirectoryName = 'dir777';
 
 				$prompt.prop( 'fileTree', fileTree );
-				$prompt.find( '#newfile' ).val( newFileName );
-				$prompt.find( '#newfile' ).keyup( workspaceService.privateFunctions.submitNewFileOnEnter );
+				$prompt.find( '#newdirectory' ).val( newDirectoryName );
+				$prompt.find( '#newdirectory' ).keyup( workspaceService.privateFunctions.submitRenameDirectoryOnEnter );
 				$prompt.appendTo( $container );
 
-				spyOn( ajaxService, 'POST' );
+				spyOn( ajaxService, 'PUT' );
 				spyOn( keyService, 'enter' ).and.returnValue( true );
 
-				$prompt.find( '#newfile' ).trigger( 'keyup' );
+				$prompt.find( '#newdirectory' ).trigger( 'keyup' );
 
-				expect( ajaxService.POST ).toHaveBeenCalled();
+				expect( ajaxService.PUT ).toHaveBeenCalled();
 
-				var args = ajaxService.POST.calls.argsFor( 0 );
+				var args = ajaxService.PUT.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './private/?p=files/dir1/dir2/dir777' );
-				expect( args[ 0 ].input ).toEqual( { } );
-				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.newFileSuccess );
+				expect( args[ 0 ].url ).toEqual( './private/?p=files/directories/dir1/dir2' );
+				expect( args[ 0 ].input ).toEqual( 'dir777' );
+				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.renameDirectorySuccess );
 				expect( args[ 0 ][ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
-				expect( args[ 0 ][ 498 ] ).toEqual( workspaceService.privateFunctions.newFileFailure );
+				expect( args[ 0 ][ 498 ] ).toEqual( workspaceService.privateFunctions.renameDirectoryFailure );
 				expect( args[ 0 ][ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
 				expect( args[ 0 ][ 500 ] ).toEqual( ajaxService.logInternalError );
 			} );
 
-			it ( 'Should not POST new file request on non-enter', function () {
-				var $prompt = $( '<div class="prompt-container"><input type="text" id="newfile" /></div>' );
+			it ( 'Should not submit PUT on non-enter', function () {
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newdirectory"></input></div>' );
 				var fileTree = [ 'dir1', 'dir2' ];
-				var newFileName = 'dir777';
+				var newDirectoryName = 'dir777';
 
 				$prompt.prop( 'fileTree', fileTree );
-				$prompt.find( '#newfile' ).val( newFileName );
-				$prompt.find( '#newfile' ).keyup( workspaceService.privateFunctions.submitNewFileOnEnter );
+				$prompt.find( '#newdirectory' ).val( newDirectoryName );
+				$prompt.find( '#newdirectory' ).keyup( workspaceService.privateFunctions.submitRenameDirectoryOnEnter );
 				$prompt.appendTo( $container );
 
-				spyOn( ajaxService, 'POST' );
+				spyOn( ajaxService, 'PUT' );
 				spyOn( keyService, 'enter' ).and.returnValue( false );
 
-				$prompt.find( '#newfile' ).trigger( 'keyup' );
+				$prompt.find( '#newdirectory' ).trigger( 'keyup' );
 
-				expect( ajaxService.POST ).not.toHaveBeenCalled();
+				expect( ajaxService.PUT ).not.toHaveBeenCalled();
+			} );
+		} );
+
+		describe ( 'ToggleSearchTips', function () {
+			it ( 'Should toggle search tips', function () {
+				var data = [
+					'<div class="menu">'
+						, '<div class="search-container">'
+							, '<i class="tip-search"></i>'
+						, '</div>'
+					, '</div>'
+				];
+
+				$container.append( data.join( '' ) );
+
+				$tipSearch = $container.find( '.tip-search' );
+				$searchContainer = $tipSearch.parent();
+
+				workspaceService.privateFunctions.toggleSearchTips();
+
+				$tipSearch.hide();
+				expect( $tipSearch.is( ':visible' ) ).toBe( false );
+				$searchContainer.trigger( 'mouseover' );
+				expect( $tipSearch.is( ':visible' ) ).toBe( true );
+				$searchContainer.trigger( 'mouseout' );
+				expect( $tipSearch.is( ':visible' ) ).toBe( false );
 			} );
 		} );
 	} );
