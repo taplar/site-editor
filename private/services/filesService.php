@@ -199,6 +199,24 @@ final class FilesService {
 		}
 	}
 
+	public function renameFile ( $pathArray, $content ) {
+		$oldFilename = array_pop( $pathArray );
+		$newFilename = $content;
+		$pathString = $this->pathExists( $pathArray );
+		$pathString = $this->editorIsNotParentOfPath( $pathString );
+
+		if ( $pathString != NULL ) {
+			if ( $this->isAValidFilename( $oldFilename ) && file_exists( $pathString . $oldFilename )
+			&& $this->isAValidFilename( $newFilename ) && !file_exists( $pathString . $newFilename ) ) {
+				rename( $pathString . $oldFilename, $pathString . $newFilename );
+			} else {
+				Http::getInstance()->invalidName();
+			}
+		} else {
+			Http::getInstance()->invalidPath();
+		}
+	}
+
 	private function stringDoesNotContainInvalidCharacters ( $string ) {
 		return ( preg_match( "/^[A-Za-z0-9 ._-]+$/", $string ) == 1 );
 	}

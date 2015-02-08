@@ -86,7 +86,7 @@ var WorkspaceService = function () {
 				functions.buildNew( data, fileTreeArray, '#newfile'
 					, functions.submitNewFileOnEnter );
 			}
-			, buildRenameDirectory: function ( data, fileTreeArray ) {
+			, buildRename: function ( data, fileTreeArray, inputField, actionCallback ) {
 				var $prompt = $( data );
 
 				$prompt.find( '.file-path' ).html( fileTreeArray.slice(0, -1).join( '/' ) + '/');
@@ -97,8 +97,14 @@ var WorkspaceService = function () {
 				$prompt.appendTo( $container );
 
 				$prompt.find( '.close' ).click( functions.closePromptContainer );
-				$prompt.find( '#newdirectory' ).keyup( functions.submitRenameDirectoryOnEnter  );
-				$prompt.find( '#newdirectory' ).focus();
+				$prompt.find( inputField ).keyup( actionCallback );
+				$prompt.find( inputField ).focus();
+			}
+			, buildRenameDirectory: function ( data, fileTreeArray ) {
+				functions.buildRename( data, fileTreeArray, '#newdirectory', functions.submitRenameDirectoryOnEnter );
+			}
+			, buildRenameFile: function ( data, fileTreeArray ) {
+				functions.buildRename( data, fileTreeArray, '#newfile', functions.submitRenameFileOnEnter );
 			}
 			, buildWorkspace: function ( data ) {
 				$container.html( data );
@@ -179,10 +185,12 @@ var WorkspaceService = function () {
 						class: 'file-name'
 						, html: $filename
 					} ) )
+					.append( $( '<i class="fa fa-pencil-square-o rename rename-file" title="Rename">' ) )
 					.append( $( '<i class="fa fa-times delete delete-file" title="Delete">' ) )
 					.appendTo( $directory );
 
 				$listItem.find( '> .delete-file' ).click( functions.displayDeleteFile );
+				$listItem.find( '> .rename-file' ).click( functions.displayRenameFile );
 			}
 			, displayFilesInDirectory: function ( $directory, $files ) {
 				var filenames = [];
@@ -226,13 +234,26 @@ var WorkspaceService = function () {
 
 				functions.displayStaticResource( './public/views/newFile.view', successCallback );
 			}
-			, displayRenameDirectory: function () {
-				var fileTree = functions.buildFileTreeArray( $( this ) );
+			, displayRename: function ( url, fileTree, renameCallback ) {
 				var successCallback = function ( data ) {
-					functions.buildRenameDirectory( data, fileTree );
+					renameCallback( data, fileTree );
 				};
 
-				functions.displayStaticResource( './public/views/renameDirectory.view', successCallback );
+				functions.displayStaticResource( url, successCallback );
+			}
+			, displayRenameDirectory: function () {
+				var fileTree = functions.buildFileTreeArray( $( this ) );
+
+				functions.displayRename( './public/views/renameDirectory.view'
+					, fileTree
+					, functions.buildRenameDirectory );
+			}
+			, displayRenameFile: function () {
+				var fileTree = functions.buildFileTreeArray( $( this ) );
+
+				functions.displayRename( './public/views/renameFile.view'
+					, fileTree
+					, functions.buildRenameFile );
 			}
 			, displayStaticResource: function ( url, successCallback ) {
 				AjaxService.getInstance().GET({
@@ -350,6 +371,12 @@ var WorkspaceService = function () {
 			, renameDirectorySuccess: function ( data ) {
 				functions.closeMenuPromptWithSuccess( 'Directory renamed' );
 			}
+			, renameFileFailure: function ( data ) {
+				LoggingService.getInstance().displayError( 'New file already exists or is invalid syntax' );
+			}
+			, renameFileSuccess: function ( data ) {
+				functions.closeMenuPromptWithSuccess( 'File renamed' );
+			}
 			, submitNewDirectoryOnEnter: function ( event ) {
 				if ( KeyService.getInstance().enter( event ) ) {
 					var input = { };
@@ -383,20 +410,41 @@ var WorkspaceService = function () {
 					});
 				}
 			}
-			, submitRenameDirectoryOnEnter: function ( event ) {
+			, submitRenameOnEnter: function ( event, input, url, successCallback, failureCallback ) {
 				if ( KeyService.getInstance().enter( event ) ) {
-					var input = $( this ).val();
 					var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
 
 					AjaxService.getInstance().PUT({
-						url: './private/?p=files/directories/'+ filepath
+						url: url + filepath
 						, input: input
-						, success: functions.renameDirectorySuccess
+						, success: successCallback
 						, 401: functions.displayLogin
-						, 498: functions.renameDirectoryFailure
+						, 498: failureCallback
 						, 499: functions.invalidReference
 						, 500: AjaxService.getInstance().logInternalError
 					});
+				}
+			}
+			, submitRenameDirectoryOnEnter: function ( event ) {
+				if ( KeyService.getInstance().enter( event ) ) {
+					var input = $( this ).val();
+
+					functions.submitRenameOnEnter( event
+						, $( this ).val()
+						, './private/?p=files/directories/'
+						, functions.renameDirectorySuccess
+						, functions.renameDirectoryFailure );
+				}
+			}
+			, submitRenameFileOnEnter: function ( event ) {
+				if ( KeyService.getInstance().enter( event ) ) {
+					var input = $( this ).val();
+
+					functions.submitRenameOnEnter( event
+						, $( this ).val()
+						, './private/?p=files/'
+						, functions.renameFileSuccess
+						, functions.renameFileFailure );
 				}
 			}
 			, toggleSearchTips: function () {

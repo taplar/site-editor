@@ -52,7 +52,7 @@ final class FilesController {
 			if ( strtolower( $path[ 0 ] ) == "directories" ) {
 				$this->filesService->renameDirectory( array_slice( $path, 1 ), $content );
 			} else {
-				Http::getInstance()->badRequest();
+				$this->filesService->renameFile( $path, $content );
 			}
 		} else {
 			Http::getInstance()->badRequest();

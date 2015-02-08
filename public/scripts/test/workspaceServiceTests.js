@@ -270,7 +270,7 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
-		describe ( 'BuildRenameDirectory', function () {
+		describe ( 'BuildRename', function () {
 			it ( 'Should build prompt and bind close and submit actions', function () {
 				var data = [
 					'<div class="prompt-container">'
@@ -278,25 +278,70 @@ describe ( 'WorkspaceService', function () {
 						,'<div class="file-path"></div>'
 						,'<div class="old-name"></div>'
 						,'<div><i class="close" /></div>'
-						,'<div><input type="text" id="newdirectory" /></div>'
+						,'<div><input type="text" id="newobject" /></div>'
 					,'</div>'
 				];
 				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
 
-				spyOn( workspaceService.privateFunctions, 'submitRenameDirectoryOnEnter' );
+				workspaceService.privateFunctions.someRandomConfirmationCallback = function () {};
 
-				workspaceService.privateFunctions.buildRenameDirectory( data.join( '' ), fileTreeArray );
+				spyOn( workspaceService.privateFunctions, 'someRandomConfirmationCallback' );
+
+				workspaceService.privateFunctions.buildRename( data.join( '' )
+					, fileTreeArray
+					, '#newobject'
+					, workspaceService.privateFunctions.someRandomConfirmationCallback );
 
 				expect( $container.find( '> .prompt-container' ).length ).toEqual( 1 );
 				expect( $container.find( '.file-path' ).html() ).toEqual( fileTreeArray.slice(0, -1).join( '/' ) +'/' );
 				expect( $container.find( '.old-name' ).html() ).toEqual( fileTreeArray.slice( -1 )[ 0 ] );
 
-				expect( workspaceService.privateFunctions.submitRenameDirectoryOnEnter ).not.toHaveBeenCalled();
-				$container.find( '#newdirectory' ).trigger( 'keyup' );
-				expect( workspaceService.privateFunctions.submitRenameDirectoryOnEnter ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.someRandomConfirmationCallback ).not.toHaveBeenCalled();
+				$container.find( '#newobject' ).trigger( 'keyup' );
+				expect( workspaceService.privateFunctions.someRandomConfirmationCallback ).toHaveBeenCalled();
 
 				$container.find( '.close' ).click();
 				expect( $container.find( '> .prompt-container' ).length ).toEqual( 0 );
+			} );
+		} );
+
+		describe ( 'BuildRenameDirectory', function () {
+			it ( 'Should use private function', function () {
+				var data = { aKey: 'aValue' };
+				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildRename' );
+
+				workspaceService.privateFunctions.buildRenameDirectory( data, fileTreeArray );
+
+				expect( workspaceService.privateFunctions.buildRename ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.buildRename.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( data );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+				expect( args[ 2 ] ).toEqual( '#newdirectory' );
+				expect( args[ 3 ] ).toEqual( workspaceService.privateFunctions.submitRenameDirectoryOnEnter );
+			} );
+		} );
+
+		describe ( 'BuildRenameFile', function () {
+			it ( 'Should use private function', function () {
+				var data = { aKey: 'aValue' };
+				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildRename' );
+
+				workspaceService.privateFunctions.buildRenameFile( data, fileTreeArray );
+
+				expect( workspaceService.privateFunctions.buildRename ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.buildRename.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( data );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+				expect( args[ 2 ] ).toEqual( '#newfile' );
+				expect( args[ 3 ] ).toEqual( workspaceService.privateFunctions.submitRenameFileOnEnter );
 			} );
 		} );
 
@@ -546,7 +591,9 @@ describe ( 'WorkspaceService', function () {
 
 		describe ( 'DisplayFileInDirectory', function () {
 			it ( 'Should add directory to directory listing', function () {
+				spyOn( workspaceService.privateFunctions, 'displayRenameFile' );
 				spyOn( workspaceService.privateFunctions, 'displayDeleteFile' );
+
 				var $ul = $( '<ul>' );
 
 				workspaceService.privateFunctions.displayFileInDirectory( 'fileForSale', $ul );
@@ -555,9 +602,14 @@ describe ( 'WorkspaceService', function () {
 					'<li class="menu-item">'
 						+ '<i class="fa fa-file file"></i>'
 						+ '<span class="file-name">fileForSale</span>'
+						+ '<i class="fa fa-pencil-square-o rename rename-file" title="Rename"></i>'
 						+ '<i class="fa fa-times delete delete-file" title="Delete"></i>'
 					+ '</li>'
 				);
+
+				expect( workspaceService.privateFunctions.displayRenameFile ).not.toHaveBeenCalled();
+				$ul.find( '.rename-file' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.displayRenameFile ).toHaveBeenCalled();
 
 				expect( workspaceService.privateFunctions.displayDeleteFile ).not.toHaveBeenCalled();
 				$ul.find( '.delete-file' ).trigger( 'click' );
@@ -693,32 +745,73 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
-		describe ( 'DisplayRenameDirectory', function () {
+		describe ( 'DisplayRename', function () {
 			it ( 'Should use private function', function () {
 				var fileTreeArray = [ 'file1', 'file2', 'file3' ];
 
-				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
-				spyOn( workspaceService.privateFunctions, 'buildRenameDirectory' );
+				workspaceService.privateFunctions.someRandomConfirmationCallback = function () {};
+
+				spyOn( workspaceService.privateFunctions, 'someRandomConfirmationCallback' );
 				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
 
-				workspaceService.privateFunctions.displayRenameDirectory();
+				workspaceService.privateFunctions.displayRename( 'some url'
+					, fileTreeArray
+					, workspaceService.privateFunctions.someRandomConfirmationCallback );
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
 				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
 
-				expect( args[ 0 ] ).toEqual( './public/views/renameDirectory.view' );
+				expect( args[ 0 ] ).toEqual( 'some url' );
 
 				var successCallback = args[ 1 ];
 
-				expect( workspaceService.privateFunctions.buildRenameDirectory ).not.toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.someRandomConfirmationCallback ).not.toHaveBeenCalled();
 				successCallback( 'some data' );
-				expect( workspaceService.privateFunctions.buildRenameDirectory ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.someRandomConfirmationCallback ).toHaveBeenCalled();
 
-				args = workspaceService.privateFunctions.buildRenameDirectory.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.someRandomConfirmationCallback.calls.argsFor( 0 );
 
 				expect( args[ 0 ] ).toEqual( 'some data' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
+			} );
+		} );
+
+		describe ( 'DisplayRenameDirectory', function () {
+			it ( 'Should use private function', function () {
+				var fileTreeArray = [ 'dir1', 'dir2' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
+				spyOn( workspaceService.privateFunctions, 'displayRename' );
+
+				workspaceService.privateFunctions.displayRenameDirectory();
+
+				expect( workspaceService.privateFunctions.displayRename ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayRename.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( './public/views/renameDirectory.view' );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+				expect( args[ 2 ] ).toEqual( workspaceService.privateFunctions.buildRenameDirectory );
+			} );
+		} );
+
+		describe ( 'DisplayRenameFile', function () {
+			it ( 'Should use private function', function () {
+				var fileTreeArray = [ 'dir1', 'dir2' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
+				spyOn( workspaceService.privateFunctions, 'displayRename' );
+
+				workspaceService.privateFunctions.displayRenameFile();
+
+				expect( workspaceService.privateFunctions.displayRename ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayRename.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( './public/views/renameFile.view' );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+				expect( args[ 2 ] ).toEqual( workspaceService.privateFunctions.buildRenameFile );
 			} );
 		} );
 
@@ -1158,6 +1251,34 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'RenameFileFailure', function () {
+			it ( 'Should display error message', function () {
+				spyOn( loggingService, 'displayError' );
+
+				workspaceService.privateFunctions.renameFileFailure();
+
+				expect( loggingService.displayError ).toHaveBeenCalled();
+
+				var args = loggingService.displayError.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'New file already exists or is invalid syntax' );
+			} );
+		} );
+
+		describe ( 'RenameFileSuccess', function () {
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithSuccess' );
+
+				workspaceService.privateFunctions.renameFileSuccess();
+
+				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'File renamed' );
+			} );
+		} );
+
 		describe ( 'SubmitNewDirectoryOnEnter', function () {
 			it ( 'Should use private function on enter', function () {
 				var $prompt = $( '<div class="prompt-container"><input type="text" id="newdirectory"></input></div>' );
@@ -1294,36 +1415,62 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
-		describe ( 'SubmitRenameDirectoryOnEnter', function () {
+		describe ( 'SubmitRenameOnEnter', function () {
 			it ( 'Should submit PUT on enter', function () {
-				var $prompt = $( '<div class="prompt-container"><input type="text" id="newdirectory"></input></div>' );
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newname"></input></div>' );
 				var fileTree = [ 'dir1', 'dir2' ];
-				var newDirectoryName = 'dir777';
+				var anEvent = {};
+				var input = { aKey: 'aValue' };
+				var url = 'some url'
+				var successCallback = function () {};
+				var failureCallback = function () {};
 
 				$prompt.prop( 'fileTree', fileTree );
-				$prompt.find( '#newdirectory' ).val( newDirectoryName );
-				$prompt.find( '#newdirectory' ).keyup( workspaceService.privateFunctions.submitRenameDirectoryOnEnter );
 				$prompt.appendTo( $container );
 
 				spyOn( ajaxService, 'PUT' );
 				spyOn( keyService, 'enter' ).and.returnValue( true );
 
-				$prompt.find( '#newdirectory' ).trigger( 'keyup' );
+				workspaceService.privateFunctions.submitRenameOnEnter(anEvent, input, url
+					, successCallback, failureCallback );
 
 				expect( ajaxService.PUT ).toHaveBeenCalled();
 
 				var args = ajaxService.PUT.calls.argsFor( 0 );
 
-				expect( args[ 0 ].url ).toEqual( './private/?p=files/directories/dir1/dir2' );
-				expect( args[ 0 ].input ).toEqual( 'dir777' );
-				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.renameDirectorySuccess );
+				expect( args[ 0 ].url ).toEqual( url + 'dir1/dir2' );
+				expect( args[ 0 ].input ).toEqual( input );
+				expect( args[ 0 ].success ).toEqual( successCallback );
 				expect( args[ 0 ][ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
-				expect( args[ 0 ][ 498 ] ).toEqual( workspaceService.privateFunctions.renameDirectoryFailure );
+				expect( args[ 0 ][ 498 ] ).toEqual( failureCallback );
 				expect( args[ 0 ][ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
 				expect( args[ 0 ][ 500 ] ).toEqual( ajaxService.logInternalError );
 			} );
 
 			it ( 'Should not submit PUT on non-enter', function () {
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newname"></input></div>' );
+				var fileTree = [ 'dir1', 'dir2' ];
+				var anEvent = {};
+				var input = { aKey: 'aValue' };
+				var url = 'some url'
+				var successCallback = function () {};
+				var failureCallback = function () {};
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.appendTo( $container );
+
+				spyOn( ajaxService, 'PUT' );
+				spyOn( keyService, 'enter' ).and.returnValue( false );
+
+				workspaceService.privateFunctions.submitRenameOnEnter(anEvent, input, url
+					, successCallback, failureCallback );
+
+				expect( ajaxService.PUT ).not.toHaveBeenCalled();
+			} );
+		} );
+
+		describe ( 'SubmitRenameDirectoryOnEnter', function () {
+			it ( 'Should use private function on enter', function () {
 				var $prompt = $( '<div class="prompt-container"><input type="text" id="newdirectory"></input></div>' );
 				var fileTree = [ 'dir1', 'dir2' ];
 				var newDirectoryName = 'dir777';
@@ -1333,12 +1480,82 @@ describe ( 'WorkspaceService', function () {
 				$prompt.find( '#newdirectory' ).keyup( workspaceService.privateFunctions.submitRenameDirectoryOnEnter );
 				$prompt.appendTo( $container );
 
-				spyOn( ajaxService, 'PUT' );
-				spyOn( keyService, 'enter' ).and.returnValue( false );
+				spyOn( keyService, 'enter' ).and.returnValue( true );
+				spyOn( workspaceService.privateFunctions, 'submitRenameOnEnter' );
 
 				$prompt.find( '#newdirectory' ).trigger( 'keyup' );
 
-				expect( ajaxService.PUT ).not.toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.submitRenameOnEnter ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.submitRenameOnEnter.calls.argsFor( 0 );
+
+				expect( args[ 1 ] ).toEqual( 'dir777' );
+				expect( args[ 2 ] ).toEqual( './private/?p=files/directories/' );
+				expect( args[ 3 ] ).toEqual( workspaceService.privateFunctions.renameDirectorySuccess );
+				expect( args[ 4 ] ).toEqual( workspaceService.privateFunctions.renameDirectoryFailure );
+			} );
+
+			it ( 'Should not use private function on non-enter', function () {
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newdirectory"></input></div>' );
+				var fileTree = [ 'dir1', 'dir2' ];
+				var newDirectoryName = 'dir777';
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.find( '#newdirectory' ).val( newDirectoryName );
+				$prompt.find( '#newdirectory' ).keyup( workspaceService.privateFunctions.submitRenameDirectoryOnEnter );
+				$prompt.appendTo( $container );
+
+				spyOn( keyService, 'enter' ).and.returnValue( false );
+				spyOn( workspaceService.privateFunctions, 'submitRenameOnEnter' );
+
+				$prompt.find( '#newdirectory' ).trigger( 'keyup' );
+
+				expect( workspaceService.privateFunctions.submitRenameOnEnter ).not.toHaveBeenCalled();
+			} );
+		} );
+
+		describe ( 'SubmitRenameFileOnEnter', function () {
+			it ( 'Should use private function on enter', function () {
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newfile"></input></div>' );
+				var fileTree = [ 'dir1', 'dir2' ];
+				var newFileName = 'dir777';
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.find( '#newfile' ).val( newFileName );
+				$prompt.find( '#newfile' ).keyup( workspaceService.privateFunctions.submitRenameFileOnEnter );
+				$prompt.appendTo( $container );
+
+				spyOn( keyService, 'enter' ).and.returnValue( true );
+				spyOn( workspaceService.privateFunctions, 'submitRenameOnEnter' );
+
+				$prompt.find( '#newfile' ).trigger( 'keyup' );
+
+				expect( workspaceService.privateFunctions.submitRenameOnEnter ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.submitRenameOnEnter.calls.argsFor( 0 );
+
+				expect( args[ 1 ] ).toEqual( 'dir777' );
+				expect( args[ 2 ] ).toEqual( './private/?p=files/' );
+				expect( args[ 3 ] ).toEqual( workspaceService.privateFunctions.renameFileSuccess );
+				expect( args[ 4 ] ).toEqual( workspaceService.privateFunctions.renameFileFailure );
+			} );
+
+			it ( 'Should not use private function on non-enter', function () {
+				var $prompt = $( '<div class="prompt-container"><input type="text" id="newfile"></input></div>' );
+				var fileTree = [ 'dir1', 'dir2' ];
+				var newFileName = 'dir777';
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.find( '#newfile' ).val( newFileName );
+				$prompt.find( '#newfile' ).keyup( workspaceService.privateFunctions.submitRenameFileOnEnter );
+				$prompt.appendTo( $container );
+
+				spyOn( keyService, 'enter' ).and.returnValue( false );
+				spyOn( workspaceService.privateFunctions, 'submitRenameOnEnter' );
+
+				$prompt.find( '#newfile' ).trigger( 'keyup' );
+
+				expect( workspaceService.privateFunctions.submitRenameOnEnter ).not.toHaveBeenCalled();
 			} );
 		} );
 

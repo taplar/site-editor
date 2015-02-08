@@ -183,3 +183,23 @@ new-directory-name
 	* 499 - Directory not renamed due to invalid path
 	* 500 - Internal Error
 ```
+
+### Rename file
+
+Purpose: Rename (nested) file
+
+##### Request
+```
+Method: PUT
+URL: ~/private/?p=files/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /existing-file
+new-file-name
+```
+##### Response
+```
+* HTTP Response Codes
+	* 200 - File Renamed
+	* 401 - Inactive Session
+	* 497 - File not renamed due to invalid old/new name
+	* 499 - File not renamed due to invalid path
+	* 500 - Internal Error
+```

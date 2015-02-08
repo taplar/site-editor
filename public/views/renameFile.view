@@ -1,0 +1,27 @@
+<div class="prompt-container overlay flexbox-h">
+	<div class="flexible-h"></div>
+	
+	<div class="inflexible flexbox-v">
+		<div class="flexible-v"></div>
+		
+		<div class="prompt inflexible">
+			<div class="title">Rename File<i class="fa fa-times close"></i></div>
+
+			<div class="content">
+				<div>
+					<span class="file-path"></span>
+					<span class="old-name"></span>
+				</div>
+
+				<div>
+					<span class="file-path"></span>
+					<span class="input new-name"><input type="text" id="newfile"></input></span>
+				</div>
+			</div>
+		</div>
+		
+		<div class="flexible-v"></div>
+	</div>
+	
+	<div class="flexible-h"></div>
+</div>
