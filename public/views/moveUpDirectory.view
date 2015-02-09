@@ -1,0 +1,26 @@
+<div class="prompt-container overlay flexbox-h">
+	<div class="flexible-h"></div>
+	
+	<div class="inflexible flexbox-v">
+		<div class="flexible-v"></div>
+		
+		<div class="prompt inflexible">
+			<div class="title">Move Directory Up</div>
+
+			<div class="content move-up-directory">
+				<div><span class="file-path"></span></div>
+
+				<p class="confirmation">Are you sure you want to move this directory into its parent's directory?</p>
+
+				<div>
+					<button class="prompt-yes">Yes</button>
+					<button class="prompt-no">No</button>
+				</div>
+			</div>
+		</div>
+		
+		<div class="flexible-v"></div>
+	</div>
+	
+	<div class="flexible-h"></div>
+</div>
