@@ -10,22 +10,15 @@ var SessionService = function () {
 				$( '#userid, #password' ).keyup( functions.submitLoginOnEnter );
 				$( '#userid' ).focus();
 			}
+			, httpsRequired: function () {
+				LoggingService.getInstance().displayError( 'HTTPS Required.  Please switch protocols.' );
+			}
 			, loginFailure: function () {
 				LoggingService.getInstance().displayError( 'Invalid Credentials' );
 			}
 			, logoutSuccess: function ( data ) {
 				LoggingService.getInstance().displaySuccess( 'Logged Out' );
 				api.displayLogin( data );
-			}
-			, redirectToHttps: function () {
-				var redirectUrl = 'https://' + window.location.hostname;
-
-				if ( window.location.port ) {
-					redirectUrl += ":"+ window.location.port[ 0 ] +"443";
-				}
-
-				redirectUrl += window.location.pathname;
-				window.location.href = redirectUrl;
 			}
 			, submitLoginOnEnter: function ( event ) {
 				if ( KeyService.getInstance().enter( event ) ) {
@@ -64,7 +57,7 @@ var SessionService = function () {
 				AjaxService.getInstance().GET({
 					url: './private/?p=sessions'
 					, success: WorkspaceService.getInstance().displayWorkspace
-					, 301: functions.redirectToHttps
+					, 301: functions.httpsRequired
 					, 401: api.displayLogin
 					, 500: LoggingService.getInstance().logInternalError
 				});
