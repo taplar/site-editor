@@ -110,6 +110,7 @@ var WorkspaceService = function () {
 				$container.html( data );
 				$container.find( '.menuIndicator' ).mouseover( functions.displayMenu );
 				$container.find( '.logout' ).click( SessionService.getInstance().logout );
+				$container.find( '.menuIndicator' ).trigger( 'mouseover' );
 			}
 			, closeMenuPromptWithError: function ( message ) {
 				LoggingService.getInstance().displayError( message );

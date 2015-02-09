@@ -356,6 +356,8 @@ describe ( 'WorkspaceService', function () {
 
 				expect( $container.html() ).not.toEqual( 'existing data to be replaced' );
 
+				expect( workspaceService.privateFunctions.displayMenu ).toHaveBeenCalled();
+				workspaceService.privateFunctions.displayMenu.calls.reset();
 				expect( workspaceService.privateFunctions.displayMenu ).not.toHaveBeenCalled();
 				$container.find( '.menuIndicator' ).mouseover();
 				expect( workspaceService.privateFunctions.displayMenu ).toHaveBeenCalled();
