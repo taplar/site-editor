@@ -47,8 +47,9 @@ final class Router {
 
 	private static function getContent () {
 		$content = file_get_contents("php://input");
+		$headers = getallheaders();
 
-		if ( strpos( $_SERVER[ "CONTENT_TYPE" ], "application/json;" ) !== FALSE ) {
+		if ( isset( $headers[ "content-type" ] ) && strpos( $headers[ "content-type" ], "application/json;" ) !== FALSE ) {
 			return json_decode( $content );
 		}
 
