@@ -47,10 +47,16 @@ final class Router {
 
 	private static function getContent () {
 		$content = file_get_contents("php://input");
-		$headers = getallheaders();
+		//$headers = getallheaders();
 
-		if ( isset( $headers[ "content-type" ] ) && strpos( $headers[ "content-type" ], "application/json;" ) !== FALSE ) {
-			return json_decode( $content );
+		//if ( isset( $headers[ "content-type" ] ) && strpos( $headers[ "content-type" ], "application/json;" ) !== FALSE ) {
+		//	return json_decode( $content );
+		//}
+
+		$temp = json_decode( $content );
+
+		if ( $temp !== NULL ) {
+			return $temp;
 		}
 
 		return $content;
