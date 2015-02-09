@@ -48,15 +48,21 @@ final class FilesController {
 	}
 
 	public function update ( $path, $content ) {
-		if ( count( $path ) > 1 ) {
+		if ( count( $path ) > 1 && isset( $content->action ) ) {
 			if ( strtolower( $path[ 0 ] ) == "directories" ) {
-				if ( isset( $content->action ) && $content->action == "shiftup" ) {
+				if ( $content->action == "shiftup" ) {
 					$this->filesService->moveDirectoryIntoParentDirectory( array_slice( $path, 1 ) );
-				} else {
+				} else if ( $content->action == "rename" ) {
 					$this->filesService->renameDirectory( array_slice( $path, 1 ), $content );
+				} else {
+					Http::getInstance()->badRequest();
 				}
 			} else {
-				$this->filesService->renameFile( $path, $content );
+				if ( $content->action == "rename" ) {
+					$this->filesService->renameFile( $path, $content );
+				} else {
+					Http::getInstance()->badRequest();
+				}
 			}
 		} else {
 			Http::getInstance()->badRequest();

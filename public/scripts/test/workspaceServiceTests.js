@@ -1531,7 +1531,7 @@ describe ( 'WorkspaceService', function () {
 				var $prompt = $( '<div class="prompt-container"><input type="text" id="newname"></input></div>' );
 				var fileTree = [ 'dir1', 'dir2' ];
 				var anEvent = {};
-				var input = { aKey: 'aValue' };
+				var input = 'dir3';
 				var url = 'some url'
 				var successCallback = function () {};
 				var failureCallback = function () {};
@@ -1547,15 +1547,19 @@ describe ( 'WorkspaceService', function () {
 
 				expect( ajaxService.PUT ).toHaveBeenCalled();
 
-				var args = ajaxService.PUT.calls.argsFor( 0 );
+				var args = ajaxService.PUT.calls.argsFor( 0 )[ 0 ];
 
-				expect( args[ 0 ].url ).toEqual( url + 'dir1/dir2' );
-				expect( args[ 0 ].input ).toEqual( input );
-				expect( args[ 0 ].success ).toEqual( successCallback );
-				expect( args[ 0 ][ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
-				expect( args[ 0 ][ 498 ] ).toEqual( failureCallback );
-				expect( args[ 0 ][ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
-				expect( args[ 0 ][ 500 ] ).toEqual( ajaxService.logInternalError );
+				expect( args.url ).toEqual( url + 'dir1/dir2' );
+				expect( args.contentType ).toEqual( 'json' );
+				expect( args.input ).toEqual( JSON.stringify( {
+					action: 'rename'
+					, name: input
+				} ) );
+				expect( args.success ).toEqual( successCallback );
+				expect( args[ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
+				expect( args[ 498 ] ).toEqual( failureCallback );
+				expect( args[ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
+				expect( args[ 500 ] ).toEqual( ajaxService.logInternalError );
 			} );
 
 			it ( 'Should not submit PUT on non-enter', function () {

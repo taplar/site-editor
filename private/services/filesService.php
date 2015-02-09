@@ -202,7 +202,7 @@ final class FilesService {
 
 	public function renameDirectory ( $pathArray, $content ) {
 		$oldFilename = array_pop( $pathArray );
-		$newFilename = $content;
+		$newFilename = $content->name;
 		$pathString = $this->pathExists( $pathArray );
 		$pathString = $this->editorIsNotParentOfPath( $pathString );
 		$oldPathString = $this->editorIsNotParentOfPath( $pathString . $oldFilename );
@@ -221,7 +221,7 @@ final class FilesService {
 
 	public function renameFile ( $pathArray, $content ) {
 		$oldFilename = array_pop( $pathArray );
-		$newFilename = $content;
+		$newFilename = $content->name;
 		$pathString = $this->pathExists( $pathArray );
 		$pathString = $this->editorIsNotParentOfPath( $pathString );
 

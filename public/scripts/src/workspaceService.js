@@ -451,7 +451,11 @@ var WorkspaceService = function () {
 
 					AjaxService.getInstance().PUT({
 						url: url + filepath
-						, input: input
+						, contentType: 'json'
+						, input: JSON.stringify( {
+							action: 'rename'
+							, name: input
+						} )
 						, success: successCallback
 						, 401: functions.displayLogin
 						, 498: failureCallback
