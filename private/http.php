@@ -3,13 +3,14 @@
 final class Http {
 	private static $instance;
 	private static $HTTP = "HTTP/1.0 ";
-	private static $BAD_REQUEST		= "400 Bad Request";
-	private static $UNAUTHORIZED	= "401 Unauthorized";
-	private static $NOT_FOUND		= "404 Not Found";
-	private static $DELETE_FAILURE	= "497 Delete Failure";
-	private static $INVALID_NAME	= "498 Invalid Name";
-	private static $INVALID_PATH	= "499 Invalid Path";
-	private static $INTERNAL_ERROR	= "500 Internal Error";
+	private static $MOVED_PERMANENTLY	= "301 Moved Permanently";
+	private static $BAD_REQUEST			= "400 Bad Request";
+	private static $UNAUTHORIZED		= "401 Unauthorized";
+	private static $NOT_FOUND			= "404 Not Found";
+	private static $DELETE_FAILURE		= "497 Delete Failure";
+	private static $INVALID_NAME		= "498 Invalid Name";
+	private static $INVALID_PATH		= "499 Invalid Path";
+	private static $INTERNAL_ERROR		= "500 Internal Error";
 
 	private function __clone () {
 	}
@@ -43,6 +44,10 @@ final class Http {
 
 	public function invalidPath () {
 		header( self::$HTTP . self::$INVALID_PATH );
+	}
+
+	public function movedPermanently () {
+		header( self::$HTTP . self::$MOVED_PERMANENTLY );
 	}
 
 	public function notFound () {

@@ -15,6 +15,7 @@ URL: ~/private/?p=sessions
 ```
 * HTTP Response Codes
 	* 200 - Active Session
+	* 301 - Switch to HTTPS
 	* 401 - Inactive Session
 	* 500 - Internal Error
 ```

@@ -100,9 +100,18 @@ final class Router {
 		return [];
 	}
 
+	private function requestIsNotHttps () {
+		return ( $_SERVER[ "HTTPS" ] !== "on" );
+	}
+
 	public function resolve () {
 		$requestPath = $this->parseRequestPath();
 		$sessionsController = Router::getInstanceOfClass( "SessionsController", NULL );
+
+		if ( $this->requestIsNotHttps() ) {
+			$this->http->movedPermanently();
+			return;
+		}
 
 		if ( count( $requestPath ) > 0 ) {
 			if ( $sessionsController->index( $requestPath ) ) {

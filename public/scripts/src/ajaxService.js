@@ -2,7 +2,7 @@ var AjaxService = function () {
 	var instance = null;
 
 	var buildApi = function () {
-		var errorStatusCodes = [ 401, 404, 497, 498, 499, 500 ];
+		var errorStatusCodes = [ 301, 401, 404, 497, 498, 499, 500 ];
 		var validRequestTypes = ['DELETE', 'GET', 'POST', 'PUT'];
 		var $body = $( 'body' );
 
