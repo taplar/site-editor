@@ -225,6 +225,38 @@ describe ( 'AjaxService', function () {
 				
 				expect( request.statusCode[ 500 ]() ).toEqual( 'Internal Error handler' );
 			} );
+
+			it ( 'Should ignore data type for DELETE', function () {
+				requestArgs.dataType = 'some data type';
+
+				var request = ajaxService.privateFunctions.buildRequestParameters( 'DELETE', requestArgs );
+				
+				expect( typeof request.dataType ).toEqual( 'undefined' );
+			} );
+
+			it ( 'Should ignore data type for GET', function () {
+				requestArgs.dataType = 'some data type';
+
+				var request = ajaxService.privateFunctions.buildRequestParameters( 'GET', requestArgs );
+				
+				expect( typeof request.dataType ).toEqual( 'undefined' );
+			} );
+
+			it ( 'Should build POST request with data type', function () {
+				requestArgs.dataType = 'some data type';
+
+				var request = ajaxService.privateFunctions.buildRequestParameters( 'POST', requestArgs );
+				
+				expect( request.dataType ).toEqual( requestArgs.dataType );
+			} );
+
+			it ( 'Should build PUT request with data type', function () {
+				requestArgs.dataType = 'some data type';
+
+				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
+				
+				expect( request.dataType ).toEqual( requestArgs.dataType );
+			} );
 		} );
 
 		describe ( 'ChangeMouseStateToBusy', function () {

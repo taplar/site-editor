@@ -38,6 +38,10 @@ var AjaxService = function () {
 
 				if ( requestType === 'POST' || requestType === 'PUT' ) {
 					params.data = jsonArgs.input;
+
+					if ( typeof jsonArgs.dataType !== 'undefined' ) {
+						params.dataType = jsonArgs.dataType;
+					}
 				}
 
 				for ( var i = 0; i < errorStatusCodes.length; i++ ) {
