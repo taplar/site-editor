@@ -151,7 +151,7 @@ input:focus, select:focus, textarea:focus, button:focus {
 	margin-left: 4px;
 }
 .menu > .control-container {
-	height: 25px;
+	min-height: 25px;
 
 	background-color: rgba(128, 128, 128, 0.5);
 	color: black;
