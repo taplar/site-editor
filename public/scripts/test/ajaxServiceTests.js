@@ -242,20 +242,40 @@ describe ( 'AjaxService', function () {
 				expect( typeof request.dataType ).toEqual( 'undefined' );
 			} );
 
-			it ( 'Should build POST request with data type', function () {
-				requestArgs.dataType = 'some data type';
+			it ( 'Should build POST request with data type and set content type', function () {
+				requestArgs.dataType = 'json';
 
 				var request = ajaxService.privateFunctions.buildRequestParameters( 'POST', requestArgs );
 				
 				expect( request.dataType ).toEqual( requestArgs.dataType );
+				expect( request.contentType ).toEqual( 'application/json' );
 			} );
 
-			it ( 'Should build PUT request with data type', function () {
-				requestArgs.dataType = 'some data type';
+			it ( 'Should build POST request with data type and not set content type', function () {
+				requestArgs.dataType = 'text';
+
+				var request = ajaxService.privateFunctions.buildRequestParameters( 'POST', requestArgs );
+				
+				expect( request.dataType ).toEqual( requestArgs.dataType );
+				expect( typeof request.contentType ).toEqual( 'undefined' );
+			} );
+
+			it ( 'Should build PUT request with data type and set content type', function () {
+				requestArgs.dataType = 'json';
 
 				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
 				
 				expect( request.dataType ).toEqual( requestArgs.dataType );
+				expect( request.contentType ).toEqual( 'application/json' );
+			} );
+
+			it ( 'Should build PUT request with data type and not set content type', function () {
+				requestArgs.dataType = 'text';
+
+				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
+				
+				expect( request.dataType ).toEqual( requestArgs.dataType );
+				expect( typeof request.contentType ).toEqual( 'undefined' );
 			} );
 		} );
 

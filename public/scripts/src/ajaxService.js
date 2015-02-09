@@ -41,6 +41,10 @@ var AjaxService = function () {
 
 					if ( typeof jsonArgs.dataType !== 'undefined' ) {
 						params.dataType = jsonArgs.dataType;
+
+						if ( jsonArgs.dataType === 'json' ) {
+							params.contentType = 'application/json';
+						}
 					}
 				}
 
