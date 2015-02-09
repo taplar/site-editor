@@ -166,8 +166,8 @@ final class FilesService {
 		$files = array_diff( scandir( $pathString ), array( '.', '..' ) );
 
 		foreach ( $files as $file ) {
-			if ( is_dir( $pathString ."/". $file ) ) {
-				if ( !$this->removeDirectory( $pathString . $file ) ) {
+			if ( is_dir( $pathString . $file ) ) {
+				if ( !$this->removeDirectory( $pathString . $file . "/" ) ) {
 					return false;
 				}
 			} else {
@@ -189,6 +189,7 @@ final class FilesService {
 
 	private function removeFile ( $pathString ) {
 		if ( !is_dir( realpath( $pathString ) ) ) {
+
 			unlink( realpath( $pathString ) );
 		}
 
