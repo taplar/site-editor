@@ -123,6 +123,26 @@ final class FilesService {
 		return $this->getDirectoryStructure( Config::getInstance()->rootDirectory() );
 	}
 
+	public function moveDirectoryIntoParentDirectory ( $pathArray ) {
+		$filename = array_pop( $pathArray );
+		$oldPathString = $this->pathExists( $pathArray );
+		$oldPathString = $this->editorIsNotParentOfPath( $oldPathString );
+		$oldParent = array_pop( $pathArray );
+		$pathString = $this->pathExists( $pathArray );
+		$pathString = $this->editorIsNotParentOfPath( $pathString );
+
+		if ( $pathString != NULL && $oldPathString != NULL ) {
+			if ( $this->isAValidFilename( $filename ) && file_exists( $oldPathString . $filename )
+			&& !file_exists( $pathString . $filename ) ) {
+				rename( $oldPathString . $filename, $pathString . $filename );
+			} else {
+				Http::getInstance()->invalidName();
+			}
+		} else {
+			Http::getInstance()->invalidPath();
+		}
+	}
+
 	private function pathExists ( $pathArray ) {
 		if ( !isset( $pathArray ) || !is_array( $pathArray ) || !strtolower( $pathArray[ 0 ] ) == "root" ) {
 			return NULL;

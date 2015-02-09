@@ -50,7 +50,11 @@ final class FilesController {
 	public function update ( $path, $content ) {
 		if ( count( $path ) > 1 ) {
 			if ( strtolower( $path[ 0 ] ) == "directories" ) {
-				$this->filesService->renameDirectory( array_slice( $path, 1 ), $content );
+				if ( isset( $content->action ) && $content->action == "shiftup" ) {
+					$this->filesService->moveDirectoryIntoParentDirectory( array_slice( $path, 1 ) );
+				} else {
+					$this->filesService->renameDirectory( array_slice( $path, 1 ), $content );
+				}
 			} else {
 				$this->filesService->renameFile( $path, $content );
 			}

@@ -226,55 +226,51 @@ describe ( 'AjaxService', function () {
 				expect( request.statusCode[ 500 ]() ).toEqual( 'Internal Error handler' );
 			} );
 
-			it ( 'Should ignore data type for DELETE', function () {
-				requestArgs.dataType = 'some data type';
+			it ( 'Should ignore content type for DELETE', function () {
+				requestArgs.contentType = 'json';
 
 				var request = ajaxService.privateFunctions.buildRequestParameters( 'DELETE', requestArgs );
 				
-				expect( typeof request.dataType ).toEqual( 'undefined' );
-			} );
-
-			it ( 'Should ignore data type for GET', function () {
-				requestArgs.dataType = 'some data type';
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'GET', requestArgs );
-				
-				expect( typeof request.dataType ).toEqual( 'undefined' );
-			} );
-
-			it ( 'Should build POST request with data type and set content type', function () {
-				requestArgs.dataType = 'json';
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'POST', requestArgs );
-				
-				expect( request.dataType ).toEqual( requestArgs.dataType );
-				expect( request.contentType ).toEqual( 'application/json' );
-			} );
-
-			it ( 'Should build POST request with data type and not set content type', function () {
-				requestArgs.dataType = 'text';
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'POST', requestArgs );
-				
-				expect( request.dataType ).toEqual( requestArgs.dataType );
 				expect( typeof request.contentType ).toEqual( 'undefined' );
 			} );
 
-			it ( 'Should build PUT request with data type and set content type', function () {
-				requestArgs.dataType = 'json';
+			it ( 'Should ignore content type for GET', function () {
+				requestArgs.contentType = 'json';
 
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
+				var request = ajaxService.privateFunctions.buildRequestParameters( 'GET', requestArgs );
 				
-				expect( request.dataType ).toEqual( requestArgs.dataType );
+				expect( typeof request.contentType ).toEqual( 'undefined' );
+			} );
+
+			it ( 'Should build POST request with content type', function () {
+				requestArgs.contentType = 'json';
+
+				var request = ajaxService.privateFunctions.buildRequestParameters( 'POST', requestArgs );
+				
 				expect( request.contentType ).toEqual( 'application/json' );
 			} );
 
-			it ( 'Should build PUT request with data type and not set content type', function () {
-				requestArgs.dataType = 'text';
+			it ( 'Should build POST request without content type', function () {
+				requestArgs.contentType = 'text';
+
+				var request = ajaxService.privateFunctions.buildRequestParameters( 'POST', requestArgs );
+				
+				expect( typeof request.contentType ).toEqual( 'undefined' );
+			} );
+
+			it ( 'Should build PUT request with content type', function () {
+				requestArgs.contentType = 'json';
 
 				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
 				
-				expect( request.dataType ).toEqual( requestArgs.dataType );
+				expect( request.contentType ).toEqual( 'application/json' );
+			} );
+
+			it ( 'Should build PUT request without content type', function () {
+				requestArgs.contentType = 'text';
+
+				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
+				
 				expect( typeof request.contentType ).toEqual( 'undefined' );
 			} );
 		} );

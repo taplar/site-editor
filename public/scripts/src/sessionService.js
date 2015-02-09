@@ -6,9 +6,12 @@ var SessionService = function () {
 
 		var functions = {
 			buildLoginForm: function ( data ) {
-				$container.html( data );
-				$( '#userid, #password' ).keyup( functions.submitLoginOnEnter );
-				$( '#userid' ).focus();
+				var $fragment = $( data );
+
+				$container.children().remove();
+				$fragment.appendTo( $container );
+				$fragment.find( '#userid, #password' ).keyup( functions.submitLoginOnEnter );
+				$fragment.find( '#userid' ).focus();
 			}
 			, loginFailure: function () {
 				LoggingService.getInstance().displayError( 'Invalid Credentials' );

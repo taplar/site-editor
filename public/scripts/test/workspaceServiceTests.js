@@ -201,6 +201,25 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'BuildMoveUpDirectory', function () {
+			it ( 'Should use private function', function () {
+				var data = { somekey: 'somevalue' };
+				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildDelete' );
+
+				workspaceService.privateFunctions.buildMoveUpDirectory( data, fileTreeArray );
+
+				expect( workspaceService.privateFunctions.buildDelete ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.buildDelete.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( data );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+				expect( args[ 2 ] ).toEqual( workspaceService.privateFunctions.moveUpDirectory );
+			} );
+		} );
+
 		describe ( 'BuildNew', function () {
 			it ( 'Should build prompt and bind close and submit actions', function () {
 				var data = [
@@ -689,6 +708,35 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'DisplayMoveUpDirectory', function () {
+			it ( 'Should use private function', function () {
+				var fileTreeArray = [ 'file1', 'file2', 'file3' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
+				spyOn( workspaceService.privateFunctions, 'buildMoveUpDirectory' );
+				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
+
+				workspaceService.privateFunctions.displayMoveUpDirectory();
+
+				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( './public/views/moveUpDirectory.view' );
+
+				var successCallback = args[ 1 ];
+
+				expect( workspaceService.privateFunctions.buildMoveUpDirectory ).not.toHaveBeenCalled();
+				successCallback( 'some data' );
+				expect( workspaceService.privateFunctions.buildMoveUpDirectory ).toHaveBeenCalled();
+
+				args = workspaceService.privateFunctions.buildMoveUpDirectory.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'some data' );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+			} );
+		} );
+
 		describe ( 'DisplayNewDirectory', function () {
 			it ( 'Should use private function', function () {
 				var fileTreeArray = [ 'file1', 'file2', 'file3' ];
@@ -844,6 +892,7 @@ describe ( 'WorkspaceService', function () {
 				spyOn( workspaceService.privateFunctions, 'displayNewDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayDeleteDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayRenameDirectory' );
+				spyOn( workspaceService.privateFunctions, 'displayMoveUpDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayNewFile' );
 
 				var $ul = $( '<ul>' );
@@ -864,6 +913,7 @@ describe ( 'WorkspaceService', function () {
 							+ '<i class="fa fa-file file"></i>'
 							+ '<i class="fa fa-plus plus"></i>'
 						+ '</span>'
+						+ '<i class="fa fa-level-up move move-up-directory" title="Move Up"></i>'
 						+ '<i class="fa fa-times delete delete-directory" title="Delete"></i>'
 						+ '<ul></ul>'
 					+ '</li>'
@@ -891,6 +941,10 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.displayRenameDirectory ).not.toHaveBeenCalled();
 				$ul.find( '.rename-directory' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.displayRenameDirectory ).toHaveBeenCalled();
+
+				expect( workspaceService.privateFunctions.displayMoveUpDirectory ).not.toHaveBeenCalled();
+				$ul.find( '.move-up-directory' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.displayMoveUpDirectory ).toHaveBeenCalled();
 			} );
 		} );
 
@@ -1166,6 +1220,61 @@ describe ( 'WorkspaceService', function () {
 				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.argsFor( 0 );
 
 				expect( args[ 0 ] ).toEqual( 'Parent directory no longer exists or has restricted access' );
+			} );
+		} );
+
+		describe ( 'MoveUpDirectory', function () {
+			it ( 'Should submit PUT request', function () {
+				var $prompt = $( '<div class="prompt-container"></div>' );
+				var fileTree = [ 'dir1', 'dir2', 'dir777' ];
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.appendTo( $container );
+
+				spyOn( ajaxService, 'PUT' );
+
+				workspaceService.privateFunctions.moveUpDirectory();
+
+				expect( ajaxService.PUT ).toHaveBeenCalled();
+
+				var args = ajaxService.PUT.calls.argsFor( 0 )[ 0 ];
+
+				expect( args.url ).toEqual( './private/?p=files/directories/dir1/dir2/dir777' );
+				expect( args.contentType ).toEqual( 'json' );
+				expect( args.input ).toEqual( JSON.stringify( { action: 'shiftup' } ) );
+				expect( args.success ).toEqual( workspaceService.privateFunctions.moveUpDirectorySuccess );
+				expect( args[ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
+				expect( args[ 498 ] ).toEqual( workspaceService.privateFunctions.moveUpDirectoryFailure );
+				expect( args[ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
+				expect( args[ 500 ] ).toEqual( ajaxService.logInternalError );
+			} );
+		} );
+
+		describe ( 'MoveUpDirectoryFailure', function () {
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithError' );
+
+				workspaceService.privateFunctions.moveUpDirectoryFailure();
+
+				expect( workspaceService.privateFunctions.closeMenuPromptWithError ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'Directory not moved' );
+			} );
+		} );
+
+		describe ( 'MoveUpDirectorySuccess', function () {
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithSuccess' );
+
+				workspaceService.privateFunctions.moveUpDirectorySuccess();
+
+				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'Directory moved' );
 			} );
 		} );
 

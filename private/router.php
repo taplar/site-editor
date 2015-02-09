@@ -24,7 +24,7 @@ final class Router {
 		$controller = ucwords( strtolower( $path[ 0 ] ) ."Controller" );
 		$controller = Router::getInstanceOfClass( $controller, NULL );
 		$path = array_splice( $path, 1 );
-		$content = file_get_contents('php://input');
+		$content = Router::getContent();
 
 		switch ( strtoupper( $_SERVER[ "REQUEST_METHOD" ] ) ) {
 			case "DELETE":
@@ -43,6 +43,16 @@ final class Router {
 				$this->http->badRequest();
 				break;
 		}
+	}
+
+	private static function getContent () {
+		$content = file_get_contents("php://input");
+
+		if ( strpos( $_SERVER[ "CONTENT_TYPE" ], "application/json;" ) !== FALSE ) {
+			return json_decode( $content );
+		}
+
+		return $content;
 	}
 
 	public static function getInstanceOfClass ( $className, $params ) {

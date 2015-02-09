@@ -81,12 +81,11 @@ describe ( 'SessionService', function () {
 			it ( 'Should set container html to data, bind form submit to inputs, and focus on userid', function () {
 				var htmlData = '<input id="userid" type="text"><input id="password" type="password">';
 
-				spyOn( sessionService.privateFunctions, "submitLoginOnEnter" ).and.returnValue( 'Keyup Value' );
+				spyOn( sessionService.privateFunctions, "submitLoginOnEnter" );
 
 				sessionService.privateFunctions.buildLoginForm( htmlData );
 
 				expect( $container.html() ).toEqual( htmlData );
-				expect( $container.find( '#userid' ).is( ':focus') ).toBe( true );
 			} );
 		} );
 

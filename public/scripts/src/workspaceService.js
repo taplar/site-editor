@@ -65,7 +65,7 @@ var WorkspaceService = function () {
 				$menu.find( '.search-container .pattern' ).keyup( functions.filterMenu );
 				$menu.find( '.search-container .pattern' ).focus();
 			}
-			, buildMoveUpDirectory: function ( data, fileTreeArray ) { //TODO: TEST THIS
+			, buildMoveUpDirectory: function ( data, fileTreeArray ) {
 				functions.buildDelete( data, fileTreeArray, functions.moveUpDirectory );
 			}
 			, buildNew: function ( data, fileTreeArray, inputField, actionCallback ) {
@@ -222,7 +222,7 @@ var WorkspaceService = function () {
 			, displayMenu: function () {
 				functions.displayStaticResource( './public/views/menu.view', functions.buildMenu );
 			}
-			, displayMoveUpDirectory: function () { //TODO: TEST THIS
+			, displayMoveUpDirectory: function () {
 				var fileTree = functions.buildFileTreeArray( $( this ) );
 				var successCallback = function ( data ) {
 					functions.buildMoveUpDirectory( data, fileTree );
@@ -298,7 +298,7 @@ var WorkspaceService = function () {
 						.append( $( '<i class="fa fa-file file">' ) )
 						.append( $( '<i class="fa fa-plus plus">' ) )
 					.end()
-					.append( $( '<i class="fa fa-level-up move move-up-directory" title="Move Up">' ) ) //TODO: TEST THIS
+					.append( $( '<i class="fa fa-level-up move move-up-directory" title="Move Up">' ) )
 					.append( $( '<i class="fa fa-times delete delete-directory" title="Delete">' ) )
 					.append( $sublist )
 					.appendTo( $directory );
@@ -307,7 +307,7 @@ var WorkspaceService = function () {
 				$listItem.find( '> .new-directory' ).click( functions.displayNewDirectory );
 				$listItem.find( '> .delete-directory' ).click( functions.displayDeleteDirectory );
 				$listItem.find( '> .rename-directory' ).click( functions.displayRenameDirectory );
-				$listItem.find( '> .move-up-directory' ).click( functions.displayMoveUpDirectory ); //TODO: TEST THIS
+				$listItem.find( '> .move-up-directory' ).click( functions.displayMoveUpDirectory );
 				$listItem.find( '> .new-file' ).click( functions.displayNewFile );
 			}
 			, filterMenu: function ( event ) {
@@ -368,23 +368,24 @@ var WorkspaceService = function () {
 			, invalidReference: function ( data ) {
 				functions.closeMenuPromptWithError( 'Parent directory no longer exists or has restricted access' );
 			}
-			, moveUpDirectory: function () { //TODO: TEST THIS
-					var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
+			, moveUpDirectory: function () {
+				var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
 
-					AjaxService.getInstance().POST({
-						url: './private/?p=files/directories/'+ filepath
-						, input: { }
-						, success: functions.moveUpDirectorySuccess
-						, 401: functions.displayLogin
-						, 498: functions.moveUpDirectoryFailure
-						, 499: functions.invalidReference
-						, 500: AjaxService.getInstance().logInternalError
-					});
+				AjaxService.getInstance().PUT({
+					url: './private/?p=files/directories/'+ filepath
+					, contentType: 'json'
+					, input: JSON.stringify ( { action: 'shiftup' } )
+					, success: functions.moveUpDirectorySuccess
+					, 401: functions.displayLogin
+					, 498: functions.moveUpDirectoryFailure
+					, 499: functions.invalidReference
+					, 500: AjaxService.getInstance().logInternalError
+				});
 			}
-			, moveUpDirectoryFailure: function ( data ) { //TODO: TEST THIS
+			, moveUpDirectoryFailure: function ( data ) {
 				functions.closeMenuPromptWithError( 'Directory not moved' );
 			}
-			, moveUpDirectorySuccess: function ( data ) { //TODO: TEST THIS
+			, moveUpDirectorySuccess: function ( data ) {
 				functions.closeMenuPromptWithSuccess( 'Directory moved' );
 			}
 			, newDirectoryFailure: function ( data ) {
