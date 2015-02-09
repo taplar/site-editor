@@ -10,9 +10,6 @@ var SessionService = function () {
 				$( '#userid, #password' ).keyup( functions.submitLoginOnEnter );
 				$( '#userid' ).focus();
 			}
-			, httpsRequired: function () {
-				LoggingService.getInstance().displayError( 'HTTPS Required.  Please switch protocols.' );
-			}
 			, loginFailure: function () {
 				LoggingService.getInstance().displayError( 'Invalid Credentials' );
 			}
@@ -57,7 +54,6 @@ var SessionService = function () {
 				AjaxService.getInstance().GET({
 					url: './private/?p=sessions'
 					, success: WorkspaceService.getInstance().displayWorkspace
-					, 301: functions.httpsRequired
 					, 401: api.displayLogin
 					, 500: LoggingService.getInstance().logInternalError
 				});

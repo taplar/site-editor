@@ -3,7 +3,6 @@
 final class Http {
 	private static $instance;
 	private static $HTTP = "HTTP/1.0 ";
-	private static $MOVED_PERMANENTLY	= "301 Moved Permanently";
 	private static $BAD_REQUEST			= "400 Bad Request";
 	private static $UNAUTHORIZED		= "401 Unauthorized";
 	private static $NOT_FOUND			= "404 Not Found";
@@ -44,10 +43,6 @@ final class Http {
 
 	public function invalidPath () {
 		header( self::$HTTP . self::$INVALID_PATH );
-	}
-
-	public function movedPermanently () {
-		header( self::$HTTP . self::$MOVED_PERMANENTLY );
 	}
 
 	public function notFound () {
