@@ -38,55 +38,22 @@ describe ( 'WorkspaceService', function () {
 	} );
 
 	describe ( 'PrivateFunctions', function () {
-		describe ( 'BuildDelete', function () {
-			it ( 'Should build delete prompt and bind actions', function () {
-				var data = [
-					'<div class="prompt-container">'
-						, '<div class="content">'
-							, '<div class="file-path"></div>'
-							, '<button class="prompt-yes"></button>'
-							, '<button class="prompt-no"></button>'
-						, '</div>'
-					, '</div>'
-				];
-				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
-				workspaceService.privateFunctions.someRandomConfirmationCallback = function() {};
-
-				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
-				spyOn( workspaceService.privateFunctions, 'someRandomConfirmationCallback' );
-
-				workspaceService.privateFunctions.buildDelete( data.join( '' ), fileTreeArray, workspaceService.privateFunctions.someRandomConfirmationCallback );
-
-				expect( $container.find( '.prompt-container' ).length ).toEqual( 1 );
-				expect( $container.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/') );
-				expect( $container.find( '.prompt-container' ).prop( 'fileTree' ) ).toEqual( fileTreeArray );
-				expect( workspaceService.privateFunctions.closePromptContainer.calls.count() ).toEqual( 1 );
-
-				expect( workspaceService.privateFunctions.someRandomConfirmationCallback ).not.toHaveBeenCalled();
-				$container.find( '.prompt-container .prompt-yes' ).trigger( 'click' );
-				expect( workspaceService.privateFunctions.someRandomConfirmationCallback ).toHaveBeenCalled();
-
-				$container.find( '.prompt-container .prompt-no' ).trigger( 'click' );
-				expect( workspaceService.privateFunctions.closePromptContainer.calls.count() ).toEqual( 2 );
-			} );
-		} );
-
 		describe ( 'BuildDeleteDirectory', function () {
 			it ( 'Should use private function', function () {
 				var data = { somekey: 'somevalue' };
 				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
 
-				spyOn( workspaceService.privateFunctions, 'buildDelete' );
+				spyOn( workspaceService.privateFunctions, 'buildPromptWithConfirmation' );
 
 				workspaceService.privateFunctions.buildDeleteDirectory( data, fileTreeArray );
 
-				expect( workspaceService.privateFunctions.buildDelete ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildDelete.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.argsFor( 0 )[ 0 ];
 
-				expect( args[ 0 ] ).toEqual( data );
-				expect( args[ 1 ] ).toEqual( fileTreeArray );
-				expect( args[ 2 ] ).toEqual( workspaceService.privateFunctions.deleteDirectory );
+				expect( args.data ).toEqual( data );
+				expect( args.fileTreeArray ).toEqual( fileTreeArray );
+				expect( args.confirmationCallback ).toEqual( workspaceService.privateFunctions.deleteDirectory );
 			} );
 		} );
 
@@ -95,17 +62,17 @@ describe ( 'WorkspaceService', function () {
 				var data = { somekey: 'somevalue' };
 				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
 
-				spyOn( workspaceService.privateFunctions, 'buildDelete' );
+				spyOn( workspaceService.privateFunctions, 'buildPromptWithConfirmation' );
 
 				workspaceService.privateFunctions.buildDeleteFile( data, fileTreeArray );
 
-				expect( workspaceService.privateFunctions.buildDelete ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildDelete.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.argsFor( 0 )[ 0 ];
 
-				expect( args[ 0 ] ).toEqual( data );
-				expect( args[ 1 ] ).toEqual( fileTreeArray );
-				expect( args[ 2 ] ).toEqual( workspaceService.privateFunctions.deleteFile );
+				expect( args.data ).toEqual( data );
+				expect( args.fileTreeArray ).toEqual( fileTreeArray );
+				expect( args.confirmationCallback ).toEqual( workspaceService.privateFunctions.deleteFile );
 			} );
 		} );
 
@@ -206,17 +173,17 @@ describe ( 'WorkspaceService', function () {
 				var data = { somekey: 'somevalue' };
 				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
 
-				spyOn( workspaceService.privateFunctions, 'buildDelete' );
+				spyOn( workspaceService.privateFunctions, 'buildPromptWithConfirmation' );
 
 				workspaceService.privateFunctions.buildMoveUpDirectory( data, fileTreeArray );
 
-				expect( workspaceService.privateFunctions.buildDelete ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildDelete.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.argsFor( 0 )[ 0 ];
 
-				expect( args[ 0 ] ).toEqual( data );
-				expect( args[ 1 ] ).toEqual( fileTreeArray );
-				expect( args[ 2 ] ).toEqual( workspaceService.privateFunctions.moveUpDirectory );
+				expect( args.data ).toEqual( data );
+				expect( args.fileTreeArray ).toEqual( fileTreeArray );
+				expect( args.confirmationCallback ).toEqual( workspaceService.privateFunctions.moveUpDirectory );
 			} );
 		} );
 
@@ -225,17 +192,17 @@ describe ( 'WorkspaceService', function () {
 				var data = { somekey: 'somevalue' };
 				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
 
-				spyOn( workspaceService.privateFunctions, 'buildDelete' );
+				spyOn( workspaceService.privateFunctions, 'buildPromptWithConfirmation' );
 
 				workspaceService.privateFunctions.buildMoveUpFile( data, fileTreeArray );
 
-				expect( workspaceService.privateFunctions.buildDelete ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildDelete.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.argsFor( 0 )[ 0 ];
 
-				expect( args[ 0 ] ).toEqual( data );
-				expect( args[ 1 ] ).toEqual( fileTreeArray );
-				expect( args[ 2 ] ).toEqual( workspaceService.privateFunctions.moveUpFile );
+				expect( args.data ).toEqual( data );
+				expect( args.fileTreeArray ).toEqual( fileTreeArray );
+				expect( args.confirmationCallback ).toEqual( workspaceService.privateFunctions.moveUpFile );
 			} );
 		} );
 
@@ -273,18 +240,18 @@ describe ( 'WorkspaceService', function () {
 				var data = { somekey: "somevalue" };
 				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
 
-				spyOn( workspaceService.privateFunctions, 'buildNew' );
+				spyOn( workspaceService.privateFunctions, 'buildPromptWithoutConfirmation' );
 
 				workspaceService.privateFunctions.buildNewDirectory( data, fileTreeArray );
 
-				expect( workspaceService.privateFunctions.buildNew ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.buildPromptWithoutConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildNew.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.buildPromptWithoutConfirmation.calls.argsFor( 0 )[ 0 ];
 
-				expect( args[ 0 ] ).toEqual( data );
-				expect( args[ 1 ] ).toEqual( fileTreeArray );
-				expect( args[ 2 ] ).toEqual( '#newdirectory' );
-				expect( args[ 3 ] ).toEqual( workspaceService.privateFunctions.submitNewDirectoryOnEnter );
+				expect( args.data ).toEqual( data );
+				expect( args.fileTreeArray ).toEqual( fileTreeArray );
+				expect( args.inputField ).toEqual( '#newdirectory' );
+				expect( args.confirmationCallback ).toEqual( workspaceService.privateFunctions.submitNewDirectoryOnEnter );
 			} );
 		} );
 
@@ -293,53 +260,176 @@ describe ( 'WorkspaceService', function () {
 				var data = { somekey: "somevalue" };
 				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
 
-				spyOn( workspaceService.privateFunctions, 'buildNew' );
+				spyOn( workspaceService.privateFunctions, 'buildPromptWithoutConfirmation' );
 
 				workspaceService.privateFunctions.buildNewFile( data, fileTreeArray );
 
-				expect( workspaceService.privateFunctions.buildNew ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.buildPromptWithoutConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildNew.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.buildPromptWithoutConfirmation.calls.argsFor( 0 )[ 0 ];
 
-				expect( args[ 0 ] ).toEqual( data );
-				expect( args[ 1 ] ).toEqual( fileTreeArray );
-				expect( args[ 2 ] ).toEqual( '#newfile' );
-				expect( args[ 3 ] ).toEqual( workspaceService.privateFunctions.submitNewFileOnEnter );
+				expect( args.data ).toEqual( data );
+				expect( args.fileTreeArray ).toEqual( fileTreeArray );
+				expect( args.inputField ).toEqual( '#newfile' );
+				expect( args.confirmationCallback ).toEqual( workspaceService.privateFunctions.submitNewFileOnEnter );
 			} );
 		} );
 
-		describe ( 'BuildRename', function () {
-			it ( 'Should build prompt and bind close and submit actions', function () {
-				var data = [
-					'<div class="prompt-container">'
-						,'<div class="file-path"></div>'
-						,'<div class="file-path"></div>'
-						,'<div class="old-name"></div>'
-						,'<div><i class="close" /></div>'
-						,'<div><input type="text" id="newobject" /></div>'
-					,'</div>'
-				];
-				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
+		describe ( 'BuildPromptWithConfirmation', function () {
+			beforeEach ( function () {
+				fileTreeArray = [ 'public', 'css', 'index.css' ];
 
-				workspaceService.privateFunctions.someRandomConfirmationCallback = function () {};
+				$fragment = $( [
+					'<div>'
+						, '<div class="prompt-container">'
+							, '<span class="file-path"></span>'
+							, '<input class="prompt-yes"></input>'
+							, '<input class="prompt-no"></input>'
+						, '</div>'
+					, '</div>'
+				].join( '' ) );
 
-				spyOn( workspaceService.privateFunctions, 'someRandomConfirmationCallback' );
+				testCallbacks = {
+					confirmationCallback: function () {}
+					, customSetup: function () {}
+				};
 
-				workspaceService.privateFunctions.buildRename( data.join( '' )
-					, fileTreeArray
-					, '#newobject'
-					, workspaceService.privateFunctions.someRandomConfirmationCallback );
+				spyOn( testCallbacks, 'confirmationCallback' );
+				spyOn( testCallbacks, 'customSetup' );
+				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
+			} );
 
-				expect( $container.find( '> .prompt-container' ).length ).toEqual( 1 );
-				expect( $container.find( '.file-path' ).html() ).toEqual( fileTreeArray.slice(0, -1).join( '/' ) +'/' );
-				expect( $container.find( '.old-name' ).html() ).toEqual( fileTreeArray.slice( -1 )[ 0 ] );
+			it ( 'Should build prompt, bind actions, and perform custom setup', function () {
+				workspaceService.privateFunctions.buildPromptWithConfirmation( {
+					data: $fragment.html()
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: testCallbacks.confirmationCallback
+					, customSetup: testCallbacks.customSetup
+				} );
 
-				expect( workspaceService.privateFunctions.someRandomConfirmationCallback ).not.toHaveBeenCalled();
-				$container.find( '#newobject' ).trigger( 'keyup' );
-				expect( workspaceService.privateFunctions.someRandomConfirmationCallback ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
 
-				$container.find( '.close' ).click();
-				expect( $container.find( '> .prompt-container' ).length ).toEqual( 0 );
+				var $prompt = $container.find( '.prompt-container' );
+
+				expect( $prompt.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/' ) );
+				expect( $prompt.prop( 'fileTree' ) ).toEqual( fileTreeArray );
+				expect( $prompt.is( ':visible' ) ).toBe( true );
+
+				expect( testCallbacks.confirmationCallback ).not.toHaveBeenCalled();
+				$prompt.find( '.prompt-yes' ).trigger( 'click' );
+				expect( testCallbacks.confirmationCallback ).toHaveBeenCalled();
+
+				workspaceService.privateFunctions.closePromptContainer.calls.reset();
+				expect( workspaceService.privateFunctions.closePromptContainer ).not.toHaveBeenCalled();
+				$prompt.find( '.prompt-no' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
+
+				expect( testCallbacks.customSetup ).toHaveBeenCalled();
+			} );
+
+			it ( 'Should build prompt, bind actions', function () {
+				workspaceService.privateFunctions.buildPromptWithConfirmation( {
+					data: $fragment.html()
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: testCallbacks.confirmationCallback
+				} );
+
+				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
+
+				var $prompt = $container.find( '.prompt-container' );
+
+				expect( $prompt.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/' ) );
+				expect( $prompt.prop( 'fileTree' ) ).toEqual( fileTreeArray );
+				expect( $prompt.is( ':visible' ) ).toBe( true );
+
+				expect( testCallbacks.confirmationCallback ).not.toHaveBeenCalled();
+				$prompt.find( '.prompt-yes' ).trigger( 'click' );
+				expect( testCallbacks.confirmationCallback ).toHaveBeenCalled();
+
+				workspaceService.privateFunctions.closePromptContainer.calls.reset();
+				expect( workspaceService.privateFunctions.closePromptContainer ).not.toHaveBeenCalled();
+				$prompt.find( '.prompt-no' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
+			} );
+		} );
+
+		describe ( 'BuildPromptWithoutConfirmation', function () {
+			beforeEach ( function () {
+				fileTreeArray = [ 'public', 'css', 'index.css' ];
+
+				$fragment = $( [
+					'<div>'
+						, '<div class="prompt-container">'
+							, '<i class="close"></i>'
+							, '<span class="file-path"></span>'
+							, '<input id="inputfield"></input>'
+						, '</div>'
+					, '</div>'
+				].join( '' ) );
+
+				testCallbacks = {
+					confirmationCallback: function () {}
+					, customSetup: function () {}
+				};
+
+				spyOn( testCallbacks, 'confirmationCallback' );
+				spyOn( testCallbacks, 'customSetup' );
+				spyOn( workspaceService.privateFunctions, 'closePromptContainer' );
+			} );
+
+			it ( 'Should build prompt, bind actions, and perform custom setup', function () {
+				workspaceService.privateFunctions.buildPromptWithoutConfirmation( {
+					data: $fragment.html()
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: testCallbacks.confirmationCallback
+					, customSetup: testCallbacks.customSetup
+					, inputField: '#inputfield'
+				} );
+
+				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
+
+				var $prompt = $container.find( '.prompt-container' );
+
+				expect( $prompt.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/' ) );
+				expect( $prompt.prop( 'fileTree' ) ).toEqual( fileTreeArray );
+				expect( $prompt.is( ':visible' ) ).toBe( true );
+
+				expect( testCallbacks.confirmationCallback ).not.toHaveBeenCalled();
+				$prompt.find( '#inputfield' ).trigger( 'keyup' );
+				expect( testCallbacks.confirmationCallback ).toHaveBeenCalled();
+
+				workspaceService.privateFunctions.closePromptContainer.calls.reset();
+				expect( workspaceService.privateFunctions.closePromptContainer ).not.toHaveBeenCalled();
+				$prompt.find( '.close' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
+
+				expect( testCallbacks.customSetup ).toHaveBeenCalled();
+			} );
+
+			it ( 'Should build prompt, bind actions', function () {
+				workspaceService.privateFunctions.buildPromptWithoutConfirmation( {
+					data: $fragment.html()
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: testCallbacks.confirmationCallback
+					, inputField: '#inputfield'
+				} );
+
+				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
+
+				var $prompt = $container.find( '.prompt-container' );
+
+				expect( $prompt.find( '.file-path' ).html() ).toEqual( fileTreeArray.join( '/' ) );
+				expect( $prompt.prop( 'fileTree' ) ).toEqual( fileTreeArray );
+				expect( $prompt.is( ':visible' ) ).toBe( true );
+
+				expect( testCallbacks.confirmationCallback ).not.toHaveBeenCalled();
+				$prompt.find( '#inputfield' ).trigger( 'keyup' );
+				expect( testCallbacks.confirmationCallback ).toHaveBeenCalled();
+
+				workspaceService.privateFunctions.closePromptContainer.calls.reset();
+				expect( workspaceService.privateFunctions.closePromptContainer ).not.toHaveBeenCalled();
+				$prompt.find( '.close' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
 			} );
 		} );
 
@@ -348,18 +438,18 @@ describe ( 'WorkspaceService', function () {
 				var data = { aKey: 'aValue' };
 				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
 
-				spyOn( workspaceService.privateFunctions, 'buildRename' );
+				spyOn( workspaceService.privateFunctions, 'buildPromptWithoutConfirmation' );
 
 				workspaceService.privateFunctions.buildRenameDirectory( data, fileTreeArray );
 
-				expect( workspaceService.privateFunctions.buildRename ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.buildPromptWithoutConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildRename.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.buildPromptWithoutConfirmation.calls.argsFor( 0 )[ 0 ];
 
-				expect( args[ 0 ] ).toEqual( data );
-				expect( args[ 1 ] ).toEqual( fileTreeArray );
-				expect( args[ 2 ] ).toEqual( '#newdirectory' );
-				expect( args[ 3 ] ).toEqual( workspaceService.privateFunctions.submitRenameDirectoryOnEnter );
+				expect( args.data ).toEqual( data );
+				expect( args.fileTreeArray ).toEqual( fileTreeArray );
+				expect( args.inputField ).toEqual( '#newdirectory' );
+				expect( args.confirmationCallback ).toEqual( workspaceService.privateFunctions.submitRenameDirectoryOnEnter );
 			} );
 		} );
 
@@ -368,18 +458,18 @@ describe ( 'WorkspaceService', function () {
 				var data = { aKey: 'aValue' };
 				var fileTreeArray = [ 'dir1', 'dir2', 'file1' ];
 
-				spyOn( workspaceService.privateFunctions, 'buildRename' );
+				spyOn( workspaceService.privateFunctions, 'buildPromptWithoutConfirmation' );
 
 				workspaceService.privateFunctions.buildRenameFile( data, fileTreeArray );
 
-				expect( workspaceService.privateFunctions.buildRename ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.buildPromptWithoutConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildRename.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.buildPromptWithoutConfirmation.calls.argsFor( 0 )[ 0 ];
 
-				expect( args[ 0 ] ).toEqual( data );
-				expect( args[ 1 ] ).toEqual( fileTreeArray );
-				expect( args[ 2 ] ).toEqual( '#newfile' );
-				expect( args[ 3 ] ).toEqual( workspaceService.privateFunctions.submitRenameFileOnEnter );
+				expect( args.data ).toEqual( data );
+				expect( args.fileTreeArray ).toEqual( fileTreeArray );
+				expect( args.inputField ).toEqual( '#newfile' );
+				expect( args.confirmationCallback ).toEqual( workspaceService.privateFunctions.submitRenameFileOnEnter );
 			} );
 		} );
 

@@ -6,25 +6,19 @@ var WorkspaceService = function () {
 		var $menu = $( '.menu' );
 
 		var functions = {
-			buildDelete: function ( data, fileTreeArray, confirmationCallback ) {
-				var $prompt = $( data );
-
-				$prompt.find( '.file-path' ).html( fileTreeArray.join( '/' ) );
-				$prompt.prop( 'fileTree', fileTreeArray );
-
-				functions.closePromptContainer();
-				$prompt.appendTo( $container );
-
-				var $promptContainer = $container.find( '.prompt-container .content' );
-
-				$promptContainer.find( '.prompt-yes' ).click( confirmationCallback );
-				$promptContainer.find( '.prompt-no' ).click( functions.closePromptContainer );
-			}
-			, buildDeleteDirectory: function ( data, fileTreeArray ) {
-				functions.buildDelete( data, fileTreeArray, functions.deleteDirectory );
+			buildDeleteDirectory: function ( data, fileTreeArray ) {
+				functions.buildPromptWithConfirmation( {
+					data: data
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: functions.deleteDirectory
+				} );
 			}
 			, buildDeleteFile: function ( data, fileTreeArray ) {
-				functions.buildDelete( data, fileTreeArray, functions.deleteFile );
+				functions.buildPromptWithConfirmation( {
+					data: data
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: functions.deleteFile
+				} );
 			}
 			, buildFilesystem: function ( data ) {
 				var $ul = $( '<ul class="root-list">' );
@@ -66,51 +60,117 @@ var WorkspaceService = function () {
 				$menu.find( '.search-container .pattern' ).focus();
 			}
 			, buildMoveUpDirectory: function ( data, fileTreeArray ) {
-				functions.buildDelete( data, fileTreeArray, functions.moveUpDirectory );
+				functions.buildPromptWithConfirmation( {
+					data: data
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: functions.moveUpDirectory
+				} );
 			}
 			, buildMoveUpFile: function ( data, fileTreeArray ) {
-				functions.buildDelete( data, fileTreeArray, functions.moveUpFile );
+				functions.buildPromptWithConfirmation( {
+					data: data
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: functions.moveUpFile
+				} );
 			}
 			, buildNew: function ( data, fileTreeArray, inputField, actionCallback ) {
-				var $prompt = $( data );
-
-				$prompt.find( '.file-path' ).html( fileTreeArray.join( '/' ) +'/' );
-				$prompt.prop( 'fileTree', fileTreeArray );
-
-				functions.closePromptContainer();
-				$prompt.appendTo( $container );
-
-				$prompt.find( '.close' ).click( functions.closePromptContainer );
-				$prompt.find( inputField ).keyup( actionCallback );
-				$prompt.find( inputField ).focus();
+				functions.buildPromptWithoutConfirmation( {
+					data: data
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: actionCallback
+					, inputField: inputField
+					, customSetup: function ( $prompt ) {
+						var $filepath = $prompt.find( '.file-path' );
+						$filepath.html( $filepath.html() +'/' );
+					}
+				});
 			}
 			, buildNewDirectory: function ( data, fileTreeArray ) {
-				functions.buildNew( data, fileTreeArray, '#newdirectory'
-					, functions.submitNewDirectoryOnEnter );
+				functions.buildPromptWithoutConfirmation( {
+					data: data
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: functions.submitNewDirectoryOnEnter
+					, inputField: '#newdirectory'
+					, customSetup: function ( $prompt ) {
+						var $filepath = $prompt.find( '.file-path' );
+						$filepath.html( $filepath.html() +'/' );
+					}
+				});
 			}
 			, buildNewFile: function ( data, fileTreeArray ) {
-				functions.buildNew( data, fileTreeArray, '#newfile'
-					, functions.submitNewFileOnEnter );
+				functions.buildPromptWithoutConfirmation( {
+					data: data
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: functions.submitNewFileOnEnter
+					, inputField: '#newfile'
+					, customSetup: function ( $prompt ) {
+						var $filepath = $prompt.find( '.file-path' );
+						$filepath.html( $filepath.html() +'/' );
+					}
+				});
 			}
-			, buildRename: function ( data, fileTreeArray, inputField, actionCallback ) {
-				var $prompt = $( data );
+			, buildPromptWithConfirmation: function ( jsonArgs ) {
+				Require.all( jsonArgs, 'data', 'fileTreeArray', 'confirmationCallback' );
 
-				$prompt.find( '.file-path' ).html( fileTreeArray.slice(0, -1).join( '/' ) + '/');
-				$prompt.find( '.old-name' ).html( fileTreeArray.slice(-1) );
-				$prompt.prop( 'fileTree', fileTreeArray );
+				var $prompt = $( jsonArgs.data );
 
 				functions.closePromptContainer();
+				$prompt.find( '.file-path' ).html( jsonArgs.fileTreeArray.join( '/' ) );
+				$prompt.prop( 'fileTree', jsonArgs.fileTreeArray );
+				$prompt.hide();
 				$prompt.appendTo( $container );
+				$prompt.find( '.prompt-yes' ).click( jsonArgs.confirmationCallback );
+				$prompt.find( '.prompt-no' ).click( functions.closePromptContainer );
 
+				if ( typeof jsonArgs.customSetup !== 'undefined' ) {
+					jsonArgs.customSetup( $prompt );
+				}
+
+				$prompt.show();
+			}
+			, buildPromptWithoutConfirmation: function ( jsonArgs ) {
+				Require.all( jsonArgs, 'data', 'fileTreeArray', 'inputField', 'confirmationCallback' );
+
+				var $prompt = $( jsonArgs.data );
+
+				functions.closePromptContainer();
+				$prompt.find( '.file-path' ).html( jsonArgs.fileTreeArray.join( '/' ) );
+				$prompt.prop( 'fileTree', jsonArgs.fileTreeArray );
+				$prompt.hide();
+				$prompt.appendTo( $container );
 				$prompt.find( '.close' ).click( functions.closePromptContainer );
-				$prompt.find( inputField ).keyup( actionCallback );
-				$prompt.find( inputField ).focus();
+				$prompt.find( jsonArgs.inputField ).keyup( jsonArgs.confirmationCallback );
+
+				if ( typeof jsonArgs.customSetup !== 'undefined' ) {
+					jsonArgs.customSetup( $prompt );
+				}
+
+				$prompt.show();
+				$prompt.find( jsonArgs.inputField ).focus();
 			}
 			, buildRenameDirectory: function ( data, fileTreeArray ) {
-				functions.buildRename( data, fileTreeArray, '#newdirectory', functions.submitRenameDirectoryOnEnter );
+				functions.buildPromptWithoutConfirmation( {
+					data: data
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: functions.submitRenameDirectoryOnEnter
+					, inputField: '#newdirectory'
+					, customSetup: function ( $prompt ) {
+						$prompt.find( '.file-path' ).html( fileTreeArray.slice(0, -1).join( '/' ) + '/');
+						$prompt.find( '.old-name' ).html( fileTreeArray.slice(-1) );
+					}
+				});
 			}
 			, buildRenameFile: function ( data, fileTreeArray ) {
-				functions.buildRename( data, fileTreeArray, '#newfile', functions.submitRenameFileOnEnter );
+				functions.buildPromptWithoutConfirmation( {
+					data: data
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: functions.submitRenameFileOnEnter
+					, inputField: '#newfile'
+					, customSetup: function ( $prompt ) {
+						$prompt.find( '.file-path' ).html( fileTreeArray.slice(0, -1).join( '/' ) + '/');
+						$prompt.find( '.old-name' ).html( fileTreeArray.slice(-1) );
+					}
+				});
 			}
 			, buildWorkspace: function ( data ) {
 				$container.html( data );
