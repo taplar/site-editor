@@ -98,17 +98,13 @@ input:focus, select:focus, textarea:focus, button:focus {
 	left: -11px;
 	position: relative;
 }
-.menu > .content-container > .content .menu-item .file {
+.menu > .content-container > .content .menu-item .file,
+.menu > .content-container > .content .menu-item .folder {
 	cursor: default;
 	font-size: 12px;
 	margin-left: 4px;
 }
 .menu > .content-container > .content .menu-item > .file-name {
-	font-size: 12px;
-	margin-left: 4px;
-}
-.menu > .content-container > .content .menu-item .folder {
-	cursor: default;
 	font-size: 12px;
 	margin-left: 4px;
 }
@@ -303,33 +299,20 @@ input:focus, select:focus, textarea:focus, button:focus {
 .prompt-container .prompt > .content {
 	margin-bottom: 36px;
 }
-.prompt-container .prompt > .content.delete-directory {
-	text-align: center;
-}
-.prompt-container .prompt > .content.delete-file {
-	text-align: center;
-}
-.prompt-container .prompt > .content.move-down-directory {
-	text-align: center;
-}
-.prompt-container .prompt > .content.move-up-directory {
-	text-align: center;
-}
-.prompt-container .prompt > .content.move-up-file {
-	text-align: center;
-}
-.prompt-container .prompt > .content.new-directory {
-	text-align: center;
-}
-.prompt-container .prompt > .content.new-file {
+.prompt-container .prompt > .content.delete-directory,
+.prompt-container .prompt > .content.delete-file,
+.prompt-container .prompt > .content.move-down-directory,
+.prompt-container .prompt > .content.move-up-directory,
+.prompt-container .prompt > .content.move-up-file,
+.prompt-container .prompt > .content.new-directory,
+.prompt-container .prompt > .content.new-file,
+.prompt-container .prompt > .content .input.login,
+.prompt-container .prompt > .title {
 	text-align: center;
 }
 .prompt-container .prompt > .content > .confirmation {
 	color: rgb(255, 255, 0);
 	font-weight: bold;
-}
-.prompt-container .prompt > .content .input.login {
-	text-align: center;
 }
 .prompt-container .prompt > .content .input input {
 	background: rgba(0, 0, 0, 0.5);
@@ -339,6 +322,17 @@ input:focus, select:focus, textarea:focus, button:focus {
 	font-family: monospace;
 	font-weight: bold;
 	margin: 1px;
+	padding: 8px;
+}
+.prompt-container .prompt > .content .input select {
+	background: rgba(0, 0, 0, 0.5);
+	border-width: 0;
+	border-radius: 6px;
+	color: rgb(128, 128, 128);
+	font-family: monospace;
+	font-weight: bold;
+	margin: 1px;
+	margin-bottom: 12px;
 	padding: 8px;
 }
 .prompt-container .prompt > .content .file-path {
@@ -377,9 +371,6 @@ input:focus, select:focus, textarea:focus, button:focus {
 	color: rgb(255, 255, 255);
 	font-size: 30px;
 	margin-bottom: 12px;
-}
-.prompt-container .prompt > .title {
-	text-align: center;
 }
 
 

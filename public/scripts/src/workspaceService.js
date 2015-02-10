@@ -193,6 +193,8 @@ var WorkspaceService = function () {
 
 					$( '<option>', { value: filename, html: filename } ).appendTo($selection );
 				} );
+
+				$selection.focus();
 			}
 			, buildWorkspace: function ( data ) {
 				$container.html( data );
@@ -420,6 +422,10 @@ var WorkspaceService = function () {
 				$listItem.appendTo( $directory );
 
 				functions.displayFilesInDirectory( $sublist, $subfiles );
+
+				if ( $listItem.find( '> ul > li.menu-item > i.subdirectory' ).length < 1 ) { //TODO: TEST THIS
+					$listItem.find( '> i.move-down-directory' ).remove();
+				}
 
 				$listItem.find( '> .new-directory' ).click( functions.displayNewDirectory );
 				$listItem.find( '> .delete-directory' ).click( functions.displayDeleteDirectory );
