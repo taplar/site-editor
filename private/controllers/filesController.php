@@ -58,7 +58,9 @@ final class FilesController {
 					Http::getInstance()->badRequest();
 				}
 			} else {
-				if ( $content->action == "rename" ) {
+				if ( $content->action == "shiftup" ) {
+					$this->filesService->moveFileIntoParentDirectory( $path );
+				} else if ( $content->action == "rename" ) {
 					$this->filesService->renameFile( $path, $content );
 				} else {
 					Http::getInstance()->badRequest();
