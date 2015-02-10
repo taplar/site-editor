@@ -184,7 +184,7 @@ var WorkspaceService = function () {
 			}
 			, buildSubdirectorySelection: function ( $prompt, $element ) {
 				var $selection = $prompt.find( '#newdirectory' );
-				var $options = $element.parent().find( '> ul > li > i.subdirectory' );
+				var $options = $element.parent().siblings().find( '> i.subdirectory' );
 
 				$selection.find( 'option' ).remove();
 
@@ -303,6 +303,8 @@ var WorkspaceService = function () {
 				for ( key in filenames ) {
 					functions.displayFileInDirectory( filenames[ key ], $directory );
 				}
+
+				functions.removeMoveDownFromDirectories( $directory );
 			}
 			, displayFilesystem: function () {
 				AjaxService.getInstance().GET({
@@ -423,10 +425,6 @@ var WorkspaceService = function () {
 
 				functions.displayFilesInDirectory( $sublist, $subfiles );
 
-				if ( $listItem.find( '> ul > li.menu-item > i.subdirectory' ).length < 1 ) { //TODO: TEST THIS
-					$listItem.find( '> i.move-down-directory' ).remove();
-				}
-
 				$listItem.find( '> .new-directory' ).click( functions.displayNewDirectory );
 				$listItem.find( '> .delete-directory' ).click( functions.displayDeleteDirectory );
 				$listItem.find( '> .rename-directory' ).click( functions.displayRenameDirectory );
@@ -493,7 +491,29 @@ var WorkspaceService = function () {
 				functions.closeMenuPromptWithError( 'Parent directory no longer exists or has restricted access' );
 			}
 			, moveDownDirectory: function () {
-				LoggingService.getInstance().displayError( 'Unimplemented Function' );
+				var $prompt = $container.find( '.prompt-container' );
+				var filepath = $prompt.prop( 'fileTree' ).join( '/' );
+				var subdirectory = $prompt.find( '#newdirectory' ).val();
+
+				AjaxService.getInstance().PUT({
+					url: './private/?p=files/directories/'+ filepath
+					, contentType: 'json'
+					, input: JSON.stringify ( {
+						action: 'shiftdown'
+						, name: subdirectory
+					} )
+					, success: functions.moveDownDirectorySuccess
+					, 401: functions.displayLogin
+					, 498: functions.moveDownDirectoryFailure
+					, 499: functions.invalidReference
+					, 500: AjaxService.getInstance().logInternalError
+				});
+			}
+			, moveDownDirectoryFailure: function ( data ) {
+				functions.closeMenuPromptWithError( 'Directory not moved' );
+			}
+			, moveDownDirectorySuccess: function ( data ) {
+				functions.closeMenuPromptWithSuccess( 'Directory moved' );
 			}
 			, moveUpDirectory: function () {
 				var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
@@ -546,6 +566,15 @@ var WorkspaceService = function () {
 			}
 			, newFileSuccess: function ( data ) {
 				functions.closeMenuPromptWithSuccess( 'File created' );
+			}
+			, removeMoveDownFromDirectories: function ( $directory ) {
+				$directory.find( '.menu-item' ).each( function () {
+					var $this = $( this );
+
+					if ( $this.siblings().find( '> i.subdirectory' ).length < 1 ) {
+						$this.find( '> i.move-down-directory' ).remove();
+					}
+				} );
 			}
 			, renameDirectoryFailure: function ( data ) {
 				LoggingService.getInstance().displayError( 'New directory already exists or is invalid syntax' );
