@@ -887,7 +887,7 @@ describe ( 'WorkspaceService', function () {
 		} );
 
 		describe ( 'DisplaySubdirectory', function () {
-			it ( 'Should add directory to directory listing', function () {
+			beforeEach ( function () {
 				spyOn( workspaceService.privateFunctions, 'displayFilesInDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayNewDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayDeleteDirectory' );
@@ -895,29 +895,35 @@ describe ( 'WorkspaceService', function () {
 				spyOn( workspaceService.privateFunctions, 'displayMoveUpDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayNewFile' );
 
-				var $ul = $( '<ul>' );
-				var $subfiles = { 'file': 'blah' };
+				$ul = $( '<ul>' );
+				$subfiles = { 'file': 'blah' };
 
+				$expectedMenu = $( [
+					'<ul>'
+						, '<li class="menu-item">'
+							, '<i class="fa fa-folder folder subdirectory"></i>'
+							, '<span class="file-name">directoryForPurchase</span>'
+							, '<i class="fa fa-pencil-square-o rename rename-directory" title="Rename"></i>'
+							, '<span class="new-directory" title="New Directory">'
+								, '<i class="fa fa-folder folder"></i>'
+								, '<i class="fa fa-plus plus"></i>'
+							, '</span>'
+							, '<span class="new-file" title="New File">'
+								, '<i class="fa fa-file file"></i>'
+								, '<i class="fa fa-plus plus"></i>'
+							, '</span>'
+							, '<i class="fa fa-level-up move move-up-directory" title="Move Up"></i>'
+							, '<i class="fa fa-times delete delete-directory" title="Delete"></i>'
+							, '<ul></ul>'
+						, '</li>'
+					, '</ul>'
+				].join( '' ) );
+			} );
+
+			it ( 'Should add directory to directory listing', function () {
 				workspaceService.privateFunctions.displaySubdirectory( 'directoryForPurchase', $ul, $subfiles );
 
-				expect( $ul.html() ).toEqual(
-					'<li class="menu-item">'
-						+ '<i class="fa fa-folder folder subdirectory"></i>'
-						+ '<span class="file-name">directoryForPurchase</span>'
-						+ '<i class="fa fa-pencil-square-o rename rename-directory" title="Rename"></i>'
-						+ '<span class="new-directory" title="New Directory">'
-							+ '<i class="fa fa-folder folder"></i>'
-							+ '<i class="fa fa-plus plus"></i>'
-						+ '</span>'
-						+ '<span class="new-file" title="New File">'
-							+ '<i class="fa fa-file file"></i>'
-							+ '<i class="fa fa-plus plus"></i>'
-						+ '</span>'
-						+ '<i class="fa fa-level-up move move-up-directory" title="Move Up"></i>'
-						+ '<i class="fa fa-times delete delete-directory" title="Delete"></i>'
-						+ '<ul></ul>'
-					+ '</li>'
-				);
+				expect( $ul.html() ).toEqual( $expectedMenu.html() );
 
 				expect( workspaceService.privateFunctions.displayFilesInDirectory ).toHaveBeenCalled();
 
@@ -945,6 +951,22 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.displayMoveUpDirectory ).not.toHaveBeenCalled();
 				$ul.find( '.move-up-directory' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.displayMoveUpDirectory ).toHaveBeenCalled();
+			} );
+
+			it ( 'Should not add move up directory icon if parent is root', function () {
+				$ul.addClass( 'root-list' );
+				$expectedMenu.find( '.move-up-directory' ).remove();
+
+				workspaceService.privateFunctions.displaySubdirectory( 'directoryForPurchase', $ul, $subfiles );
+
+				expect( $ul.html() ).toEqual( $expectedMenu.html() );
+
+				expect( workspaceService.privateFunctions.displayFilesInDirectory ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayFilesInDirectory.calls.argsFor( 0 );
+
+				expect( args[ 0 ][ 0 ] ).toEqual( $ul.find( 'li ul' )[ 0 ] );
+				expect( args[ 1 ] ).toEqual( $subfiles );
 			} );
 		} );
 

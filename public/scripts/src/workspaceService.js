@@ -27,7 +27,7 @@ var WorkspaceService = function () {
 				functions.buildDelete( data, fileTreeArray, functions.deleteFile );
 			}
 			, buildFilesystem: function ( data ) {
-				var $ul = $( '<ul>' );
+				var $ul = $( '<ul class="root-list">' );
 
 				functions.displayFilesInDirectory( $ul, $.parseJSON( data ) );
 
@@ -300,10 +300,16 @@ var WorkspaceService = function () {
 					.end()
 					.append( $( '<i class="fa fa-level-up move move-up-directory" title="Move Up">' ) )
 					.append( $( '<i class="fa fa-times delete delete-directory" title="Delete">' ) )
-					.append( $sublist )
-					.appendTo( $directory );
+					.append( $sublist );
+
+				if ( $directory.hasClass( 'root-list' ) ) {
+					$listItem.find( '.move-up-directory' ).remove();
+				}
+
+				$listItem.appendTo( $directory );
 
 				functions.displayFilesInDirectory( $sublist, $subfiles );
+
 				$listItem.find( '> .new-directory' ).click( functions.displayNewDirectory );
 				$listItem.find( '> .delete-directory' ).click( functions.displayDeleteDirectory );
 				$listItem.find( '> .rename-directory' ).click( functions.displayRenameDirectory );
