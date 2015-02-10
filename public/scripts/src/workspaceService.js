@@ -59,12 +59,14 @@ var WorkspaceService = function () {
 				$menu.find( '.search-container .pattern' ).keyup( functions.filterMenu );
 				$menu.find( '.search-container .pattern' ).focus();
 			}
-			, buildMoveDownDirectory: function ( data, fileTreeArray ) {
+			, buildMoveDownDirectory: function ( data, fileTreeArray, $element ) {
 				functions.buildPromptWithConfirmation( {
 					data: data
 					, fileTreeArray: fileTreeArray
 					, confirmationCallback: functions.moveDownDirectory
-					, customSetup: functions.buildSubdirectorySelection
+					, customSetup: function ( $prompt ) {
+						functions.buildSubdirectorySelection( $prompt, $element );
+					}
 				} );
 			}
 			, buildMoveUpDirectory: function ( data, fileTreeArray ) {
@@ -180,8 +182,17 @@ var WorkspaceService = function () {
 					}
 				});
 			}
-			, buildSubdirectorySelection: function ( $prompt ) {
-				LoggingService.getInstance().displayError( 'Unimplemented Function' );
+			, buildSubdirectorySelection: function ( $prompt, $element ) {
+				var $selection = $prompt.find( '#newdirectory' );
+				var $options = $element.parent().find( '> ul > li > i.subdirectory' );
+
+				$selection.find( 'option' ).remove();
+
+				$options.each( function () {
+					var filename = $( this ).parent().find( '.file-name' ).html();
+
+					$( '<option>', { value: filename, html: filename } ).appendTo($selection );
+				} );
 			}
 			, buildWorkspace: function ( data ) {
 				$container.html( data );
@@ -303,9 +314,10 @@ var WorkspaceService = function () {
 				functions.displayStaticResource( './public/views/menu.view', functions.buildMenu );
 			}
 			, displayMoveDownDirectory: function () {
-				var fileTree = functions.buildFileTreeArray( $( this ) );
+				var $this = $( this );
+				var fileTree = functions.buildFileTreeArray( $this );
 				var successCallback = function ( data ) {
-					functions.buildMoveDownDirectory( data, fileTree );
+					functions.buildMoveDownDirectory( data, fileTree, $this );
 				};
 
 				functions.displayStaticResource( './public/views/moveDownDirectory.view'

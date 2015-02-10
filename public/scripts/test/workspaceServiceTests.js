@@ -172,10 +172,12 @@ describe ( 'WorkspaceService', function () {
 			it ( 'Should use private function', function () {
 				var data = { somekey: 'somevalue' };
 				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
+				var $object = $( '<div>' );
 
 				spyOn( workspaceService.privateFunctions, 'buildPromptWithConfirmation' );
+				spyOn( workspaceService.privateFunctions, 'buildSubdirectorySelection' );
 
-				workspaceService.privateFunctions.buildMoveDownDirectory( data, fileTreeArray );
+				workspaceService.privateFunctions.buildMoveDownDirectory( data, fileTreeArray, $object );
 
 				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
 
@@ -184,7 +186,15 @@ describe ( 'WorkspaceService', function () {
 				expect( args.data ).toEqual( data );
 				expect( args.fileTreeArray ).toEqual( fileTreeArray );
 				expect( args.confirmationCallback ).toEqual( workspaceService.privateFunctions.moveDownDirectory );
-				expect( args.customSetup ).toEqual( workspaceService.privateFunctions.buildSubdirectorySelection );
+
+				expect( workspaceService.privateFunctions.buildSubdirectorySelection ).not.toHaveBeenCalled();
+				args.customSetup( 'something' );
+				expect( workspaceService.privateFunctions.buildSubdirectorySelection ).toHaveBeenCalled();
+
+				args = workspaceService.privateFunctions.buildSubdirectorySelection.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'something' );
+				expect( args[ 1 ] ).toEqual( $object );
 			} );
 		} );
 
@@ -490,6 +500,106 @@ describe ( 'WorkspaceService', function () {
 				expect( args.fileTreeArray ).toEqual( fileTreeArray );
 				expect( args.inputField ).toEqual( '#newfile' );
 				expect( args.confirmationCallback ).toEqual( workspaceService.privateFunctions.submitRenameFileOnEnter );
+			} );
+		} );
+
+		describe ( 'BuildSubdirectorySelection', function () {
+			it ( 'Should select all immediate subdirectories and set on the selection', function () {
+				var $menu = $( [
+					'<ul>'
+						,'<li class="menu-item">'
+							,'<i class="folder subdirectory"></i>'
+							,'<span class="file-name">directory1</span>'
+							,'<ul>'
+								,'<li class="menu-item">'
+									,'<i class="folder subdirectory"></i>'
+									,'<span class="file-name">directory1.1</span>'
+									,'<ul>'
+										,'<li class="menu-item">'
+											,'<i class="file"></i>'
+											,'<span class="file-name">file1.1.1</span>'
+										,'</li>'
+										,'<li class="menu-item">'
+											,'<i class="file"></i>'
+											,'<span class="file-name">file1.1.2</span>'
+										,'</li>'
+									,'</ul>'
+								,'</li>'
+								,'<li class="menu-item">'
+									,'<i class="file"></i>'
+									,'<span class="file-name">file1.1</span>'
+								,'</li>'
+							,'</ul>'
+						,'</li>'
+						,'<li class="menu-item">'
+							,'<i class="folder subdirectory"></i>'
+							,'<span class="file-name">directory2</span>'
+							,'<i class="move-directory-down"></i>'
+							,'<ul>'
+								,'<li class="menu-item">'
+									,'<i class="folder subdirectory"></i>'
+									,'<span class="file-name">directory2.1</span>'
+									,'<ul>'
+										,'<li class="menu-item">'
+											,'<i class="file"></i>'
+											,'<span class="file-name">file2.1.1</span>'
+										,'</li>'
+										,'<li class="menu-item">'
+											,'<i class="file"></i>'
+											,'<span class="file-name">file2.1.2</span>'
+										,'</li>'
+									,'</ul>'
+								,'</li>'
+								,'<li class="menu-item">'
+									,'<i class="folder subdirectory"></i>'
+									,'<span class="file-name">directory2.2</span>'
+									,'<ul>'
+										,'<li class="menu-item">'
+											,'<i class="file"></i>'
+											,'<span class="file-name">file2.2.1</span>'
+										,'</li>'
+										,'<li class="menu-item">'
+											,'<i class="file"></i>'
+											,'<span class="file-name">file2.2.2</span>'
+										,'</li>'
+									,'</ul>'
+								,'</li>'
+								,'<li class="menu-item">'
+									,'<i class="file"></i>'
+									,'<span class="file-name">file2.1</span>'
+								,'</li>'
+							,'</ul>'
+						,'</li>'
+						,'<li class="menu-item">'
+							,'<i class="file"></i>'
+							,'<span class="file-name">file2</span>'
+						,'</li>'
+					,'</ul>'
+				].join( '' ) );
+
+				var $prompt = $( [
+					'<div class="prompt-container">'
+						, '<div class="content-container">'
+							, '<div class="content">'
+								, '<select id="newdirectory">'
+									, '<option>Old Option</option>'
+								,'</select>'
+							, '</div>'
+						, '</div>'
+					, '</div>'
+				].join( '' ) );
+
+				var $selection = $menu.find( '.move-directory-down' );
+
+				workspaceService.privateFunctions.buildSubdirectorySelection( $prompt, $selection );
+
+				var $options = $prompt.find( '#newdirectory option' );
+
+				expect( $options.length ).toEqual( 2 );
+				expect( $options.get( 0 ).value ).toEqual( 'directory2.1' );
+				expect( $options.get( 0 ).innerHTML ).toEqual( 'directory2.1' );
+				expect( $options.get( 1 ).value ).toEqual( 'directory2.2' );
+				expect( $options.get( 1 ).innerHTML ).toEqual( 'directory2.2' );
 			} );
 		} );
 
@@ -865,7 +975,10 @@ describe ( 'WorkspaceService', function () {
 				spyOn( workspaceService.privateFunctions, 'buildMoveDownDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
 
-				workspaceService.privateFunctions.displayMoveDownDirectory();
+				var $item = $( '<div>' );
+				$item.click( workspaceService.privateFunctions.displayMoveDownDirectory );
+
+				$item.trigger( 'click' );
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
@@ -883,6 +996,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( args[ 0 ] ).toEqual( 'some data' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
+				expect( args[ 2 ][ 0 ] ).toEqual( $item[ 0 ] );
 			} );
 		} );
 
