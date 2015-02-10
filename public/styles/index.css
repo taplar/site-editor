@@ -112,6 +112,14 @@ input:focus, select:focus, textarea:focus, button:focus {
 	font-size: 12px;
 	margin-left: 4px;
 }
+.menu > .content-container > .content .menu-item > .move-down-directory {
+	left: -11px;
+	position: relative;
+
+	cursor: pointer;
+	font-size: 12px;
+	margin-left: 4px;
+}
 .menu > .content-container > .content .menu-item > .move-up-directory {
 	left: -11px;
 	position: relative;
@@ -299,6 +307,9 @@ input:focus, select:focus, textarea:focus, button:focus {
 	text-align: center;
 }
 .prompt-container .prompt > .content.delete-file {
+	text-align: center;
+}
+.prompt-container .prompt > .content.move-down-directory {
 	text-align: center;
 }
 .prompt-container .prompt > .content.move-up-directory {

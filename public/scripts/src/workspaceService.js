@@ -59,6 +59,14 @@ var WorkspaceService = function () {
 				$menu.find( '.search-container .pattern' ).keyup( functions.filterMenu );
 				$menu.find( '.search-container .pattern' ).focus();
 			}
+			, buildMoveDownDirectory: function ( data, fileTreeArray ) {
+				functions.buildPromptWithConfirmation( {
+					data: data
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: functions.moveDownDirectory
+					, customSetup: functions.buildSubdirectorySelection
+				} );
+			}
 			, buildMoveUpDirectory: function ( data, fileTreeArray ) {
 				functions.buildPromptWithConfirmation( {
 					data: data
@@ -171,6 +179,9 @@ var WorkspaceService = function () {
 						$prompt.find( '.old-name' ).html( fileTreeArray.slice(-1) );
 					}
 				});
+			}
+			, buildSubdirectorySelection: function ( $prompt ) {
+				LoggingService.getInstance().displayError( 'Unimplemented Function' );
 			}
 			, buildWorkspace: function ( data ) {
 				$container.html( data );
@@ -291,6 +302,15 @@ var WorkspaceService = function () {
 			, displayMenu: function () {
 				functions.displayStaticResource( './public/views/menu.view', functions.buildMenu );
 			}
+			, displayMoveDownDirectory: function () {
+				var fileTree = functions.buildFileTreeArray( $( this ) );
+				var successCallback = function ( data ) {
+					functions.buildMoveDownDirectory( data, fileTree );
+				};
+
+				functions.displayStaticResource( './public/views/moveDownDirectory.view'
+					, successCallback );
+			}
 			, displayMoveUpDirectory: function () {
 				var fileTree = functions.buildFileTreeArray( $( this ) );
 				var successCallback = function ( data ) {
@@ -377,6 +397,7 @@ var WorkspaceService = function () {
 						.append( $( '<i class="fa fa-plus plus">' ) )
 					.end()
 					.append( $( '<i class="fa fa-level-up move move-up-directory" title="Move Up">' ) )
+					.append( $( '<i class="fa fa-level-down move move-down-directory" title="Move Down">' ) )
 					.append( $( '<i class="fa fa-times delete delete-directory" title="Delete">' ) )
 					.append( $sublist );
 
@@ -392,6 +413,7 @@ var WorkspaceService = function () {
 				$listItem.find( '> .delete-directory' ).click( functions.displayDeleteDirectory );
 				$listItem.find( '> .rename-directory' ).click( functions.displayRenameDirectory );
 				$listItem.find( '> .move-up-directory' ).click( functions.displayMoveUpDirectory );
+				$listItem.find( '> .move-down-directory' ).click( functions.displayMoveDownDirectory );
 				$listItem.find( '> .new-file' ).click( functions.displayNewFile );
 			}
 			, filterMenu: function ( event ) {
@@ -451,6 +473,9 @@ var WorkspaceService = function () {
 			}
 			, invalidReference: function ( data ) {
 				functions.closeMenuPromptWithError( 'Parent directory no longer exists or has restricted access' );
+			}
+			, moveDownDirectory: function () {
+				LoggingService.getInstance().displayError( 'Unimplemented Function' );
 			}
 			, moveUpDirectory: function () {
 				var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );

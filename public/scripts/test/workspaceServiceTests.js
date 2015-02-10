@@ -168,6 +168,26 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'BuildMoveDownDirectory', function () {
+			it ( 'Should use private function', function () {
+				var data = { somekey: 'somevalue' };
+				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildPromptWithConfirmation' );
+
+				workspaceService.privateFunctions.buildMoveDownDirectory( data, fileTreeArray );
+
+				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.argsFor( 0 )[ 0 ];
+
+				expect( args.data ).toEqual( data );
+				expect( args.fileTreeArray ).toEqual( fileTreeArray );
+				expect( args.confirmationCallback ).toEqual( workspaceService.privateFunctions.moveDownDirectory );
+				expect( args.customSetup ).toEqual( workspaceService.privateFunctions.buildSubdirectorySelection );
+			} );
+		} );
+
 		describe ( 'BuildMoveUpDirectory', function () {
 			it ( 'Should use private function', function () {
 				var data = { somekey: 'somevalue' };
@@ -837,6 +857,35 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'DisplayMoveDownDirectory', function () {
+			it ( 'Should use private function', function () {
+				var fileTreeArray = [ 'file1', 'file2', 'file3' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
+				spyOn( workspaceService.privateFunctions, 'buildMoveDownDirectory' );
+				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
+
+				workspaceService.privateFunctions.displayMoveDownDirectory();
+
+				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( './public/views/moveDownDirectory.view' );
+
+				var successCallback = args[ 1 ];
+
+				expect( workspaceService.privateFunctions.buildMoveDownDirectory ).not.toHaveBeenCalled();
+				successCallback( 'some data' );
+				expect( workspaceService.privateFunctions.buildMoveDownDirectory ).toHaveBeenCalled();
+
+				args = workspaceService.privateFunctions.buildMoveDownDirectory.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'some data' );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+			} );
+		} );
+
 		describe ( 'DisplayMoveUpDirectory', function () {
 			it ( 'Should use private function', function () {
 				var fileTreeArray = [ 'file1', 'file2', 'file3' ];
@@ -1050,6 +1099,7 @@ describe ( 'WorkspaceService', function () {
 				spyOn( workspaceService.privateFunctions, 'displayNewDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayDeleteDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayRenameDirectory' );
+				spyOn( workspaceService.privateFunctions, 'displayMoveDownDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayMoveUpDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayNewFile' );
 
@@ -1071,6 +1121,7 @@ describe ( 'WorkspaceService', function () {
 								, '<i class="fa fa-plus plus"></i>'
 							, '</span>'
 							, '<i class="fa fa-level-up move move-up-directory" title="Move Up"></i>'
+							, '<i class="fa fa-level-down move move-down-directory" title="Move Down"></i>'
 							, '<i class="fa fa-times delete delete-directory" title="Delete"></i>'
 							, '<ul></ul>'
 						, '</li>'
@@ -1109,6 +1160,10 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.displayMoveUpDirectory ).not.toHaveBeenCalled();
 				$ul.find( '.move-up-directory' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.displayMoveUpDirectory ).toHaveBeenCalled();
+
+				expect( workspaceService.privateFunctions.displayMoveDownDirectory ).not.toHaveBeenCalled();
+				$ul.find( '.move-down-directory' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.displayMoveDownDirectory ).toHaveBeenCalled();
 			} );
 
 			it ( 'Should not add move up directory icon if parent is root', function () {
