@@ -112,10 +112,15 @@ input:focus, select:focus, textarea:focus, button:focus {
 	font-size: 12px;
 	margin-left: 4px;
 }
-.menu > .content-container > .content .menu-item > .move {
+.menu > .content-container > .content .menu-item > .move-up-directory {
 	left: -11px;
 	position: relative;
 
+	cursor: pointer;
+	font-size: 12px;
+	margin-left: 4px;
+}
+.menu > .content-container > .content .menu-item > .move-up-file {
 	cursor: pointer;
 	font-size: 12px;
 	margin-left: 4px;
@@ -297,6 +302,9 @@ input:focus, select:focus, textarea:focus, button:focus {
 	text-align: center;
 }
 .prompt-container .prompt > .content.move-up-directory {
+	text-align: center;
+}
+.prompt-container .prompt > .content.move-up-file {
 	text-align: center;
 }
 .prompt-container .prompt > .content.new-directory {

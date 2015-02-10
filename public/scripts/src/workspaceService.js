@@ -68,6 +68,9 @@ var WorkspaceService = function () {
 			, buildMoveUpDirectory: function ( data, fileTreeArray ) {
 				functions.buildDelete( data, fileTreeArray, functions.moveUpDirectory );
 			}
+			, buildMoveUpFile: function ( data, fileTreeArray ) {
+				functions.buildDelete( data, fileTreeArray, functions.moveUpFile );
+			}
 			, buildNew: function ( data, fileTreeArray, inputField, actionCallback ) {
 				var $prompt = $( data );
 
@@ -190,11 +193,17 @@ var WorkspaceService = function () {
 						, html: $filename
 					} ) )
 					.append( $( '<i class="fa fa-pencil-square-o rename rename-file" title="Rename">' ) )
-					.append( $( '<i class="fa fa-times delete delete-file" title="Delete">' ) )
-					.appendTo( $directory );
+					.append( $( '<i class="fa fa-level-up move move-up-file" title="Move Up">' ) )
+					.append( $( '<i class="fa fa-times delete delete-file" title="Delete">' ) );
 
+				if ( $directory.hasClass( 'root-list' ) ) {
+					$listItem.find( '.move-up-file' ).remove();
+				}
+
+				$listItem.appendTo( $directory );
 				$listItem.find( '> .delete-file' ).click( functions.displayDeleteFile );
 				$listItem.find( '> .rename-file' ).click( functions.displayRenameFile );
+				$listItem.find( '> .move-up-file' ).click( functions.displayMoveUpFile );
 			}
 			, displayFilesInDirectory: function ( $directory, $files ) {
 				var filenames = [];
@@ -229,6 +238,15 @@ var WorkspaceService = function () {
 				};
 
 				functions.displayStaticResource( './public/views/moveUpDirectory.view'
+					, successCallback );
+			}
+			, displayMoveUpFile: function () {
+				var fileTree = functions.buildFileTreeArray( $( this ) );
+				var successCallback = function ( data ) {
+					functions.buildMoveUpFile( data, fileTree );
+				};
+
+				functions.displayStaticResource( './public/views/moveUpFile.view'
 					, successCallback );
 			}
 			, displayNewDirectory: function () {
@@ -393,6 +411,26 @@ var WorkspaceService = function () {
 			}
 			, moveUpDirectorySuccess: function ( data ) {
 				functions.closeMenuPromptWithSuccess( 'Directory moved' );
+			}
+			, moveUpFile: function () {
+				var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
+
+				AjaxService.getInstance().PUT({
+					url: './private/?p=files/'+ filepath
+					, contentType: 'json'
+					, input: JSON.stringify ( { action: 'shiftup' } )
+					, success: functions.moveUpFileSuccess
+					, 401: functions.displayLogin
+					, 498: functions.moveUpFileFailure
+					, 499: functions.invalidReference
+					, 500: AjaxService.getInstance().logInternalError
+				});
+			}
+			, moveUpFileFailure: function ( data ) {
+				functions.closeMenuPromptWithError( 'File not moved' );
+			}
+			, moveUpFileSuccess: function ( data ) {
+				functions.closeMenuPromptWithSuccess( 'File moved' );
 			}
 			, newDirectoryFailure: function ( data ) {
 				LoggingService.getInstance().displayError( 'New directory already exists or is invalid syntax' );
