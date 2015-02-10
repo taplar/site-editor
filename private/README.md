@@ -173,7 +173,8 @@ Purpose: Rename (nested) directory
 ```
 Method: PUT
 URL: ~/private/?p=files/directories/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /existing-directory
-new-directory-name
+Content-Type: "application/json"
+'{ "action" : "rename", "name" : "< string >" }'
 ```
 ##### Response
 ```
@@ -193,7 +194,8 @@ Purpose: Rename (nested) file
 ```
 Method: PUT
 URL: ~/private/?p=files/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /existing-file
-new-file-name
+Content-Type: "application/json"
+'{ "action": "rename", "name": "< string >" }'
 ```
 ##### Response
 ```
@@ -202,5 +204,68 @@ new-file-name
 	* 401 - Inactive Session
 	* 497 - File not renamed due to invalid old/new name
 	* 499 - File not renamed due to invalid path
+	* 500 - Internal Error
+```
+
+### Move up directory
+
+Purpose: Move nested directory out of parent directory
+
+##### Request
+```
+Method: PUT
+URL: ~/private/?p=files/directories/root/sub-directory1 [ /sub-directory2 [ /sub-directory3 [ ... ] ] ] /existing-directory
+Content-Type: "application/json"
+'{ "action" : "shiftup", "name" : "< string >" }'
+```
+##### Response
+```
+* HTTP Response Codes
+	* 200 - Directory Moved
+	* 401 - Inactive Session
+	* 497 - Directory not moved due to invalid old/new name
+	* 499 - Directory not moved due to invalid path
+	* 500 - Internal Error
+```
+
+### Move up file
+
+Purpose: Move nested file out of parent directory
+
+##### Request
+```
+Method: PUT
+URL: ~/private/?p=files/root/sub-directory1 [ /sub-directory2 [ /sub-directory3 [ ... ] ] ] /existing-file
+Content-Type: "application/json"
+'{ "action": "shiftup", "name": "< string >" }'
+```
+##### Response
+```
+* HTTP Response Codes
+	* 200 - File Moved
+	* 401 - Inactive Session
+	* 497 - File not moved due to invalid old/new name
+	* 499 - File not moved due to invalid path
+	* 500 - Internal Error
+```
+
+### Move down directory
+
+Purpose: Move directory into sibling directory
+
+##### Request
+```
+Method: PUT
+URL: ~/private/?p=files/directories/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /existing-directory
+Content-Type: "application/json"
+'{ "action" : "shiftdown", "name" : "< string >" }'
+```
+##### Response
+```
+* HTTP Response Codes
+	* 200 - Directory Moved
+	* 401 - Inactive Session
+	* 497 - Directory not moved due to invalid old/new name
+	* 499 - Directory not moved due to invalid path
 	* 500 - Internal Error
 ```

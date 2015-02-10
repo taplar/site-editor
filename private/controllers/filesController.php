@@ -52,6 +52,8 @@ final class FilesController {
 			if ( strtolower( $path[ 0 ] ) == "directories" ) {
 				if ( $content->action == "shiftup" ) {
 					$this->filesService->moveDirectoryIntoParentDirectory( array_slice( $path, 1 ) );
+				} else if ( $content->action == "shiftdown" ) {
+					$this->filesService->moveDirectoryIntoSiblingDirectory( array_slice( $path, 1 ), $content );
 				} else if ( $content->action == "rename" ) {
 					$this->filesService->renameDirectory( array_slice( $path, 1 ), $content );
 				} else {

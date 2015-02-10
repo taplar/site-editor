@@ -143,6 +143,26 @@ final class FilesService {
 		}
 	}
 
+	public function moveDirectoryIntoSiblingDirectory ( $pathArray, $content ) {
+		$filename = array_pop( $pathArray );
+		$pathString = $this->pathExists( $pathArray );
+		$pathString = $this->editorIsNotParentOfPath( $pathString );
+		array_push( $pathArray, $content->name );
+		$newPathString = $this->pathExists( $pathArray );
+		$newPathString = $this->editorIsNotParentOfPath( $newPathString );
+
+		if ( $pathString != NULL && $newPathString != NULL ) {
+			if ( isset( $content->name ) && file_exists( $pathString . $filename )
+			&& !file_exists( $newPathString . $filename ) ) {
+				rename( $pathString . $filename, $newPathString . $filename );
+			} else {
+				Http::getInstance()->invalidName();
+			}
+		} else {
+			Http::getInstance()->invalidPath();
+		}
+	}
+
 	public function moveFileIntoParentDirectory ( $pathArray ) {
 		$filename = array_pop( $pathArray );
 		$oldPathString = $this->pathExists( $pathArray );
@@ -228,7 +248,7 @@ final class FilesService {
 		$oldPathString = $this->editorIsNotParentOfPath( $pathString . $oldFilename );
 
 		if ( $pathString != NULL && $oldPathString != NULL ) {
-			if ( $this->isAValidFilename( $oldFilename ) && file_exists( $pathString . $oldFilename )
+			if ( isset( $content-name ) && $this->isAValidFilename( $oldFilename ) && file_exists( $pathString . $oldFilename )
 			&& $this->isAValidFilename( $newFilename ) && !file_exists( $pathString . $newFilename ) ) {
 				rename( $pathString . $oldFilename, $pathString . $newFilename );
 			} else {
@@ -246,7 +266,7 @@ final class FilesService {
 		$pathString = $this->editorIsNotParentOfPath( $pathString );
 
 		if ( $pathString != NULL ) {
-			if ( $this->isAValidFilename( $oldFilename ) && file_exists( $pathString . $oldFilename )
+			if ( isset( $content->name ) && $this->isAValidFilename( $oldFilename ) && file_exists( $pathString . $oldFilename )
 			&& $this->isAValidFilename( $newFilename ) && !file_exists( $pathString . $newFilename ) ) {
 				rename( $pathString . $oldFilename, $pathString . $newFilename );
 			} else {
