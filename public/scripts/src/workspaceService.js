@@ -29,6 +29,7 @@ var WorkspaceService = function () {
 
 				$root.find( 'ul' ).remove();
 				$ul.appendTo( $root );
+				functions.removeMoveDown( $root );
 				$root.find( '> .new-directory' ).click( functions.displayNewDirectory );
 				$root.find( '> .new-file' ).click( functions.displayNewFile );
 				$menu.find( '.search-container .pattern' ).trigger( 'keyup' );
@@ -315,8 +316,6 @@ var WorkspaceService = function () {
 				for ( key in filenames ) {
 					functions.displayFileInDirectory( filenames[ key ], $directory );
 				}
-
-				functions.removeMoveDown( $directory );
 			}
 			, displayFilesystem: function () {
 				AjaxService.getInstance().GET({

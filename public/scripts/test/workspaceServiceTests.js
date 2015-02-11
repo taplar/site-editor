@@ -79,6 +79,7 @@ describe ( 'WorkspaceService', function () {
 		describe ( 'BuildFilesystem', function () {
 			it ( 'Should remove existing ul and insert new one', function () {
 				spyOn( workspaceService.privateFunctions, 'displayFilesInDirectory' );
+				spyOn( workspaceService.privateFunctions, 'removeMoveDown' );
 
 				$( '<div>', { class: 'root' } ).appendTo( $container );
 				$( '<ul>', { class: 'existingUL' } ).appendTo( $container.find( '.root' ) );
@@ -89,11 +90,16 @@ describe ( 'WorkspaceService', function () {
 
 				expect( $container.find( '.root ul' ).hasClass( 'existingURL' ) ).toBe( false );
 				expect( workspaceService.privateFunctions.displayFilesInDirectory ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.removeMoveDown ).toHaveBeenCalled();
 
 				var args = workspaceService.privateFunctions.displayFilesInDirectory.calls.argsFor( 0 );
 
 				expect( args[ 0 ][ 0 ] ).toEqual( $container.find( '.root ul' )[ 0 ] );
 				expect( args[ 1 ] ).toEqual( data );
+
+				args = workspaceService.privateFunctions.removeMoveDown.calls.argsFor( 0 );
+
+				expect( args[ 0 ][ 0 ] ).toEqual( $container.find( '.content-container .root' )[ 0 ] );
 			} );
 		} );
 
@@ -952,7 +958,6 @@ describe ( 'WorkspaceService', function () {
 			it ( 'Should process directories and files', function () {
 				spyOn( workspaceService.privateFunctions, 'displaySubdirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayFileInDirectory' );
-				spyOn( workspaceService.privateFunctions, 'removeMoveDown' );
 
 				var $directory = $( '<ul>' );
 				var $files = {
@@ -966,7 +971,6 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displaySubdirectory ).toHaveBeenCalled();
 				expect( workspaceService.privateFunctions.displayFileInDirectory ).toHaveBeenCalled();
-				expect( workspaceService.privateFunctions.removeMoveDown ).toHaveBeenCalled();
 
 				var args = workspaceService.privateFunctions.displaySubdirectory.calls.argsFor( 0 );
 				expect( args[ 0 ] ).toEqual( 'directory1' );
@@ -978,16 +982,13 @@ describe ( 'WorkspaceService', function () {
 				expect( args[ 1 ] ).toEqual( $directory );
 				expect( args[ 2 ] ).toEqual( $files[ 'directory2' ] );
 
-				var args = workspaceService.privateFunctions.displayFileInDirectory.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.displayFileInDirectory.calls.argsFor( 0 );
 				expect( args[ 0 ] ).toEqual( 'file1.html' );
 				expect( args[ 1 ] ).toEqual( $directory );
 
-				var args = workspaceService.privateFunctions.displayFileInDirectory.calls.argsFor( 1 );
+				args = workspaceService.privateFunctions.displayFileInDirectory.calls.argsFor( 1 );
 				expect( args[ 0 ] ).toEqual( 'file2.html' );
 				expect( args[ 1 ] ).toEqual( $directory );
-
-				var args = workspaceService.privateFunctions.removeMoveDown.calls.argsFor( 0 );
-				expect( args[ 0 ] ).toEqual( $directory );
 			} );
 		} );
 
