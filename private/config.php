@@ -3,7 +3,7 @@
 final class Config {
 	private static $instance;
 	private static $EDITOR_DIRECTORY = "../";
-	private static $ROOT_DIRECTORY = "../../";
+	private static $ROOT_DIRECTORY = "../../testZone/";
 
 	private function __clone () {
 	}
