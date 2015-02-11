@@ -717,11 +717,11 @@ var WorkspaceService = function () {
 			, toggleSearchTips: function () {
 				var $tipSearch = $container.find( '.tip-search' );
 
-				$container.find( '.menu .search-container' ).mouseover( function() {
+				$container.find( '.menu .search-container .search' ).mouseover( function() {
 					$tipSearch.show();
 				} );
 
-				$container.find( '.menu .search-container' ).mouseout( function() {
+				$container.find( '.menu .search-container .search' ).mouseout( function() {
 					$tipSearch.hide();
 				} );
 			}

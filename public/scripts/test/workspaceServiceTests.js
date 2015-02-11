@@ -2470,7 +2470,9 @@ describe ( 'WorkspaceService', function () {
 				var data = [
 					'<div class="menu">'
 						, '<div class="search-container">'
-							, '<i class="tip-search"></i>'
+							, '<div class="search">'
+								, '<i class="tip-search"></i>'
+							, '</div>'
 						, '</div>'
 					, '</div>'
 				];
