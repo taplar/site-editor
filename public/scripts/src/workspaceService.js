@@ -69,6 +69,16 @@ var WorkspaceService = function () {
 					}
 				} );
 			}
+			, buildMoveDownFile: function ( data, fileTreeArray, $element ) {
+				functions.buildPromptWithConfirmation( {
+					data: data
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: functions.moveDownFile
+					, customSetup: function ( $prompt ) {
+						functions.buildSubdirectorySelection( $prompt, $element );
+					}
+				} );
+			}
 			, buildMoveUpDirectory: function ( data, fileTreeArray ) {
 				functions.buildPromptWithConfirmation( {
 					data: data
@@ -278,6 +288,7 @@ var WorkspaceService = function () {
 					} ) )
 					.append( $( '<i class="fa fa-pencil-square-o rename rename-file" title="Rename">' ) )
 					.append( $( '<i class="fa fa-level-up move move-up-file" title="Move Up">' ) )
+					.append( $( '<i class="fa fa-level-down move move-down-file" title="Move Down">' ) )
 					.append( $( '<i class="fa fa-times delete delete-file" title="Delete">' ) );
 
 				if ( $directory.hasClass( 'root-list' ) ) {
@@ -288,6 +299,7 @@ var WorkspaceService = function () {
 				$listItem.find( '> .delete-file' ).click( functions.displayDeleteFile );
 				$listItem.find( '> .rename-file' ).click( functions.displayRenameFile );
 				$listItem.find( '> .move-up-file' ).click( functions.displayMoveUpFile );
+				$listItem.find( '> .move-down-file' ).click( functions.displayMoveDownFile );
 			}
 			, displayFilesInDirectory: function ( $directory, $files ) {
 				var filenames = [];
@@ -304,7 +316,7 @@ var WorkspaceService = function () {
 					functions.displayFileInDirectory( filenames[ key ], $directory );
 				}
 
-				functions.removeMoveDownFromDirectories( $directory );
+				functions.removeMoveDown( $directory );
 			}
 			, displayFilesystem: function () {
 				AjaxService.getInstance().GET({
@@ -325,6 +337,16 @@ var WorkspaceService = function () {
 				};
 
 				functions.displayStaticResource( './public/views/moveDownDirectory.view'
+					, successCallback );
+			}
+			, displayMoveDownFile: function () {
+				var $this = $( this );
+				var fileTree = functions.buildFileTreeArray( $this );
+				var successCallback = function ( data ) {
+					functions.buildMoveDownFile( data, fileTree, $this );
+				};
+
+				functions.displayStaticResource( './public/views/moveDownFile.view'
 					, successCallback );
 			}
 			, displayMoveUpDirectory: function () {
@@ -515,6 +537,31 @@ var WorkspaceService = function () {
 			, moveDownDirectorySuccess: function ( data ) {
 				functions.closeMenuPromptWithSuccess( 'Directory moved' );
 			}
+			, moveDownFile: function () {
+				var $prompt = $container.find( '.prompt-container' );
+				var filepath = $prompt.prop( 'fileTree' ).join( '/' );
+				var subdirectory = $prompt.find( '#newdirectory' ).val();
+
+				AjaxService.getInstance().PUT({
+					url: './private/?p=files/'+ filepath
+					, contentType: 'json'
+					, input: JSON.stringify ( {
+						action: 'shiftdown'
+						, name: subdirectory
+					} )
+					, success: functions.moveDownFileSuccess
+					, 401: functions.displayLogin
+					, 498: functions.moveDownFileFailure
+					, 499: functions.invalidReference
+					, 500: AjaxService.getInstance().logInternalError
+				});
+			}
+			, moveDownFileFailure: function ( data ) {
+				functions.closeMenuPromptWithError( 'File not moved' );
+			}
+			, moveDownFileSuccess: function ( data ) {
+				functions.closeMenuPromptWithSuccess( 'File moved' );
+			}
 			, moveUpDirectory: function () {
 				var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
 
@@ -567,12 +614,17 @@ var WorkspaceService = function () {
 			, newFileSuccess: function ( data ) {
 				functions.closeMenuPromptWithSuccess( 'File created' );
 			}
-			, removeMoveDownFromDirectories: function ( $directory ) {
-				$directory.find( '.menu-item' ).each( function () {
-					var $this = $( this );
+			, removeMoveDown: function ( $directory ) {
+				$directory.find( 'ul' ).each( function () {
+					var $subdirectory = $( this );
+					var directoryCount = $subdirectory.find( '> li > i.subdirectory' ).length;
 
-					if ( $this.siblings().find( '> i.subdirectory' ).length < 1 ) {
-						$this.find( '> i.move-down-directory' ).remove();
+					if ( directoryCount < 2 ) {
+						$subdirectory.find( '> li > i.move-down-directory' ).remove();
+
+						if ( directoryCount < 1 ) {
+							$subdirectory.find( '> li > i.move-down-file' ).remove();
+						}
 					}
 				} );
 			}

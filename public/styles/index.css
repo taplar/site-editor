@@ -116,6 +116,11 @@ input:focus, select:focus, textarea:focus, button:focus {
 	font-size: 12px;
 	margin-left: 4px;
 }
+.menu > .content-container > .content .menu-item > .move-down-file {
+	cursor: pointer;
+	font-size: 12px;
+	margin-left: 4px;
+}
 .menu > .content-container > .content .menu-item > .move-up-directory {
 	left: -11px;
 	position: relative;
@@ -302,6 +307,7 @@ input:focus, select:focus, textarea:focus, button:focus {
 .prompt-container .prompt > .content.delete-directory,
 .prompt-container .prompt > .content.delete-file,
 .prompt-container .prompt > .content.move-down-directory,
+.prompt-container .prompt > .content.move-down-file,
 .prompt-container .prompt > .content.move-up-directory,
 .prompt-container .prompt > .content.move-up-file,
 .prompt-container .prompt > .content.new-directory,

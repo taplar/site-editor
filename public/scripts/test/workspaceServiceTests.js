@@ -198,6 +198,36 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'BuildMoveDownFile', function () {
+			it ( 'Should use private function', function () {
+				var data = { somekey: 'somevalue' };
+				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
+				var $object = $( '<div>' );
+
+				spyOn( workspaceService.privateFunctions, 'buildPromptWithConfirmation' );
+				spyOn( workspaceService.privateFunctions, 'buildSubdirectorySelection' );
+
+				workspaceService.privateFunctions.buildMoveDownFile( data, fileTreeArray, $object );
+
+				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.argsFor( 0 )[ 0 ];
+
+				expect( args.data ).toEqual( data );
+				expect( args.fileTreeArray ).toEqual( fileTreeArray );
+				expect( args.confirmationCallback ).toEqual( workspaceService.privateFunctions.moveDownFile );
+
+				expect( workspaceService.privateFunctions.buildSubdirectorySelection ).not.toHaveBeenCalled();
+				args.customSetup( 'something' );
+				expect( workspaceService.privateFunctions.buildSubdirectorySelection ).toHaveBeenCalled();
+
+				args = workspaceService.privateFunctions.buildSubdirectorySelection.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'something' );
+				expect( args[ 1 ] ).toEqual( $object );
+			} );
+		} );
+
 		describe ( 'BuildMoveUpDirectory', function () {
 			it ( 'Should use private function', function () {
 				var data = { somekey: 'somevalue' };
@@ -869,6 +899,7 @@ describe ( 'WorkspaceService', function () {
 				spyOn( workspaceService.privateFunctions, 'displayRenameFile' );
 				spyOn( workspaceService.privateFunctions, 'displayDeleteFile' );
 				spyOn( workspaceService.privateFunctions, 'displayMoveUpFile' );
+				spyOn( workspaceService.privateFunctions, 'displayMoveDownFile' );
 
 				$ul = $( '<ul>' );
 				$expectedMenu = $( [
@@ -878,6 +909,7 @@ describe ( 'WorkspaceService', function () {
 							, '<span class="file-name">fileForSale</span>'
 							, '<i class="fa fa-pencil-square-o rename rename-file" title="Rename"></i>'
 							, '<i class="fa fa-level-up move move-up-file" title="Move Up"></i>'
+							, '<i class="fa fa-level-down move move-down-file" title="Move Down"></i>'
 							, '<i class="fa fa-times delete delete-file" title="Delete"></i>'
 						, '</li>'
 					, '</ul>'
@@ -900,6 +932,10 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.displayMoveUpFile ).not.toHaveBeenCalled();
 				$ul.find( '.move-up-file' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.displayMoveUpFile ).toHaveBeenCalled();
+
+				expect( workspaceService.privateFunctions.displayMoveDownFile ).not.toHaveBeenCalled();
+				$ul.find( '.move-down-file' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.displayMoveDownFile ).toHaveBeenCalled();
 			} );
 
 			it ( 'Should add file to directory listing without move up icon', function () {
@@ -916,7 +952,7 @@ describe ( 'WorkspaceService', function () {
 			it ( 'Should process directories and files', function () {
 				spyOn( workspaceService.privateFunctions, 'displaySubdirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayFileInDirectory' );
-				spyOn( workspaceService.privateFunctions, 'removeMoveDownFromDirectories' );
+				spyOn( workspaceService.privateFunctions, 'removeMoveDown' );
 
 				var $directory = $( '<ul>' );
 				var $files = {
@@ -930,7 +966,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displaySubdirectory ).toHaveBeenCalled();
 				expect( workspaceService.privateFunctions.displayFileInDirectory ).toHaveBeenCalled();
-				expect( workspaceService.privateFunctions.removeMoveDownFromDirectories ).toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.removeMoveDown ).toHaveBeenCalled();
 
 				var args = workspaceService.privateFunctions.displaySubdirectory.calls.argsFor( 0 );
 				expect( args[ 0 ] ).toEqual( 'directory1' );
@@ -950,7 +986,7 @@ describe ( 'WorkspaceService', function () {
 				expect( args[ 0 ] ).toEqual( 'file2.html' );
 				expect( args[ 1 ] ).toEqual( $directory );
 
-				var args = workspaceService.privateFunctions.removeMoveDownFromDirectories.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.removeMoveDown.calls.argsFor( 0 );
 				expect( args[ 0 ] ).toEqual( $directory );
 			} );
 		} );
@@ -1013,6 +1049,39 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.buildMoveDownDirectory ).toHaveBeenCalled();
 
 				args = workspaceService.privateFunctions.buildMoveDownDirectory.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'some data' );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+				expect( args[ 2 ][ 0 ] ).toEqual( $item[ 0 ] );
+			} );
+		} );
+
+		describe ( 'DisplayMoveDownFile', function () {
+			it ( 'Should use private function', function () {
+				var fileTreeArray = [ 'file1', 'file2', 'file3' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
+				spyOn( workspaceService.privateFunctions, 'buildMoveDownFile' );
+				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
+
+				var $item = $( '<div>' );
+				$item.click( workspaceService.privateFunctions.displayMoveDownFile );
+
+				$item.trigger( 'click' );
+
+				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( './public/views/moveDownFile.view' );
+
+				var successCallback = args[ 1 ];
+
+				expect( workspaceService.privateFunctions.buildMoveDownFile ).not.toHaveBeenCalled();
+				successCallback( 'some data' );
+				expect( workspaceService.privateFunctions.buildMoveDownFile ).toHaveBeenCalled();
+
+				args = workspaceService.privateFunctions.buildMoveDownFile.calls.argsFor( 0 );
 
 				expect( args[ 0 ] ).toEqual( 'some data' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
@@ -1416,7 +1485,7 @@ describe ( 'WorkspaceService', function () {
 			beforeEach ( function () {
 				spyOn( workspaceService.privateFunctions, 'toggleSearchTips' );
 				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
-				spyOn( workspaceService.privateFunctions, 'removeMoveDownFromDirectories' );
+				spyOn( workspaceService.privateFunctions, 'removeMoveDown' );
 
 				workspaceService.privateFunctions.buildMenu( menuData.join( '' ) );
 				workspaceService.privateFunctions.buildFilesystem( JSON.stringify( fileData ) );
@@ -1655,6 +1724,74 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'MoveDownFile', function () {
+			it ( 'Should submit PUT request', function () {
+				var $prompt = $( [
+					'<div class="prompt-container">'
+						, '<div class="content-container>'
+							, '<div class="input">'
+								, '<select id="newdirectory">'
+									, '<option value="subdir" selected="selected">subdir</option>'
+								,'</select>'
+							, '</div>'
+						, '</div>'
+					, '</div>'
+				].join( '' ) );
+				var fileTree = [ 'dir1', 'dir2', 'dir777' ];
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.appendTo( $container );
+
+				spyOn( ajaxService, 'PUT' );
+
+				workspaceService.privateFunctions.moveDownFile();
+
+				expect( ajaxService.PUT ).toHaveBeenCalled();
+
+				var args = ajaxService.PUT.calls.argsFor( 0 )[ 0 ];
+
+				expect( args.url ).toEqual( './private/?p=files/dir1/dir2/dir777' );
+				expect( args.contentType ).toEqual( 'json' );
+				expect( args.input ).toEqual( JSON.stringify( {
+					action: 'shiftdown'
+					, name: 'subdir'
+				} ) );
+				expect( args.success ).toEqual( workspaceService.privateFunctions.moveDownFileSuccess );
+				expect( args[ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
+				expect( args[ 498 ] ).toEqual( workspaceService.privateFunctions.moveDownFileFailure );
+				expect( args[ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
+				expect( args[ 500 ] ).toEqual( ajaxService.logInternalError );
+			} );
+		} );
+
+		describe ( 'MoveDownFileFailure', function () {
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithError' );
+
+				workspaceService.privateFunctions.moveDownFileFailure();
+
+				expect( workspaceService.privateFunctions.closeMenuPromptWithError ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'File not moved' );
+			} );
+		} );
+
+		describe ( 'MoveDownFileSuccess', function () {
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithSuccess' );
+
+				workspaceService.privateFunctions.moveDownFileSuccess();
+
+				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'File moved' );
+			} );
+		} );
+
 		describe ( 'MoveUpDirectory', function () {
 			it ( 'Should submit PUT request', function () {
 				var $prompt = $( '<div class="prompt-container"></div>' );
@@ -1821,8 +1958,8 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
-		describe ( 'RemoveMoveDownFromDirectories', function () {
-			it ( 'Should remove the move down icon from directories without sibling directories', function () {
+		describe ( 'RemoveMoveDown', function () {
+			it ( 'Should remove the move down icon from menu items without sibling directories', function () {
 				var $directory = $( [
 					'<ul>'
 						, '<li class="menu-item">'
@@ -1843,6 +1980,12 @@ describe ( 'WorkspaceService', function () {
 											, '<i class="move move-up-directory"></i>'
 											, '<i class="move move-down-directory"></i>'
 											, '<ul>'
+												, '<li class="menu-item">'
+													, '<i class="file"></i>'
+													, '<span class="file-name">file1.1.1.1x</span>'
+													, '<i class="move move-up-file"></i>'
+													, '<i class="move move-down-file"></i>'
+												, '</li>'
 											, '</ul>'
 										, '</li>'
 										, '<li class="menu-item">'
@@ -1851,6 +1994,12 @@ describe ( 'WorkspaceService', function () {
 											, '<i class="move move-up-directory"></i>'
 											, '<i class="move move-down-directory"></i>'
 											, '<ul>'
+												, '<li class="menu-item">'
+													, '<i class="file"></i>'
+													, '<span class="file-name">file1.1.2.1x</span>'
+													, '<i class="move move-up-file"></i>'
+													, '<i class="move move-down-file"></i>'
+												, '</li>'
 											, '</ul>'
 										, '</li>'
 										, '<li class="menu-item">'
@@ -1859,9 +2008,27 @@ describe ( 'WorkspaceService', function () {
 											, '<i class="move move-up-directory"></i>'
 											, '<i class="move move-down-directory"></i>'
 											, '<ul>'
+												, '<li class="menu-item">'
+													, '<i class="file"></i>'
+													, '<span class="file-name">file1.1.3.1x</span>'
+													, '<i class="move move-up-file"></i>'
+													, '<i class="move move-down-file"></i>'
+												, '</li>'
 											, '</ul>'
 										, '</li>'
+										, '<li class="menu-item">'
+											, '<i class="file"></i>'
+											, '<span class="file-name">file1.1.1x</span>'
+											, '<i class="move move-up-file"></i>'
+											, '<i class="move move-down-file"></i>'
+										, '</li>'
 									, '</ul>'
+								, '</li>'
+								, '<li class="menu-item">'
+									, '<i class="file"></i>'
+									, '<span class="file-name">file1.1x</span>'
+									, '<i class="move move-up-file"></i>'
+									, '<i class="move move-down-file"></i>'
 								, '</li>'
 							, '</ul>'
 						, '</li>'
@@ -1877,6 +2044,12 @@ describe ( 'WorkspaceService', function () {
 									, '<i class="move move-up-directory"></i>'
 									, '<i class="move move-down-directory"></i>'
 									, '<ul>'
+										, '<li class="menu-item">'
+											, '<i class="file"></i>'
+											, '<span class="file-name">file2.1.1x</span>'
+											, '<i class="move move-up-file"></i>'
+											, '<i class="move move-down-file"></i>'
+										, '</li>'
 									, '</ul>'
 								, '</li>'
 								, '<li class="menu-item">'
@@ -1891,19 +2064,44 @@ describe ( 'WorkspaceService', function () {
 											, '<i class="move move-up-directory"></i>'
 											, '<i class="move move-down-directory"></i>'
 											, '<ul>'
+												, '<li class="menu-item">'
+													, '<i class="file"></i>'
+													, '<span class="file-name">file2.2.1.1x</span>'
+													, '<i class="move move-up-file"></i>'
+													, '<i class="move move-down-file"></i>'
+												, '</li>'
 											, '</ul>'
+										, '</li>'
+										, '<li class="menu-item">'
+											, '<i class="file"></i>'
+											, '<span class="file-name">file2.2.1x</span>'
+											, '<i class="move move-up-file"></i>'
+											, '<i class="move move-down-file"></i>'
 										, '</li>'
 									, '</ul>'
 								, '</li>'
+								, '<li class="menu-item">'
+									, '<i class="file"></i>'
+									, '<span class="file-name">file2.1x</span>'
+									, '<i class="move move-up-file"></i>'
+									, '<i class="move move-down-file"></i>'
+								, '</li>'
 							, '</ul>'
+						, '</li>'
+						, '<li class="menu-item">'
+							, '<i class="file"></i>'
+							, '<span class="file-name">file1x</span>'
+							, '<i class="move move-up-file"></i>'
+							, '<i class="move move-down-file"></i>'
 						, '</li>'
 					, '</ul>'
 				].join( '' ) );
 
-				workspaceService.privateFunctions.removeMoveDownFromDirectories( $directory );
+				workspaceService.privateFunctions.removeMoveDown( $directory );
 
 				var $directories = $directory.find( '.menu-item' );
 
+				expect( $directories.find( '.file-name' ).length ).toEqual( 19 );
 				expect( $directories.find( '.file-name:contains("directory1x")' ).parent().find( '> .move-down-directory' ).length ).toEqual( 1 );
 				expect( $directories.find( '.file-name:contains("directory1.1x")' ).parent().find( '> .move-down-directory' ).length ).toEqual( 0 );
 				expect( $directories.find( '.file-name:contains("directory1.1.1x")' ).parent().find( '> .move-down-directory' ).length ).toEqual( 1 );
@@ -1913,6 +2111,17 @@ describe ( 'WorkspaceService', function () {
 				expect( $directories.find( '.file-name:contains("directory2.1x")' ).parent().find( '> .move-down-directory' ).length ).toEqual( 1 );
 				expect( $directories.find( '.file-name:contains("directory2.2x")' ).parent().find( '> .move-down-directory' ).length ).toEqual( 1 );
 				expect( $directories.find( '.file-name:contains("directory2.2.1x")' ).parent().find( '> .move-down-directory' ).length ).toEqual( 0 );
+
+				expect( $directories.find( '.file-name:contains("file1x")' ).parent().find( '> .move-down-file' ).length ).toEqual( 1 );
+				expect( $directories.find( '.file-name:contains("file1.1x")' ).parent().find( '> .move-down-file' ).length ).toEqual( 1 );
+				expect( $directories.find( '.file-name:contains("file1.1.1x")' ).parent().find( '> .move-down-file' ).length ).toEqual( 1 );
+				expect( $directories.find( '.file-name:contains("file1.1.1.1x")' ).parent().find( '> .move-down-file' ).length ).toEqual( 0 );
+				expect( $directories.find( '.file-name:contains("file1.1.2.1x")' ).parent().find( '> .move-down-file' ).length ).toEqual( 0 );
+				expect( $directories.find( '.file-name:contains("file1.1.3.1x")' ).parent().find( '> .move-down-file' ).length ).toEqual( 0 );
+				expect( $directories.find( '.file-name:contains("file2.1x")' ).parent().find( '> .move-down-file' ).length ).toEqual( 1 );
+				expect( $directories.find( '.file-name:contains("file2.1.1x")' ).parent().find( '> .move-down-file' ).length ).toEqual( 0 );
+				expect( $directories.find( '.file-name:contains("file2.2.1x")' ).parent().find( '> .move-down-file' ).length ).toEqual( 1 );
+				expect( $directories.find( '.file-name:contains("file2.2.1.1x")' ).parent().find( '> .move-down-file' ).length ).toEqual( 0 );
 			} );
 		} );
 

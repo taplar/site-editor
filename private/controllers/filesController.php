@@ -62,6 +62,8 @@ final class FilesController {
 			} else {
 				if ( $content->action == "shiftup" ) {
 					$this->filesService->moveFileIntoParentDirectory( $path );
+				} else if ( $content->action == "shiftdown" ) {
+					$this->filesService->moveFileIntoSiblingDirectory( $path, $content );
 				} else if ( $content->action == "rename" ) {
 					$this->filesService->renameFile( $path, $content );
 				} else {

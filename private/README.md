@@ -269,3 +269,24 @@ Content-Type: "application/json"
 	* 499 - Directory not moved due to invalid path
 	* 500 - Internal Error
 ```
+
+### Move down file
+
+Purpose: Move file into sibling directory
+
+##### Request
+```
+Method: PUT
+URL: ~/private/?p=files/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /existing-directory
+Content-Type: "application/json"
+'{ "action" : "shiftdown", "name" : "< string >" }'
+```
+##### Response
+```
+* HTTP Response Codes
+	* 200 - File Moved
+	* 401 - Inactive Session
+	* 497 - File not moved due to invalid old/new name
+	* 499 - File not moved due to invalid path
+	* 500 - Internal Error
+```

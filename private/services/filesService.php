@@ -152,7 +152,8 @@ final class FilesService {
 		$newPathString = $this->editorIsNotParentOfPath( $newPathString );
 
 		if ( $pathString != NULL && $newPathString != NULL ) {
-			if ( isset( $content->name ) && file_exists( $pathString . $filename )
+			if ( isset( $content->name ) && $this->isAValidFilename( $filename )
+			&& file_exists( $pathString . $filename )
 			&& !file_exists( $newPathString . $filename ) ) {
 				rename( $pathString . $filename, $newPathString . $filename );
 			} else {
@@ -175,6 +176,27 @@ final class FilesService {
 			if ( $this->isAValidFilename( $filename ) && file_exists( $oldPathString . $filename )
 			&& !file_exists( $pathString . $filename ) ) {
 				rename( $oldPathString . $filename, $pathString . $filename );
+			} else {
+				Http::getInstance()->invalidName();
+			}
+		} else {
+			Http::getInstance()->invalidPath();
+		}
+	}
+
+	public function moveFileIntoSiblingDirectory ( $pathArray, $content ) {
+		$filename = array_pop( $pathArray );
+		$pathString = $this->pathExists( $pathArray );
+		$pathString = $this->editorIsNotParentOfPath( $pathString );
+		array_push( $pathArray, $content->name );
+		$newPathString = $this->pathExists( $pathArray );
+		$newPathString = $this->editorIsNotParentOfPath( $newPathString );
+
+		if ( $pathString != NULL && $newPathString != NULL ) {
+			if ( isset( $content->name ) && $this->isAValidFilename( $filename )
+			&& file_exists( $pathString . $filename )
+			&& !file_exists( $newPathString . $filename ) ) {
+				rename( $pathString . $filename, $newPathString . $filename );
 			} else {
 				Http::getInstance()->invalidName();
 			}
