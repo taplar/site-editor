@@ -207,6 +207,16 @@ var WorkspaceService = function () {
 
 				$selection.focus();
 			}
+			, buildUploadFile: function ( data, fileTreeArray ) {
+				functions.buildPromptWithConfirmation( {
+					data: data
+					, fileTreeArray: fileTreeArray
+					, confirmationCallback: functions.uploadFile
+					, customSetup: function ( $prompt ) {
+						$prompt.find( '#newfile' ).change( functions.displayUploadFilename );
+					}
+				} );
+			}
 			, buildWorkspace: function ( data ) {
 				$container.html( data );
 				$container.find( '.menuIndicator' ).mouseover( functions.displayMenu );
@@ -433,6 +443,7 @@ var WorkspaceService = function () {
 						.append( $( '<i class="fa fa-file file">' ) )
 						.append( $( '<i class="fa fa-plus plus">' ) )
 					.end()
+					.append( $( '<i class="fa fa-upload upload" title="Upload File">' ) )
 					.append( $( '<i class="fa fa-level-up move move-up-directory" title="Move Up">' ) )
 					.append( $( '<i class="fa fa-level-down move move-down-directory" title="Move Down">' ) )
 					.append( $( '<i class="fa fa-times delete delete-directory" title="Delete">' ) )
@@ -452,6 +463,24 @@ var WorkspaceService = function () {
 				$listItem.find( '> .move-up-directory' ).click( functions.displayMoveUpDirectory );
 				$listItem.find( '> .move-down-directory' ).click( functions.displayMoveDownDirectory );
 				$listItem.find( '> .new-file' ).click( functions.displayNewFile );
+				$listItem.find( '> .upload' ).click( functions.displayUploadFile );
+			}
+			, displayUploadFile: function () {
+				var fileTree = functions.buildFileTreeArray( $( this ) );
+				var successCallback = function ( data ) {
+					functions.buildUploadFile( data, fileTree );
+				};
+
+				functions.displayStaticResource( './public/views/uploadFile.view', successCallback );
+			}
+			, displayUploadFilename: function () { //TODO: TEST THIS
+				var $newFile = $( this ).parent().find( '.newfile' );
+
+				if ( typeof this.files[ 0 ] !== 'undefined' ) {
+					$newFile.html( this.files[ 0 ].name );
+				} else {
+					$newFile.html( '' );
+				}
 			}
 			, filterMenu: function ( event ) {
 				var $filter = $( this );
@@ -723,6 +752,12 @@ var WorkspaceService = function () {
 				$container.find( '.menu .search-container .search' ).mouseout( function() {
 					$tipSearch.hide();
 				} );
+			}
+			, uploadFile: function () {
+				LoggingService.getInstance().displayInfo( 'Unimplemented Function' );
+
+				//new FormData()
+				//formData.append( 'files[]', file, file.name )
 			}
 		};
 

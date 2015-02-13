@@ -164,6 +164,14 @@ input:focus, select:focus, textarea:focus, button:focus {
 	font-size: 12px;
 	margin-left: 4px;
 }
+.menu > .content-container > .content .menu-item > .upload {
+	left: -11px;
+	position: relative;
+
+	cursor: pointer;
+	font-size: 12px;
+	margin-left: 4px;
+}
 .menu > .control-container {
 	min-height: 25px;
 
@@ -312,6 +320,7 @@ input:focus, select:focus, textarea:focus, button:focus {
 .prompt-container .prompt > .content.move-up-file,
 .prompt-container .prompt > .content.new-directory,
 .prompt-container .prompt > .content.new-file,
+.prompt-container .prompt > .content.upload-file,
 .prompt-container .prompt > .content .input.login,
 .prompt-container .prompt > .title {
 	text-align: center;
@@ -366,6 +375,36 @@ input:focus, select:focus, textarea:focus, button:focus {
 	color: #000;
 	cursor: pointer;
 	background: rgba(255, 0, 0, 0.5);
+	border: 1px solid #000;
+	border-radius: 8px;
+	font-weight: bold;
+	padding: 8px;
+}
+.prompt-container .prompt > .content.upload-file > .input {
+	margin: 8px 0;
+}
+.prompt-container .prompt > .content.upload-file > .input input[type=file] {
+	display: none;
+}
+.prompt-container .prompt > .content.upload-file > .input .newfile {
+	background: rgba(0, 0, 0, 0.5);
+	border-width: 0;
+	border-radius: 6px;
+	color: rgb(128, 128, 128);
+	display: inline-block;
+	font-family: monospace;
+	font-weight: bold;
+	margin: 1px;
+	max-height: 15px;
+	min-height: 15px;
+	min-width: 160px;
+	padding: 8px;
+	text-align: left;
+}
+.prompt-container .prompt > .content.upload-file > .input label {
+	color: #000;
+	cursor: pointer;
+	background: rgba(255, 255, 0, 0.75);
 	border: 1px solid #000;
 	border-radius: 8px;
 	font-weight: bold;

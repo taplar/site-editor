@@ -1,0 +1,30 @@
+<div class="prompt-container overlay flexbox-h">
+	<div class="flexible-h"></div>
+	
+	<div class="inflexible flexbox-v">
+		<div class="flexible-v"></div>
+		
+		<div class="prompt inflexible">
+			<div class="title">Upload File</div>
+
+			<div class="content upload-file">
+				<div><span class="file-path"></span></div>
+
+				<div class="input">
+					<input type="file" name="newfile" id="newfile"></input>
+					<label for="newfile" id="newfile-label">Browse</label>
+					<div class="newfile">&nbsp;</div>
+				</div>
+
+				<div>
+					<button class="prompt-yes">Upload</button>
+					<button class="prompt-no">Cancel</button>
+				</div>
+			</div>
+		</div>
+		
+		<div class="flexible-v"></div>
+	</div>
+	
+	<div class="flexible-h"></div>
+</div>

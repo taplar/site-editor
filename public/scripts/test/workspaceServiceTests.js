@@ -654,6 +654,25 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'BuildUploadFile', function () {
+			it ( 'Should use private function', function () {
+				var data = { somekey: 'somevalue' };
+				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildPromptWithConfirmation' );
+
+				workspaceService.privateFunctions.buildUploadFile( data, fileTreeArray );
+
+				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.argsFor( 0 )[ 0 ];
+
+				expect( args.data ).toEqual( data );
+				expect( args.fileTreeArray ).toEqual( fileTreeArray );
+				expect( args.confirmationCallback ).toEqual( workspaceService.privateFunctions.uploadFile );
+			} );
+		} );
+
 		describe ( 'BuildWorkspace', function () {
 			it ( 'Should replace container html and bind events', function () {
 				spyOn( sessionService, 'logout' );
@@ -1306,6 +1325,7 @@ describe ( 'WorkspaceService', function () {
 				spyOn( workspaceService.privateFunctions, 'displayMoveDownDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayMoveUpDirectory' );
 				spyOn( workspaceService.privateFunctions, 'displayNewFile' );
+				spyOn( workspaceService.privateFunctions, 'displayUploadFile' );
 
 				$ul = $( '<ul>' );
 				$subfiles = { 'file': 'blah' };
@@ -1324,6 +1344,7 @@ describe ( 'WorkspaceService', function () {
 								, '<i class="fa fa-file file"></i>'
 								, '<i class="fa fa-plus plus"></i>'
 							, '</span>'
+							, '<i class="fa fa-upload upload" title="Upload File"></i>'
 							, '<i class="fa fa-level-up move move-up-directory" title="Move Up"></i>'
 							, '<i class="fa fa-level-down move move-down-directory" title="Move Down"></i>'
 							, '<i class="fa fa-times delete delete-directory" title="Delete"></i>'
@@ -1368,6 +1389,10 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.displayMoveDownDirectory ).not.toHaveBeenCalled();
 				$ul.find( '.move-down-directory' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.displayMoveDownDirectory ).toHaveBeenCalled();
+
+				expect( workspaceService.privateFunctions.displayUploadFile ).not.toHaveBeenCalled();
+				$ul.find( '.upload' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.displayUploadFile ).toHaveBeenCalled();
 			} );
 
 			it ( 'Should not add move up directory icon if parent is root', function () {
@@ -1377,6 +1402,35 @@ describe ( 'WorkspaceService', function () {
 				workspaceService.privateFunctions.displaySubdirectory( 'directoryForPurchase', $ul, $subfiles );
 
 				expect( $ul.html() ).toEqual( $expectedMenu.html() );
+			} );
+		} );
+
+		describe ( 'DisplayUploadFile', function () {
+			it ( 'Should use private function', function () {
+				var fileTreeArray = [ 'file1', 'file2', 'file3' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
+				spyOn( workspaceService.privateFunctions, 'buildUploadFile' );
+				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
+
+				workspaceService.privateFunctions.displayUploadFile();
+
+				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( './public/views/uploadFile.view' );
+
+				var successCallback = args[ 1 ];
+
+				expect( workspaceService.privateFunctions.buildUploadFile ).not.toHaveBeenCalled();
+				successCallback( 'some data' );
+				expect( workspaceService.privateFunctions.buildUploadFile ).toHaveBeenCalled();
+
+				args = workspaceService.privateFunctions.buildUploadFile.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'some data' );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
 			} );
 		} );
 
