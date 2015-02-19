@@ -2547,5 +2547,76 @@ describe ( 'WorkspaceService', function () {
 				expect( $tipSearch.is( ':visible' ) ).toBe( false );
 			} );
 		} );
+
+		describe ( 'UploadFile', function () {
+			it ( 'Should submit POST request', function () {
+				var $prompt = $( [
+					'<div class="prompt-container">'
+						,'<div id="newfile"></div>'
+					,'</div>'
+				].join( '' ) );
+				var fileTree = [ 'dir1', 'dir2', 'dir777' ];
+				var files = [ { name: 'newFileName' } ];
+				var formData = {
+					append: function ( key, value ) {
+						formData.file = value;
+					}
+				};
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.find( '#newfile' ).prop( 'files', files );
+				$prompt.appendTo( $container );
+
+				spyOn( ajaxService, 'POST' );
+				spyOn( window, 'FormData' ).and.returnValue( formData );
+
+				workspaceService.privateFunctions.uploadFile();
+
+				expect( ajaxService.POST ).toHaveBeenCalled();
+
+				var args = ajaxService.POST.calls.argsFor( 0 )[ 0 ];
+
+				expect( args.url ).toEqual( './private/?p=files/dir1/dir2/dir777/newFileName' );
+				expect( args.contentType ).toBe( false );
+				expect( args.processData ).toBe( false );
+				expect( args.input.file ).toEqual( formData.file );
+				expect( args.success ).toEqual( workspaceService.privateFunctions.uploadFileSuccess );
+				expect( args[ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
+				expect( args[ 496 ] ).toEqual( workspaceService.privateFunctions.uploadFileFailure );
+				expect( args[ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
+				expect( args[ 500 ] ).toEqual( ajaxService.logInternalError );
+			} );
+		} );
+
+		describe ( 'UploadFileFailure', function () {
+			it ( 'Should display error message', function () {
+				spyOn( loggingService, 'displayError' );
+
+				workspaceService.privateFunctions.uploadFileFailure();
+
+				expect( loggingService.displayError ).toHaveBeenCalled();
+
+				var args = loggingService.displayError.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'New file already exists, is invalid syntax, or upload failed' );
+			} );
+		} );
+
+		describe ( 'UploadFileSuccess', function () {
+			it ( 'Should use private function', function () {
+				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithSuccess' );
+
+				workspaceService.privateFunctions.uploadFileSuccess();
+
+				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( 'File uploaded' );
+			} );
+		} );
+
+
+
 	} );
 } );

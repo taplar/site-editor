@@ -94,6 +94,22 @@ describe ( 'AjaxService', function () {
 				genericShouldNotLog( 404 );
 			} );
 
+			it ( 'Should log 496 if callback does not exists', function () {
+				genericShouldLog( 496 );
+			} );
+
+			it ( 'Should not log 496 if callback does exist', function () {
+				genericShouldNotLog( 496 );
+			} );
+
+			it ( 'Should log 497 if callback does not exists', function () {
+				genericShouldLog( 497 );
+			} );
+
+			it ( 'Should not log 497 if callback does exist', function () {
+				genericShouldNotLog( 497 );
+			} );
+
 			it ( 'Should log 498 if callback does not exists', function () {
 				genericShouldLog( 498 );
 			} );
@@ -242,12 +258,20 @@ describe ( 'AjaxService', function () {
 				expect( typeof request.contentType ).toEqual( 'undefined' );
 			} );
 
-			it ( 'Should build POST request with content type', function () {
+			it ( 'Should build POST request with json content type', function () {
 				requestArgs.contentType = 'json';
 
 				var request = ajaxService.privateFunctions.buildRequestParameters( 'POST', requestArgs );
 				
 				expect( request.contentType ).toEqual( 'application/json' );
+			} );
+
+			it ( 'Should build POST request with false content type', function () {
+				requestArgs.contentType = false;
+
+				var request = ajaxService.privateFunctions.buildRequestParameters( 'POST', requestArgs );
+				
+				expect( request.contentType ).toBe( false );
 			} );
 
 			it ( 'Should build POST request without content type', function () {
@@ -258,12 +282,20 @@ describe ( 'AjaxService', function () {
 				expect( typeof request.contentType ).toEqual( 'undefined' );
 			} );
 
-			it ( 'Should build PUT request with content type', function () {
+			it ( 'Should build PUT request with json content type', function () {
 				requestArgs.contentType = 'json';
 
 				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
 				
 				expect( request.contentType ).toEqual( 'application/json' );
+			} );
+
+			it ( 'Should build PUT request with false content type', function () {
+				requestArgs.contentType = false;
+
+				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
+				
+				expect( request.contentType ).toBe( false );
 			} );
 
 			it ( 'Should build PUT request without content type', function () {
@@ -272,6 +304,20 @@ describe ( 'AjaxService', function () {
 				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
 				
 				expect( typeof request.contentType ).toEqual( 'undefined' );
+			} );
+
+			it ( 'Should not build request with process data', function () {
+				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
+				
+				expect( typeof request.processData ).toEqual( 'undefined' );
+			} );
+
+			it ( 'Should build request with process data', function () {
+				requestArgs.processData = 'something';
+
+				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
+				
+				expect( request.processData ).toEqual( requestArgs.processData );
 			} );
 		} );
 

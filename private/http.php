@@ -6,6 +6,7 @@ final class Http {
 	private static $BAD_REQUEST			= "400 Bad Request";
 	private static $UNAUTHORIZED		= "401 Unauthorized";
 	private static $NOT_FOUND			= "404 Not Found";
+	private static $UPLOAD_FAILURE		= "496 Upload Failure";
 	private static $DELETE_FAILURE		= "497 Delete Failure";
 	private static $INVALID_NAME		= "498 Invalid Name";
 	private static $INVALID_PATH		= "499 Invalid Path";
@@ -51,6 +52,10 @@ final class Http {
 
 	public function unauthorized () {
 		header( self::$HTTP . self::$UNAUTHORIZED );
+	}
+
+	public function uploadFailure () {
+		header( self::$HTTP . self::$UPLOAD_FAILURE );
 	}
 }
 

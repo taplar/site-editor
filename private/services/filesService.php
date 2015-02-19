@@ -40,8 +40,18 @@ final class FilesService {
 		$pathString = $this->editorIsNotParentOfPath( $pathString );
 
 		if ( $pathString != NULL ) {
-			if ( $this->isAValidFilename( $filename ) && !file_exists( $pathString . $filename ) ) {
-				touch( $pathString . $filename );
+			if ( $this->isAValidFilename( $filename )
+			&& !file_exists( $pathString . $filename ) ) {
+				if ( !isset( $_FILES[ 'file' ] ) ) {
+					touch( $pathString . $filename );
+				} else {
+					$file = $_FILES[ 'file' ];
+
+					if ( $file[ 'error' ] != UPLOAD_ERR_OK
+					|| !move_uploaded_file( $file[ 'tmp_name' ], $pathString . $filename ) ) {
+						Http::getInstance()->uploadFailure();
+					}
+				}
 			} else {
 				Http::getInstance()->invalidName();
 			}

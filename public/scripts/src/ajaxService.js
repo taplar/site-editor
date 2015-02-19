@@ -2,7 +2,7 @@ var AjaxService = function () {
 	var instance = null;
 
 	var buildApi = function () {
-		var errorStatusCodes = [ 301, 401, 404, 497, 498, 499, 500 ];
+		var errorStatusCodes = [ 301, 401, 404, 496, 497, 498, 499, 500 ];
 		var validRequestTypes = ['DELETE', 'GET', 'POST', 'PUT'];
 		var $body = $( 'body' );
 
@@ -42,6 +42,8 @@ var AjaxService = function () {
 					if ( typeof jsonArgs.contentType !== 'undefined' ) {
 						if ( jsonArgs.contentType === 'json' ) {
 							params.contentType = 'application/json';
+						} else if ( jsonArgs.contentType === false ) {
+							params.contentType = false;
 						}
 					}
 				}
@@ -50,6 +52,10 @@ var AjaxService = function () {
 					if ( typeof jsonArgs[ errorStatusCodes[ i ] ] != 'undefined' ) {
 						params.statusCode[ errorStatusCodes[ i ] ] = jsonArgs[ errorStatusCodes[ i ] ];
 					}
+				}
+
+				if ( typeof jsonArgs.processData !== 'undefined' ) {
+					params.processData = jsonArgs.processData;
 				}
 
 				functions.buildErrorCallback( params, jsonArgs );
