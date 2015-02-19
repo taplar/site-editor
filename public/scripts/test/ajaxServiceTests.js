@@ -8,6 +8,10 @@ describe ( 'AjaxService', function () {
 		ajaxService = AjaxService.getTestInstance();
 	} );
 
+	afterEach( function () {
+		$body.find( '.message' ).remove();
+	} );
+
 	describe ( 'API', function () {
 		var genericApiRequestTest = function ( requestMethod, apiMethod ) {
 			var requestArgs = { something: 'blah' };
