@@ -290,3 +290,23 @@ Content-Type: "application/json"
 	* 499 - File not moved due to invalid path
 	* 500 - Internal Error
 ```
+
+### Upload file
+
+Purpose: Upload file to filesystem
+
+##### Request
+```
+Method: POST
+URL: ~/private/?p=files/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /new-file
+FormData data
+```
+##### Response
+```
+* HTTP Response Codes
+	* 200 - File Uploaded
+	* 401 - Inactive Session
+	* 496 - File not uploaded due to already exists, invalid name, or upload failure
+	* 499 - File not uploaded due to invalid path
+	* 500 - Internal Error
+```
