@@ -30,6 +30,7 @@ var WorkspaceService = function () {
 				$fragment.draggable();
 				$fragment.find( '.control-container .file-path' ).html( $fragment.prop( 'fileTree' ).join( '/' ) );
 				$fragment.find( '.content-container .content' ).text( $jsonObject.file );
+				$fragment.find( '.content-container .content' ).keydown( functions.convertTabKeyToTabCharacter );
 				$fragment.appendTo( $container );
 				$fragment.find( '.content-container .content' ).focus();
 			}
@@ -258,6 +259,18 @@ var WorkspaceService = function () {
 			}
 			, closePromptContainer: function () {
 				$container.find( '.prompt-container' ).remove();
+			}
+			, convertTabKeyToTabCharacter: function ( event ) { //TODO: TEST THIS
+				if ( KeyService.getInstance().tab( event ) ) {
+					event.preventDefault();
+
+					var start = this.selectionStart;
+					var end = this.selectionEnd;
+					var $this = $( this );
+
+					$this.val( $this.val().substring( 0, start ) +"\t"+ $this.val().substring( end ) );
+					this.selectionStart = this.selectionEnd = start + 1;
+				}
 			}
 			, delete: function ( url, successCallback, failureCallback ) {
 				var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
