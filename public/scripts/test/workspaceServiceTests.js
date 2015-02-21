@@ -2586,6 +2586,32 @@ describe ( 'WorkspaceService', function () {
 				expect( args[ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
 				expect( args[ 500 ] ).toEqual( ajaxService.logInternalError );
 			} );
+
+			it ( 'Should not submit POST request if no file is selected', function () {
+				var $prompt = $( [
+					'<div class="prompt-container">'
+						,'<div id="newfile"></div>'
+					,'</div>'
+				].join( '' ) );
+				var fileTree = [ 'dir1', 'dir2', 'dir777' ];
+				var files = [ ];
+				var formData = {
+					append: function ( key, value ) {
+						formData.file = value;
+					}
+				};
+
+				$prompt.prop( 'fileTree', fileTree );
+				$prompt.find( '#newfile' ).prop( 'files', files );
+				$prompt.appendTo( $container );
+
+				spyOn( ajaxService, 'POST' );
+				spyOn( window, 'FormData' ).and.returnValue( formData );
+
+				workspaceService.privateFunctions.uploadFile();
+
+				expect( ajaxService.POST ).not.toHaveBeenCalled();
+			} );
 		} );
 
 		describe ( 'UploadFileFailure', function () {

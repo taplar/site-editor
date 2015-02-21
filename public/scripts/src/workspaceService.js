@@ -754,24 +754,26 @@ var WorkspaceService = function () {
 				} );
 			}
 			, uploadFile: function () {
-				var file = $( '#newfile' ).prop( 'files' )[ 0 ];
-				var input = new FormData();
-				var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
+				if ( $( '#newfile' ).prop( 'files' ).length > 0 ) {
+					var file = $( '#newfile' ).prop( 'files' )[ 0 ];
+					var input = new FormData();
+					var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
 
-				input.append( 'file', file );
-				filepath += '/'+ file.name;
+					input.append( 'file', file );
+					filepath += '/'+ file.name;
 
-				AjaxService.getInstance().POST({
-					url: './private/?p=files/' + filepath
-					, input: input
-					, processData: false
-					, contentType: false
-					, success: functions.uploadFileSuccess
-					, 401: functions.displayLogin
-					, 496: functions.uploadFileFailure
-					, 499: functions.invalidReference
-					, 500: AjaxService.getInstance().logInternalError
-				});
+					AjaxService.getInstance().POST({
+						url: './private/?p=files/' + filepath
+						, input: input
+						, processData: false
+						, contentType: false
+						, success: functions.uploadFileSuccess
+						, 401: functions.displayLogin
+						, 496: functions.uploadFileFailure
+						, 499: functions.invalidReference
+						, 500: AjaxService.getInstance().logInternalError
+					});
+				}
 			}
 			, uploadFileFailure: function ( data ) {
 				LoggingService.getInstance().displayError( 'New file already exists, is invalid syntax, or upload failed' );
