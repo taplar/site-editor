@@ -1,0 +1,4 @@
+<div class="draggable file-container">
+	<div class="control-container"><i class="fa fa-times close"></i></div>
+	<div class="content-container"><textarea class="content"></textarea></div>
+</div>

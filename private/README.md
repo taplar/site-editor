@@ -310,3 +310,24 @@ FormData data
 	* 499 - File not uploaded due to invalid path
 	* 500 - Internal Error
 ```
+
+### Retrieve file contents
+
+Purpose: Get the file contents for editing
+
+##### Request
+```
+Method: GET
+URL: ~/private/?p=files/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /existing-file
+```
+##### Response
+```
+* HTTP Response Codes
+	* 200 - File Found
+	* 401 - Inactive Session
+	* 404 - File not found
+	* 500 - Internal Error
+
+* DATA
+{ file: < string > }
+```

@@ -919,8 +919,37 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'DisplayEditFile', function () {
+			it ( 'Should use private function', function () {
+				var fileTreeArray = [ 'dir1', 'dir2' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
+				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
+				spyOn( workspaceService.privateFunctions, 'buildEditFile' );
+
+				workspaceService.privateFunctions.displayEditFile();
+
+				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+
+				expect( args[ 0 ] ).toEqual( './public/views/editFile.view' );
+
+				args = args[ 1 ];
+
+				expect( workspaceService.privateFunctions.buildEditFile ).not.toHaveBeenCalled();
+				args();
+				expect( workspaceService.privateFunctions.buildEditFile ).toHaveBeenCalled();
+
+				args = workspaceService.privateFunctions.buildEditFile.calls.argsFor( 0 );
+
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+			} );
+		} );
+
 		describe ( 'DisplayFileInDirectory', function () {
 			beforeEach ( function () {
+				spyOn( workspaceService.privateFunctions, 'displayEditFile' );
 				spyOn( workspaceService.privateFunctions, 'displayRenameFile' );
 				spyOn( workspaceService.privateFunctions, 'displayDeleteFile' );
 				spyOn( workspaceService.privateFunctions, 'displayMoveUpFile' );
@@ -932,6 +961,7 @@ describe ( 'WorkspaceService', function () {
 						, '<li class="menu-item">'
 							, '<i class="fa fa-file file"></i>'
 							, '<span class="file-name">fileForSale</span>'
+							, '<i class="fa fa-pencil edit edit-file" title="Edit"></i>'
 							, '<i class="fa fa-pencil-square-o rename rename-file" title="Rename"></i>'
 							, '<i class="fa fa-level-up move move-up-file" title="Move Up"></i>'
 							, '<i class="fa fa-level-down move move-down-file" title="Move Down"></i>'
@@ -961,6 +991,10 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.displayMoveDownFile ).not.toHaveBeenCalled();
 				$ul.find( '.move-down-file' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.displayMoveDownFile ).toHaveBeenCalled();
+
+				expect( workspaceService.privateFunctions.displayEditFile ).not.toHaveBeenCalled();
+				$ul.find( '.edit-file' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.displayEditFile ).toHaveBeenCalled();
 			} );
 
 			it ( 'Should add file to directory listing without move up icon', function () {

@@ -53,6 +53,49 @@ input:focus, select:focus, textarea:focus, button:focus {
 	padding: 8px;
 }
 
+/********** FILE CONTAINER **********/
+.file-container {
+	position: absolute;
+	top: 10px;
+	left: 350px;
+
+	height: auto !important;
+	width: auto !important;
+
+	background: rgba(0, 0, 0, 0.5);
+	border: 1px solid rgb(0, 0, 0);
+	border-top-left-radius: 12px;
+	border-top-right-radius: 12px;
+	display: inline-block;
+}
+.file-container > .content-container > .content {
+	min-height: 480px;
+	min-width: 800px;
+
+	background-color: rgba(0, 0, 0, 0.75);
+	border-color: rgba(0, 0, 0, 0.25);
+	color: rgb(0, 255, 0);
+	font-size: 12px;
+	font-family: 'Droid Sans Mono', monospace;
+	tab-size: 4;
+}
+.file-container > .control-container {
+	min-height: 20px;
+
+	background-color: rgb(80, 80, 80);
+	border-top-left-radius: 12px;
+	border-top-right-radius: 12px;
+}
+.file-container > .control-container > .close {
+	position: absolute;
+	right: 6px;
+	top: 4px;
+
+	color: rgb(255, 0, 0);
+	cursor: pointer;
+	font-size: 12px;
+}
+
 /********** MENU **********/
 .menu {
 	left: 0;
@@ -97,6 +140,11 @@ input:focus, select:focus, textarea:focus, button:focus {
 .menu > .content-container > .content .menu-item .delete.delete-directory {
 	left: -11px;
 	position: relative;
+}
+.menu > .content-container > .content .menu-item .edit {
+	cursor: pointer;
+	font-size: 12px;
+	margin-left: 4px;
 }
 .menu > .content-container > .content .menu-item .file,
 .menu > .content-container > .content .menu-item .folder {
@@ -425,61 +473,3 @@ input:focus, select:focus, textarea:focus, button:focus {
 
 
 
-
-
-
-
-
-/*
-.fa-pencil {
-	color: rgb(255, 255, 255);
-	margin-left: 6px;
-}
-.openFile {
-	display: inline-block;
-	
-	position: absolute !important;
-	top: 10px;
-	left: 50px;
-	
-	background: rgb(80, 80, 80);
-	border: 1px solid rgb(0, 0, 0);
-	border-top-left-radius: 12px;
-	border-top-right-radius: 12px;
-}
-.openFile > .name {
-	display: inline-block;
-	min-height: 20px;
-	
-	color: rgb(255, 255, 255);
-	font-size: 13px;
-	font-weight: bold;
-	margin-left: 6px;
-	margin-top: 6px;
-}
-.openFile > .content { margin-bottom: -3px; }
-.openFile > .content > .data {
-	min-height: 500px;
-	min-width: 800px;
-	
-	background-color: rgb(0, 0, 0);
-	color: rgb(0, 255, 0);
-	font-family: 'Droid Sans Mono', monospace;
-	tab-size: 4;
-}
-.openFile > .windowControls {
-	display: inline-block;
-	position: absolute;
-	top: 6px;
-	right: 6px;
-}
-.unselectable {
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}
-
-*/

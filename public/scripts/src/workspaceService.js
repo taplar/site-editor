@@ -20,6 +20,30 @@ var WorkspaceService = function () {
 					, confirmationCallback: functions.deleteFile
 				} );
 			}
+			, buildEditFile: function ( data, fileTreeArray ) { //TODO: TEST THIS
+				var $fragment = $( data );
+				
+				$fragment.hide();
+				$fragment.draggable();
+				
+				$fragment.find( '.control-container > .close' ).click( function () {
+					$fragment.remove();
+				} );
+				
+				$fragment.appendTo( $container );
+				$fragment.show();
+
+				// functions.buildPromptWithoutConfirmation( {
+				// 	data: data
+				// 	, fileTreeArray: fileTreeArray
+				// 	, confirmationCallback: functions.submitNewFileOnEnter
+				// 	, inputField: '#newfile'
+				// 	, customSetup: function ( $prompt ) {
+				// 		var $filepath = $prompt.find( '.file-path' );
+				// 		$filepath.html( $filepath.html() +'/' );
+				// 	}
+				// });
+			}
 			, buildFilesystem: function ( data ) {
 				var $ul = $( '<ul class="root-list">' );
 
@@ -288,6 +312,15 @@ var WorkspaceService = function () {
 				functions.displayStaticResource( './public/views/deleteFile.view'
 					, successCallback );
 			}
+			, displayEditFile: function () {
+				var fileTree = functions.buildFileTreeArray( $( this ) );
+				var successCallback = function ( data ) {
+					functions.buildEditFile( data, fileTree );
+				};
+
+				functions.displayStaticResource( './public/views/editFile.view'
+					, successCallback );
+			}
 			, displayFileInDirectory: function ( $filename, $directory ) { 
 				var $listItem = $( '<li class="menu-item">' );
 
@@ -297,6 +330,7 @@ var WorkspaceService = function () {
 						class: 'file-name'
 						, html: $filename
 					} ) )
+					.append( $( '<i class="fa fa-pencil edit edit-file" title="Edit">' ) )
 					.append( $( '<i class="fa fa-pencil-square-o rename rename-file" title="Rename">' ) )
 					.append( $( '<i class="fa fa-level-up move move-up-file" title="Move Up">' ) )
 					.append( $( '<i class="fa fa-level-down move move-down-file" title="Move Down">' ) )
@@ -307,6 +341,7 @@ var WorkspaceService = function () {
 				}
 
 				$listItem.appendTo( $directory );
+				$listItem.find( '> .edit-file' ).click( functions.displayEditFile );
 				$listItem.find( '> .delete-file' ).click( functions.displayDeleteFile );
 				$listItem.find( '> .rename-file' ).click( functions.displayRenameFile );
 				$listItem.find( '> .move-up-file' ).click( functions.displayMoveUpFile );
