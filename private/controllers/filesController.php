@@ -32,7 +32,11 @@ final class FilesController {
 	}
 
 	public function index ( $path ) {
-		echo json_encode( $this->filesService->listDirectoryStructure() );
+		if ( count( $path ) > 1 ) {
+			echo json_encode( $this->filesService->readFile( $path ) );
+		} else {
+			echo json_encode( $this->filesService->listDirectoryStructure() );
+		}
 	}
 
 	public function save ( $path, $content ) {

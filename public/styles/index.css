@@ -1,4 +1,7 @@
 html, body {
+	min-width: 100vw;
+	min-height: 100vh;
+
 	margin: 0;
 	padding: 0;
 }
@@ -18,6 +21,9 @@ ul {
 }
 input:focus, select:focus, textarea:focus, button:focus {
     outline: none;
+}
+.busy {
+	cursor: wait !important;
 }
 
 /********** CONTAINER **********/
@@ -69,7 +75,7 @@ input:focus, select:focus, textarea:focus, button:focus {
 	display: inline-block;
 }
 .file-container > .content-container > .content {
-	min-height: 480px;
+	min-height: 476px;
 	min-width: 800px;
 
 	background-color: rgba(0, 0, 0, 0.75);
@@ -78,22 +84,31 @@ input:focus, select:focus, textarea:focus, button:focus {
 	font-size: 12px;
 	font-family: 'Droid Sans Mono', monospace;
 	tab-size: 4;
+	-moz-tab-size: 4;
 }
 .file-container > .control-container {
-	min-height: 20px;
+	min-height: 24px;
 
 	background-color: rgb(80, 80, 80);
 	border-top-left-radius: 12px;
 	border-top-right-radius: 12px;
+	cursor: move;
 }
 .file-container > .control-container > .close {
 	position: absolute;
 	right: 6px;
-	top: 4px;
+	top: 6px;
 
 	color: rgb(255, 0, 0);
 	cursor: pointer;
 	font-size: 12px;
+}
+.file-container > .control-container > .file-path {
+	color: rgb(255, 255, 255);
+	display: inline-block;
+	font-weight: bold;
+	margin-left: 6px;
+	margin-top: 4px;
 }
 
 /********** MENU **********/
@@ -465,11 +480,3 @@ input:focus, select:focus, textarea:focus, button:focus {
 	font-size: 30px;
 	margin-bottom: 12px;
 }
-
-
-
-
-
-
-
-

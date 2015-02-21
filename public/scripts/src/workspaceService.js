@@ -20,29 +20,28 @@ var WorkspaceService = function () {
 					, confirmationCallback: functions.deleteFile
 				} );
 			}
-			, buildEditFile: function ( data, fileTreeArray ) { //TODO: TEST THIS
-				var $fragment = $( data );
-				
-				$fragment.hide();
-				$fragment.draggable();
-				
-				$fragment.find( '.control-container > .close' ).click( function () {
+			, buildEditFile: function ( data, $fragment ) { //TODO: TEST THIS
+				var $jsonObject = $.parseJSON( data );
+
+				$fragment.find( '.control-container .close' ).click( function () {
 					$fragment.remove();
 				} );
-				
-				$fragment.appendTo( $container );
-				$fragment.show();
 
-				// functions.buildPromptWithoutConfirmation( {
-				// 	data: data
-				// 	, fileTreeArray: fileTreeArray
-				// 	, confirmationCallback: functions.submitNewFileOnEnter
-				// 	, inputField: '#newfile'
-				// 	, customSetup: function ( $prompt ) {
-				// 		var $filepath = $prompt.find( '.file-path' );
-				// 		$filepath.html( $filepath.html() +'/' );
-				// 	}
-				// });
+				$fragment.draggable();
+				$fragment.find( '.control-container .file-path' ).html( $fragment.prop( 'fileTree' ).join( '/' ) );
+				$fragment.find( '.content-container .content' ).text( $jsonObject.file );
+				$fragment.appendTo( $container );
+				$fragment.find( '.content-container .content' ).focus();
+			}
+			, buildEditFileContainer: function ( data, fileTreeArray ) { //TODO: TEST THIS
+				var $fragment = $( data );
+				var successCallback = function ( data ) {
+					functions.buildEditFile( data, $fragment );
+				};
+				
+				$fragment.prop( 'fileTree', fileTreeArray );
+				
+				functions.displayStaticResource( './private/?p=files/'+ fileTreeArray.join( '/' ), successCallback );
 			}
 			, buildFilesystem: function ( data ) {
 				var $ul = $( '<ul class="root-list">' );
@@ -315,7 +314,7 @@ var WorkspaceService = function () {
 			, displayEditFile: function () {
 				var fileTree = functions.buildFileTreeArray( $( this ) );
 				var successCallback = function ( data ) {
-					functions.buildEditFile( data, fileTree );
+					functions.buildEditFileContainer( data, fileTree );
 				};
 
 				functions.displayStaticResource( './public/views/editFile.view'

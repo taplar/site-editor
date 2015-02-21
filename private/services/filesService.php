@@ -234,6 +234,27 @@ final class FilesService {
 		return $path;
 	}
 
+	public function readFile ( $pathArray ) {
+		$filename = array_pop( $pathArray );
+		$pathString = $this->pathExists( $pathArray );
+		$pathString = $this->editorIsNotParentOfOrSubdirectoryInPath( $pathString );
+		$result = array();
+
+		if ( $pathString != NULL ) {
+			$data = file_get_contents( $pathString . $filename );
+
+			if ( $data !== FALSE ) {
+				$result[ "file" ] = $data;
+			} else {
+				Http::getInstance()->internalError();
+			}
+		} else {
+			Http::getInstance()->invalidPath();
+		}
+
+		return $result;
+	}
+
 	private function removeDirectory ( $pathString ) {
 		$files = array_diff( scandir( $pathString ), array( '.', '..' ) );
 
