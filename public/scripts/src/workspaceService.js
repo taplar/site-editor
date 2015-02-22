@@ -327,8 +327,11 @@ var WorkspaceService = function () {
 				functions.displayStaticResource( './public/views/deleteFile.view'
 					, successCallback );
 			}
-			, displayEditFile: function () {
-				var fileTree = functions.buildFileTreeArray( $( this ) );
+			, displayEditFile: function ( event, fileTree ) {
+				if ( !Utilities.defined( fileTree ) ) {
+					fileTree = functions.buildFileTreeArray( $( this ) );
+				}
+
 				var successCallback = function ( data ) {
 					functions.buildEditFile( data, fileTree );
 				};
@@ -690,7 +693,11 @@ var WorkspaceService = function () {
 				LoggingService.getInstance().displayError( 'New file already exists or is invalid syntax' );
 			}
 			, newFileSuccess: function ( data ) {
+				var fileTreeArray = $container.find( '.prompt-container' ).prop( 'fileTree' );
+				fileTreeArray.push( $container.find( '.prompt-container #newfile' ).val() );
+
 				functions.closeMenuPromptWithSuccess( 'File created' );
+				functions.displayEditFile( null, fileTreeArray );
 			}
 			, removeMoveDown: function ( $directory ) {
 				$directory.find( 'ul' ).each( function () {
@@ -732,7 +739,7 @@ var WorkspaceService = function () {
 				if ( KeyService.getInstance().enter( event ) ) {
 					var input = { };
 					var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
-					filepath += '/'+ $( this ).val(); 
+					filepath += '/'+ $( this ).val();
 
 					functions.submitPostOnEnter( event, './private/?p=files/'
 						, filepath, input, functions.newFileSuccess, functions.newFileFailure );

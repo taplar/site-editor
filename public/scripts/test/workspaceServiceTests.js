@@ -135,12 +135,12 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.displayFilesInDirectory ).toHaveBeenCalled();
 				expect( workspaceService.privateFunctions.removeMoveDown ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayFilesInDirectory.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayFilesInDirectory.calls.first().args;
 
 				expect( args[ 0 ][ 0 ] ).toEqual( $container.find( '.root ul' )[ 0 ] );
 				expect( args[ 1 ] ).toEqual( data );
 
-				args = workspaceService.privateFunctions.removeMoveDown.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.removeMoveDown.calls.first().args;
 
 				expect( args[ 0 ][ 0 ] ).toEqual( $container.find( '.content-container .root' )[ 0 ] );
 			} );
@@ -230,7 +230,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.argsFor( 0 )[ 0 ];
+				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.first().args[ 0 ];
 
 				expect( args.data ).toEqual( data );
 				expect( args.fileTreeArray ).toEqual( fileTreeArray );
@@ -240,7 +240,7 @@ describe ( 'WorkspaceService', function () {
 				args.customSetup( 'something' );
 				expect( workspaceService.privateFunctions.buildSubdirectorySelection ).toHaveBeenCalled();
 
-				args = workspaceService.privateFunctions.buildSubdirectorySelection.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.buildSubdirectorySelection.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'something' );
 				expect( args[ 1 ] ).toEqual( $object );
@@ -260,7 +260,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.argsFor( 0 )[ 0 ];
+				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.first().args[ 0 ];
 
 				expect( args.data ).toEqual( data );
 				expect( args.fileTreeArray ).toEqual( fileTreeArray );
@@ -270,7 +270,7 @@ describe ( 'WorkspaceService', function () {
 				args.customSetup( 'something' );
 				expect( workspaceService.privateFunctions.buildSubdirectorySelection ).toHaveBeenCalled();
 
-				args = workspaceService.privateFunctions.buildSubdirectorySelection.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.buildSubdirectorySelection.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'something' );
 				expect( args[ 1 ] ).toEqual( $object );
@@ -288,7 +288,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.argsFor( 0 )[ 0 ];
+				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.first().args[ 0 ];
 
 				expect( args.data ).toEqual( data );
 				expect( args.fileTreeArray ).toEqual( fileTreeArray );
@@ -307,7 +307,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.argsFor( 0 )[ 0 ];
+				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.first().args[ 0 ];
 
 				expect( args.data ).toEqual( data );
 				expect( args.fileTreeArray ).toEqual( fileTreeArray );
@@ -355,7 +355,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.buildPromptWithoutConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildPromptWithoutConfirmation.calls.argsFor( 0 )[ 0 ];
+				var args = workspaceService.privateFunctions.buildPromptWithoutConfirmation.calls.first().args[ 0 ];
 
 				expect( args.data ).toEqual( data );
 				expect( args.fileTreeArray ).toEqual( fileTreeArray );
@@ -375,7 +375,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.buildPromptWithoutConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildPromptWithoutConfirmation.calls.argsFor( 0 )[ 0 ];
+				var args = workspaceService.privateFunctions.buildPromptWithoutConfirmation.calls.first().args[ 0 ];
 
 				expect( args.data ).toEqual( data );
 				expect( args.fileTreeArray ).toEqual( fileTreeArray );
@@ -553,7 +553,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.buildPromptWithoutConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildPromptWithoutConfirmation.calls.argsFor( 0 )[ 0 ];
+				var args = workspaceService.privateFunctions.buildPromptWithoutConfirmation.calls.first().args[ 0 ];
 
 				expect( args.data ).toEqual( data );
 				expect( args.fileTreeArray ).toEqual( fileTreeArray );
@@ -573,7 +573,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.buildPromptWithoutConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildPromptWithoutConfirmation.calls.argsFor( 0 )[ 0 ];
+				var args = workspaceService.privateFunctions.buildPromptWithoutConfirmation.calls.first().args[ 0 ];
 
 				expect( args.data ).toEqual( data );
 				expect( args.fileTreeArray ).toEqual( fileTreeArray );
@@ -708,7 +708,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.argsFor( 0 )[ 0 ];
+				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.first().args[ 0 ];
 
 				expect( args.data ).toEqual( data );
 				expect( args.fileTreeArray ).toEqual( fileTreeArray );
@@ -751,7 +751,7 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
 				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
 
-				var args = loggingService.displayError.calls.argsFor( 0 );
+				var args = loggingService.displayError.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'This is my message' );
 			} );
@@ -769,7 +769,7 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.closePromptContainer ).toHaveBeenCalled();
 				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
 
-				var args = loggingService.displaySuccess.calls.argsFor( 0 );
+				var args = loggingService.displaySuccess.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'This is my message' );
 			} );
@@ -804,7 +804,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( ajaxService.DELETE ).toHaveBeenCalled();
 
-				var args = ajaxService.DELETE.calls.argsFor( 0 );
+				var args = ajaxService.DELETE.calls.first().args;
 
 				expect( args[ 0 ].url ).toEqual( 'aUrl/?p=root/dir1/dir2' );
 				expect( args[ 0 ].input ).toEqual( { } );
@@ -824,7 +824,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.delete ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.delete.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.delete.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './private/?p=files/directories/' );
 				expect( args[ 1 ] ).toEqual( workspaceService.privateFunctions.deleteDirectorySuccess );
@@ -840,7 +840,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithError ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'Directory not deleted' );
 			} );
@@ -854,7 +854,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'Directory deleted' );
 			} );
@@ -868,7 +868,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.delete ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.delete.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.delete.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './private/?p=files/' );
 				expect( args[ 1 ] ).toEqual( workspaceService.privateFunctions.deleteFileSuccess );
@@ -884,7 +884,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithError ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'File not deleted' );
 			} );
@@ -898,7 +898,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'File deleted' );
 			} );
@@ -916,7 +916,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './public/views/deleteDirectory.view' );
 
@@ -926,7 +926,7 @@ describe ( 'WorkspaceService', function () {
 				successCallback( 'some data' );
 				expect( workspaceService.privateFunctions.buildDeleteDirectory ).toHaveBeenCalled();
 
-				args = workspaceService.privateFunctions.buildDeleteDirectory.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.buildDeleteDirectory.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'some data' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
@@ -945,7 +945,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './public/views/deleteFile.view' );
 
@@ -955,7 +955,7 @@ describe ( 'WorkspaceService', function () {
 				successCallback( 'some data' );
 				expect( workspaceService.privateFunctions.buildDeleteFile ).toHaveBeenCalled();
 
-				args = workspaceService.privateFunctions.buildDeleteFile.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.buildDeleteFile.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'some data' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
@@ -963,7 +963,7 @@ describe ( 'WorkspaceService', function () {
 		} );
 
 		describe ( 'DisplayEditFile', function () {
-			it ( 'Should use private function', function () {
+			it ( 'Should use private function with derived fileTree', function () {
 				var fileTreeArray = [ 'dir1', 'dir2' ];
 
 				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
@@ -974,7 +974,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './public/views/editFile.view' );
 
@@ -984,7 +984,34 @@ describe ( 'WorkspaceService', function () {
 				args();
 				expect( workspaceService.privateFunctions.buildEditFile ).toHaveBeenCalled();
 
-				args = workspaceService.privateFunctions.buildEditFile.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.buildEditFile.calls.first().args;
+
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
+			} );
+
+			it ( 'Should use private function with provided derived fileTree', function () {
+				var fileTreeArray = [ 'dir1', 'dir2' ];
+
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
+				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
+				spyOn( workspaceService.privateFunctions, 'buildEditFile' );
+
+				workspaceService.privateFunctions.displayEditFile( null, fileTreeArray );
+
+				expect( workspaceService.privateFunctions.buildFileTreeArray ).not.toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
+
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.first().args;
+
+				expect( args[ 0 ] ).toEqual( './public/views/editFile.view' );
+
+				args = args[ 1 ];
+
+				expect( workspaceService.privateFunctions.buildEditFile ).not.toHaveBeenCalled();
+				args();
+				expect( workspaceService.privateFunctions.buildEditFile ).toHaveBeenCalled();
+
+				args = workspaceService.privateFunctions.buildEditFile.calls.first().args;
 
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
 			} );
@@ -1068,7 +1095,7 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.displaySubdirectory ).toHaveBeenCalled();
 				expect( workspaceService.privateFunctions.displayFileInDirectory ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displaySubdirectory.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displaySubdirectory.calls.first().args;
 				expect( args[ 0 ] ).toEqual( 'directory1' );
 				expect( args[ 1 ] ).toEqual( $directory );
 				expect( args[ 2 ] ).toEqual( $files[ 'directory1' ] );
@@ -1078,7 +1105,7 @@ describe ( 'WorkspaceService', function () {
 				expect( args[ 1 ] ).toEqual( $directory );
 				expect( args[ 2 ] ).toEqual( $files[ 'directory2' ] );
 
-				args = workspaceService.privateFunctions.displayFileInDirectory.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.displayFileInDirectory.calls.first().args;
 				expect( args[ 0 ] ).toEqual( 'file1.html' );
 				expect( args[ 1 ] ).toEqual( $directory );
 
@@ -1096,7 +1123,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( ajaxService.GET ).toHaveBeenCalled();
 
-				var args = ajaxService.GET.calls.argsFor( 0 );
+				var args = ajaxService.GET.calls.first().args;
 
 				expect( args[ 0 ].url ).toEqual( './private/?p=files' );
 				expect( args[ 0 ].success ).toEqual( workspaceService.privateFunctions.buildFilesystem );
@@ -1113,7 +1140,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './public/views/menu.view' );
 				expect( args[ 1 ] ).toEqual( workspaceService.privateFunctions.buildMenu );
@@ -1135,7 +1162,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './public/views/moveDownDirectory.view' );
 
@@ -1145,7 +1172,7 @@ describe ( 'WorkspaceService', function () {
 				successCallback( 'some data' );
 				expect( workspaceService.privateFunctions.buildMoveDownDirectory ).toHaveBeenCalled();
 
-				args = workspaceService.privateFunctions.buildMoveDownDirectory.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.buildMoveDownDirectory.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'some data' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
@@ -1168,7 +1195,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './public/views/moveDownFile.view' );
 
@@ -1178,7 +1205,7 @@ describe ( 'WorkspaceService', function () {
 				successCallback( 'some data' );
 				expect( workspaceService.privateFunctions.buildMoveDownFile ).toHaveBeenCalled();
 
-				args = workspaceService.privateFunctions.buildMoveDownFile.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.buildMoveDownFile.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'some data' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
@@ -1198,7 +1225,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './public/views/moveUpDirectory.view' );
 
@@ -1208,7 +1235,7 @@ describe ( 'WorkspaceService', function () {
 				successCallback( 'some data' );
 				expect( workspaceService.privateFunctions.buildMoveUpDirectory ).toHaveBeenCalled();
 
-				args = workspaceService.privateFunctions.buildMoveUpDirectory.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.buildMoveUpDirectory.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'some data' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
@@ -1227,7 +1254,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './public/views/moveUpFile.view' );
 
@@ -1237,7 +1264,7 @@ describe ( 'WorkspaceService', function () {
 				successCallback( 'some data' );
 				expect( workspaceService.privateFunctions.buildMoveUpFile ).toHaveBeenCalled();
 
-				args = workspaceService.privateFunctions.buildMoveUpFile.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.buildMoveUpFile.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'some data' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
@@ -1256,7 +1283,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './public/views/newDirectory.view' );
 
@@ -1266,7 +1293,7 @@ describe ( 'WorkspaceService', function () {
 				successCallback( 'some data' );
 				expect( workspaceService.privateFunctions.buildNewDirectory ).toHaveBeenCalled();
 
-				args = workspaceService.privateFunctions.buildNewDirectory.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.buildNewDirectory.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'some data' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
@@ -1285,7 +1312,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './public/views/newFile.view' );
 
@@ -1295,7 +1322,7 @@ describe ( 'WorkspaceService', function () {
 				successCallback( 'some data' );
 				expect( workspaceService.privateFunctions.buildNewFile ).toHaveBeenCalled();
 
-				args = workspaceService.privateFunctions.buildNewFile.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.buildNewFile.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'some data' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
@@ -1317,7 +1344,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'some url' );
 
@@ -1327,7 +1354,7 @@ describe ( 'WorkspaceService', function () {
 				successCallback( 'some data' );
 				expect( workspaceService.privateFunctions.someRandomConfirmationCallback ).toHaveBeenCalled();
 
-				args = workspaceService.privateFunctions.someRandomConfirmationCallback.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.someRandomConfirmationCallback.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'some data' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
@@ -1345,7 +1372,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayRename ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayRename.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayRename.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './public/views/renameDirectory.view' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
@@ -1364,7 +1391,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayRename ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayRename.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayRename.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './public/views/renameFile.view' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
@@ -1383,7 +1410,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( ajaxService.GET ).toHaveBeenCalled();
 
-				var args = ajaxService.GET.calls.argsFor( 0 );
+				var args = ajaxService.GET.calls.first().args;
 
 				expect( args[ 0 ].url ).toEqual( url );
 				expect( args[ 0 ].success ).toEqual( successCallback );
@@ -1438,7 +1465,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayFilesInDirectory ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayFilesInDirectory.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayFilesInDirectory.calls.first().args;
 
 				expect( args[ 0 ][ 0 ] ).toEqual( $ul.find( 'li ul' )[ 0 ] );
 				expect( args[ 1 ] ).toEqual( $subfiles );
@@ -1494,7 +1521,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './public/views/uploadFile.view' );
 
@@ -1504,7 +1531,7 @@ describe ( 'WorkspaceService', function () {
 				successCallback( 'some data' );
 				expect( workspaceService.privateFunctions.buildUploadFile ).toHaveBeenCalled();
 
-				args = workspaceService.privateFunctions.buildUploadFile.calls.argsFor( 0 );
+				args = workspaceService.privateFunctions.buildUploadFile.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'some data' );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
@@ -1782,7 +1809,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithError ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'Parent directory no longer exists or has restricted access' );
 			} );
@@ -1812,7 +1839,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( ajaxService.PUT ).toHaveBeenCalled();
 
-				var args = ajaxService.PUT.calls.argsFor( 0 )[ 0 ];
+				var args = ajaxService.PUT.calls.first().args[ 0 ];
 
 				expect( args.url ).toEqual( './private/?p=files/directories/dir1/dir2/dir777' );
 				expect( args.contentType ).toEqual( 'json' );
@@ -1836,7 +1863,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithError ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'Directory not moved' );
 			} );
@@ -1850,7 +1877,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'Directory moved' );
 			} );
@@ -1880,7 +1907,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( ajaxService.PUT ).toHaveBeenCalled();
 
-				var args = ajaxService.PUT.calls.argsFor( 0 )[ 0 ];
+				var args = ajaxService.PUT.calls.first().args[ 0 ];
 
 				expect( args.url ).toEqual( './private/?p=files/dir1/dir2/dir777' );
 				expect( args.contentType ).toEqual( 'json' );
@@ -1904,7 +1931,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithError ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'File not moved' );
 			} );
@@ -1918,7 +1945,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'File moved' );
 			} );
@@ -1938,7 +1965,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( ajaxService.PUT ).toHaveBeenCalled();
 
-				var args = ajaxService.PUT.calls.argsFor( 0 )[ 0 ];
+				var args = ajaxService.PUT.calls.first().args[ 0 ];
 
 				expect( args.url ).toEqual( './private/?p=files/directories/dir1/dir2/dir777' );
 				expect( args.contentType ).toEqual( 'json' );
@@ -1959,7 +1986,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithError ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'Directory not moved' );
 			} );
@@ -1973,7 +2000,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'Directory moved' );
 			} );
@@ -1993,7 +2020,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( ajaxService.PUT ).toHaveBeenCalled();
 
-				var args = ajaxService.PUT.calls.argsFor( 0 )[ 0 ];
+				var args = ajaxService.PUT.calls.first().args[ 0 ];
 
 				expect( args.url ).toEqual( './private/?p=files/dir1/dir2/dir777' );
 				expect( args.contentType ).toEqual( 'json' );
@@ -2014,7 +2041,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithError ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithError.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'File not moved' );
 			} );
@@ -2028,7 +2055,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'File moved' );
 			} );
@@ -2042,7 +2069,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( loggingService.displayError ).toHaveBeenCalled();
 
-				var args = loggingService.displayError.calls.argsFor( 0 );
+				var args = loggingService.displayError.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'New directory already exists or is invalid syntax' );
 			} );
@@ -2056,7 +2083,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'Directory created' );
 			} );
@@ -2070,7 +2097,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( loggingService.displayError ).toHaveBeenCalled();
 
-				var args = loggingService.displayError.calls.argsFor( 0 );
+				var args = loggingService.displayError.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'New file already exists or is invalid syntax' );
 			} );
@@ -2078,15 +2105,33 @@ describe ( 'WorkspaceService', function () {
 
 		describe ( 'NewFileSuccess', function () {
 			it ( 'Should use private function', function () {
+				var $fragment = $( [
+					'<div class="prompt-container">'
+						, '<input type="text" id="newfile" value="whatsUpWith.dat"></input>'
+					, '</div>'
+				].join( '' ) );
+				var fileTreeArray = [ 'dir1', 'dir2' ];
+
+				$fragment.prop( 'fileTree', fileTreeArray );
+				$fragment.appendTo( $container );
+
 				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithSuccess' );
+				spyOn( workspaceService.privateFunctions, 'displayEditFile' );
 
 				workspaceService.privateFunctions.newFileSuccess();
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'File created' );
+
+				expect( workspaceService.privateFunctions.displayEditFile ).toHaveBeenCalled();
+
+				args = workspaceService.privateFunctions.displayEditFile.calls.first().args;
+
+				expect( args[ 0 ] ).toEqual( null );
+				expect( args[ 1 ] ).toEqual( fileTreeArray );
 			} );
 		} );
 
@@ -2265,7 +2310,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( loggingService.displayError ).toHaveBeenCalled();
 
-				var args = loggingService.displayError.calls.argsFor( 0 );
+				var args = loggingService.displayError.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'New directory already exists or is invalid syntax' );
 			} );
@@ -2279,7 +2324,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'Directory renamed' );
 			} );
@@ -2293,7 +2338,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( loggingService.displayError ).toHaveBeenCalled();
 
-				var args = loggingService.displayError.calls.argsFor( 0 );
+				var args = loggingService.displayError.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'New file already exists or is invalid syntax' );
 			} );
@@ -2307,7 +2352,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'File renamed' );
 			} );
@@ -2331,7 +2376,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.submitPostOnEnter ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.submitPostOnEnter.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.submitPostOnEnter.calls.first().args;
 
 				expect( args[ 1 ] ).toEqual( './private/?p=files/directories/' );
 				expect( args[ 2 ] ).toEqual( 'dir1/dir2/dir777' );
@@ -2377,7 +2422,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.submitPostOnEnter ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.submitPostOnEnter.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.submitPostOnEnter.calls.first().args;
 
 				expect( args[ 1 ] ).toEqual( './private/?p=files/' );
 				expect( args[ 2 ] ).toEqual( 'dir1/dir2/dir777' );
@@ -2421,7 +2466,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( ajaxService.POST ).toHaveBeenCalled();
 
-				var args = ajaxService.POST.calls.argsFor( 0 );
+				var args = ajaxService.POST.calls.first().args;
 
 				expect( args[ 0 ].url ).toEqual( url + filepath );
 				expect( args[ 0 ].input ).toEqual( input );
@@ -2470,7 +2515,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( ajaxService.PUT ).toHaveBeenCalled();
 
-				var args = ajaxService.PUT.calls.argsFor( 0 )[ 0 ];
+				var args = ajaxService.PUT.calls.first().args[ 0 ];
 
 				expect( args.url ).toEqual( url + 'dir1/dir2' );
 				expect( args.contentType ).toEqual( 'json' );
@@ -2525,7 +2570,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.submitRenameOnEnter ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.submitRenameOnEnter.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.submitRenameOnEnter.calls.first().args;
 
 				expect( args[ 1 ] ).toEqual( 'dir777' );
 				expect( args[ 2 ] ).toEqual( './private/?p=files/directories/' );
@@ -2570,7 +2615,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.submitRenameOnEnter ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.submitRenameOnEnter.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.submitRenameOnEnter.calls.first().args;
 
 				expect( args[ 1 ] ).toEqual( 'dir777' );
 				expect( args[ 2 ] ).toEqual( './private/?p=files/' );
@@ -2651,7 +2696,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( ajaxService.POST ).toHaveBeenCalled();
 
-				var args = ajaxService.POST.calls.argsFor( 0 )[ 0 ];
+				var args = ajaxService.POST.calls.first().args[ 0 ];
 
 				expect( args.url ).toEqual( './private/?p=files/dir1/dir2/dir777/newFileName' );
 				expect( args.contentType ).toBe( false );
@@ -2699,7 +2744,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( loggingService.displayError ).toHaveBeenCalled();
 
-				var args = loggingService.displayError.calls.argsFor( 0 );
+				var args = loggingService.displayError.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'New file already exists, is invalid syntax, or upload failed' );
 			} );
@@ -2713,7 +2758,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.closeMenuPromptWithSuccess ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.closeMenuPromptWithSuccess.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( 'File uploaded' );
 			} );
