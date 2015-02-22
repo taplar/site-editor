@@ -20,29 +20,33 @@ var WorkspaceService = function () {
 					, confirmationCallback: functions.deleteFile
 				} );
 			}
-			, buildEditFile: function ( data, $fragment ) { //TODO: TEST THIS
-				var $jsonObject = $.parseJSON( data );
+			, buildEditFile: function ( data, fileTreeArray ) {
+				var $fragment = $( data );
+
+				$fragment.prop( 'fileTree', fileTreeArray );
+				$fragment.find( '.control-container .file-path' ).html( fileTreeArray.join( '/' ) );
+				$fragment.find( '.content-container .content' ).keydown( functions.convertTabKeyToTabCharacter );
 
 				$fragment.find( '.control-container .close' ).click( function () {
 					$fragment.remove();
 				} );
 
-				$fragment.draggable();
-				$fragment.find( '.control-container .file-path' ).html( $fragment.prop( 'fileTree' ).join( '/' ) );
-				$fragment.find( '.content-container .content' ).text( $jsonObject.file );
-				$fragment.find( '.content-container .content' ).keydown( functions.convertTabKeyToTabCharacter );
-				$fragment.appendTo( $container );
-				$fragment.find( '.content-container .content' ).focus();
-			}
-			, buildEditFileContainer: function ( data, fileTreeArray ) { //TODO: TEST THIS
-				var $fragment = $( data );
 				var successCallback = function ( data ) {
-					functions.buildEditFile( data, $fragment );
+					var $jsonObject = $.parseJSON( data );
+					
+					$fragment.find( '.content-container .content' ).text( $jsonObject.file );
+					$fragment.draggable();
+					$fragment.appendTo( $container );
+					$fragment.find( '.content-container .content' ).focus();
 				};
 				
-				$fragment.prop( 'fileTree', fileTreeArray );
-				
-				functions.displayStaticResource( './private/?p=files/'+ fileTreeArray.join( '/' ), successCallback );
+				AjaxService.getInstance().GET({
+					url: './private/?p=files/'+ fileTreeArray.join( '/' )
+					, success: successCallback
+					, 401: SessionService.getInstance().displayLogin
+					, 404: LoggingService.getInstance().logNotFound
+					, 500: LoggingService.getInstance().logInternalError
+				});
 			}
 			, buildFilesystem: function ( data ) {
 				var $ul = $( '<ul class="root-list">' );
@@ -167,30 +171,29 @@ var WorkspaceService = function () {
 				$prompt.find( '.prompt-yes' ).click( jsonArgs.confirmationCallback );
 				$prompt.find( '.prompt-no' ).click( functions.closePromptContainer );
 
-				if ( typeof jsonArgs.customSetup !== 'undefined' ) {
+				if ( Utilities.defined( jsonArgs.customSetup ) ) {
 					jsonArgs.customSetup( $prompt );
 				}
 
 				$prompt.show();
 			}
 			, buildPromptWithoutConfirmation: function ( jsonArgs ) {
-				Require.all( jsonArgs, 'data', 'fileTreeArray', 'inputField', 'confirmationCallback' );
+				Require.all( jsonArgs, 'data', 'fileTreeArray', 'inputField'
+					, 'confirmationCallback' );
 
 				var $prompt = $( jsonArgs.data );
 
 				functions.closePromptContainer();
 				$prompt.find( '.file-path' ).html( jsonArgs.fileTreeArray.join( '/' ) );
 				$prompt.prop( 'fileTree', jsonArgs.fileTreeArray );
-				$prompt.hide();
-				$prompt.appendTo( $container );
 				$prompt.find( '.close' ).click( functions.closePromptContainer );
 				$prompt.find( jsonArgs.inputField ).keyup( jsonArgs.confirmationCallback );
 
-				if ( typeof jsonArgs.customSetup !== 'undefined' ) {
+				if ( Utilities.defined( jsonArgs.customSetup ) ) {
 					jsonArgs.customSetup( $prompt );
 				}
 
-				$prompt.show();
+				$prompt.appendTo( $container );
 				$prompt.find( jsonArgs.inputField ).focus();
 			}
 			, buildRenameDirectory: function ( data, fileTreeArray ) {
@@ -260,7 +263,7 @@ var WorkspaceService = function () {
 			, closePromptContainer: function () {
 				$container.find( '.prompt-container' ).remove();
 			}
-			, convertTabKeyToTabCharacter: function ( event ) { //TODO: TEST THIS
+			, convertTabKeyToTabCharacter: function ( event ) {
 				if ( KeyService.getInstance().tab( event ) ) {
 					event.preventDefault();
 
@@ -327,7 +330,7 @@ var WorkspaceService = function () {
 			, displayEditFile: function () {
 				var fileTree = functions.buildFileTreeArray( $( this ) );
 				var successCallback = function ( data ) {
-					functions.buildEditFileContainer( data, fileTree );
+					functions.buildEditFile( data, fileTree );
 				};
 
 				functions.displayStaticResource( './public/views/editFile.view'
@@ -523,7 +526,7 @@ var WorkspaceService = function () {
 			, displayUploadFilename: function () {
 				var $newFile = $( this ).parent().find( '.newfile' );
 
-				if ( typeof this.files[ 0 ] !== 'undefined' ) {
+				if ( Utilities.defined( this.files[ 0 ] ) ) {
 					$newFile.html( this.files[ 0 ].name );
 				} else {
 					$newFile.html( '' );

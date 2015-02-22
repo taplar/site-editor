@@ -33,12 +33,12 @@ describe ( 'SessionService', function () {
 
 				expect( ajaxService.GET ).toHaveBeenCalled();
 
-				var args = ajaxService.GET.calls.argsFor( 0 );
+				var args = ajaxService.GET.calls.first().args[ 0 ];
 
-				expect( args[ 0 ].url ).toEqual( './public/views/login.view' );
-				expect( args[ 0 ].success ).toEqual( sessionService.privateFunctions.buildLoginForm );
-				expect( args[ 0 ][ 404 ] ).toEqual( loggingService.logNotFound );
-				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
+				expect( args.url ).toEqual( './public/views/login.view' );
+				expect( args.success ).toEqual( sessionService.privateFunctions.buildLoginForm );
+				expect( args[ 404 ] ).toEqual( loggingService.logNotFound );
+				expect( args[ 500 ] ).toEqual( loggingService.logInternalError );
 			} );
 		} );
 
@@ -50,11 +50,11 @@ describe ( 'SessionService', function () {
 
 				expect( ajaxService.DELETE ).toHaveBeenCalled();
 
-				var args = ajaxService.DELETE.calls.argsFor( 0 );
+				var args = ajaxService.DELETE.calls.first().args[ 0 ];
 
-				expect( args[ 0 ].url ).toEqual( './private/?p=sessions' );
-				expect( args[ 0 ].success ).toEqual( sessionService.privateFunctions.logoutSuccess );
-				expect( args[ 0 ].failure ).toEqual( sessionService.displayLogin );
+				expect( args.url ).toEqual( './private/?p=sessions' );
+				expect( args.success ).toEqual( sessionService.privateFunctions.logoutSuccess );
+				expect( args.failure ).toEqual( sessionService.displayLogin );
 			} );
 		} );
 
@@ -66,12 +66,12 @@ describe ( 'SessionService', function () {
 
 				expect( ajaxService.GET ).toHaveBeenCalled();
 
-				var args = ajaxService.GET.calls.argsFor( 0 );
+				var args = ajaxService.GET.calls.first().args[ 0 ];
 
-				expect( args[ 0 ].url ).toEqual( './private/?p=sessions' );
-				expect( args[ 0 ].success ).toEqual( workspaceService.displayWorkspace );
-				expect( args[ 0 ][ 401 ] ).toEqual( sessionService.displayLogin );
-				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
+				expect( args.url ).toEqual( './private/?p=sessions' );
+				expect( args.success ).toEqual( workspaceService.displayWorkspace );
+				expect( args[ 401 ] ).toEqual( sessionService.displayLogin );
+				expect( args[ 500 ] ).toEqual( loggingService.logInternalError );
 			} );
 		} );
 	} );
@@ -97,9 +97,9 @@ describe ( 'SessionService', function () {
 
 				expect( loggingService.displayError ).toHaveBeenCalled();
 
-				var args = loggingService.displayError.calls.argsFor( 0 );
+				var args = loggingService.displayError.calls.first().args[ 0 ];
 
-				expect ( args[ 0 ] ).toEqual( 'Invalid Credentials' );
+				expect ( args ).toEqual( 'Invalid Credentials' );
 			} );
 		} );
 
@@ -115,11 +115,11 @@ describe ( 'SessionService', function () {
 				expect( loggingService.displaySuccess ).toHaveBeenCalled();
 				expect( sessionService.displayLogin ).toHaveBeenCalled();
 
-				var logArgs = loggingService.displaySuccess.calls.argsFor( 0 );
-				var sessionArgs = sessionService.displayLogin.calls.argsFor( 0 );
+				var logArgs = loggingService.displaySuccess.calls.first().args[ 0 ];
+				var sessionArgs = sessionService.displayLogin.calls.first().args[ 0 ];
 
-				expect( logArgs[ 0 ] ).toEqual( 'Logged Out' );
-				expect( sessionArgs[ 0 ] ).toEqual( data );
+				expect( logArgs ).toEqual( 'Logged Out' );
+				expect( sessionArgs ).toEqual( data );
 			} );
 		} );
 
@@ -145,16 +145,16 @@ describe ( 'SessionService', function () {
 				
 				expect( ajaxService.POST ).toHaveBeenCalled();
 
-				var args = ajaxService.POST.calls.argsFor( 0 );
+				var args = ajaxService.POST.calls.first().args[ 0 ];
 
-				expect( args[ 0 ].url ).toEqual( './private/?p=sessions' );
-				expect( args[ 0 ].input ).toEqual( {
+				expect( args.url ).toEqual( './private/?p=sessions' );
+				expect( args.input ).toEqual( {
 					userid: 'admin'
 					, password: 'pass'
 				} );
-				expect( args[ 0 ].success ).toEqual( workspaceService.displayWorkspace );
-				expect( args[ 0 ][ 401 ] ).toEqual( sessionService.privateFunctions.loginFailure );
-				expect( args[ 0 ][ 500 ] ).toEqual( loggingService.logInternalError );
+				expect( args.success ).toEqual( workspaceService.displayWorkspace );
+				expect( args[ 401 ] ).toEqual( sessionService.privateFunctions.loginFailure );
+				expect( args[ 500 ] ).toEqual( loggingService.logInternalError );
 			} );
 		} );
 	} );

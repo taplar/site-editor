@@ -29,7 +29,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.displayStaticResource ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.displayStaticResource.calls.argsFor( 0 );
+				var args = workspaceService.privateFunctions.displayStaticResource.calls.first().args;
 
 				expect( args[ 0 ] ).toEqual( './public/views/workspace.view' );
 				expect( args[ 1 ] ).toEqual( workspaceService.privateFunctions.buildWorkspace );
@@ -49,7 +49,7 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.argsFor( 0 )[ 0 ];
+				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.first().args[ 0 ];
 
 				expect( args.data ).toEqual( data );
 				expect( args.fileTreeArray ).toEqual( fileTreeArray );
@@ -68,11 +68,54 @@ describe ( 'WorkspaceService', function () {
 
 				expect( workspaceService.privateFunctions.buildPromptWithConfirmation ).toHaveBeenCalled();
 
-				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.argsFor( 0 )[ 0 ];
+				var args = workspaceService.privateFunctions.buildPromptWithConfirmation.calls.first().args[ 0 ];
 
 				expect( args.data ).toEqual( data );
 				expect( args.fileTreeArray ).toEqual( fileTreeArray );
 				expect( args.confirmationCallback ).toEqual( workspaceService.privateFunctions.deleteFile );
+			} );
+		} );
+
+		describe ( 'BuildEditFile', function () {
+			it ( 'Should build edit file and retrieve data', function () {
+				var data = [
+					'<div class="file-container">'
+						, '<div class="control-container">'
+							, '<div class="file-path"></div>'
+							, '<i class="close"></i>'
+						,'</div>'
+						, '<div class="content-container">'
+							, '<div class="content"></div>'
+						,'</div>'
+					, '<div>'
+				].join( '' );
+				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
+
+				spyOn( ajaxService, 'GET' );
+
+				workspaceService.privateFunctions.buildEditFile( data, fileTreeArray );
+
+				expect( ajaxService.GET ).toHaveBeenCalled();
+
+				var args = ajaxService.GET.calls.first().args[ 0 ];
+
+				expect( args.url ).toEqual( './private/?p=files/'+ fileTreeArray.join( '/' ) );
+				expect( args[ 401 ] ).toEqual( sessionService.displayLogin );
+				expect( args[ 404 ] ).toEqual( loggingService.logNotFound );
+				expect( args[ 500 ] ).toEqual( loggingService.logInternalError );
+
+				args.success( JSON.stringify( { file: 'content data to edit' } ) );
+
+				var $editor = $container.find( '.file-container' );
+
+				expect( $editor.length ).toEqual( 1 );
+				expect( $editor.prop( 'fileTree') ).toEqual( fileTreeArray );
+				expect( $editor.find( '.control-container .file-path' ).html() ).toEqual( fileTreeArray.join( '/' ) );
+				expect( $editor.find( '.content-container .content' ).text() ).toEqual( 'content data to edit' );
+
+				$editor.find( '.control-container .close' ).click();
+
+				expect( $container.find( '.file-container' ).length ).toEqual( 0 );
 			} );
 		} );
 
