@@ -1,20 +1,66 @@
 describe ( 'KeyService', function () {
 	beforeEach( function () {
-		keyService = KeyService.getInstance();
+		keyService = KeyService.getTestInstance();
 	} );
 
 	describe ( 'API', function () {
-		describe ( 'Enter', function () {
-			it ( 'Should return true', function () {
-				var e = $.Event( 'keyup', { keyCode: 13 } );
+		beforeEach( function () {
+			spyOn( keyService.privateFunctions, 'keyTriggeredEvent' ).and.returnValue( 'invoked' );
+		} );
 
-				expect( keyService.enter( e ) ).toBe( true );
+		describe ( 'Enter', function () {
+			it ( 'Should use private function', function () {
+				var event = { };
+
+				expect( keyService.enter( event ) ).toEqual( 'invoked' );
+				expect( keyService.privateFunctions.keyTriggeredEvent ).toHaveBeenCalled();
+
+				var args = keyService.privateFunctions.keyTriggeredEvent.calls.first().args;
+				expect( args[ 0 ] ).toEqual( 13, event );
+			} );
+		} );
+
+		describe ( 'Tab', function () {
+			it ( 'Should use private function', function () {
+				var event = { };
+
+				expect( keyService.tab( event ) ).toEqual( 'invoked' );
+				expect( keyService.privateFunctions.keyTriggeredEvent ).toHaveBeenCalled();
+
+				var args = keyService.privateFunctions.keyTriggeredEvent.calls.first().args;
+				expect( args[ 0 ] ).toEqual( 9, event );
+			} );
+		} );
+	} );
+
+	describe ( 'PrivateFunctions', function () {
+		describe ( 'KeyTriggeredEvent', function () {
+			it ( 'Should equal which if exists', function () {
+				var keyCode = 5;
+				var event = { which: keyCode };
+
+				expect( keyService.privateFunctions.keyTriggeredEvent( keyCode, event ) ).toBe( true );
 			} );
 
-			it ( 'Should return false', function () {
-				var e = $.Event( 'keyup', { keyCode: 12 } );
+			it ( 'Should not equal which if exists', function () {
+				var keyCode = 5;
+				var event = { which: 6 };
 
-				expect( keyService.enter( e ) ).toBe( false );
+				expect( keyService.privateFunctions.keyTriggeredEvent( keyCode, event ) ).toBe( false );
+			} );
+
+			it ( 'Should equal keyCode if which does not exists', function () {
+				var keyCode = 5;
+				var event = { keyCode: keyCode };
+
+				expect( keyService.privateFunctions.keyTriggeredEvent( keyCode, event ) ).toBe( true );
+			} );
+
+			it ( 'Should not equal keyCode if which does not exists', function () {
+				var keyCode = 5;
+				var event = { keyCode: 6 };
+
+				expect( keyService.privateFunctions.keyTriggeredEvent( keyCode, event ) ).toBe( false );
 			} );
 		} );
 	} );

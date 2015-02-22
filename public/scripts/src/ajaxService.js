@@ -3,21 +3,25 @@ var AjaxService = function () {
 
 	var buildApi = function () {
 		var errorStatusCodes = [ 301, 401, 404, 496, 497, 498, 499, 500 ];
-		var validRequestTypes = ['DELETE', 'GET', 'POST', 'PUT'];
+		var validRequestTypes = [ 'DELETE', 'GET', 'POST', 'PUT' ];
 		var $body = $( 'body' );
 
 		var functions = {
-			buildErrorCallback: function ( params, jsonArgs ) {
-				params.error = function ( xhr, error ) {
-					var statusDoesNotHaveACallback = true;
-
-					for ( var i = 0; i < errorStatusCodes.length; i++ ) {
-						statusDoesNotHaveACallback = statusDoesNotHaveACallback
-							&& ( typeof params.statusCode[ errorStatusCodes[ i ] ] == 'undefined'
-							     || xhr.status != errorStatusCodes[ i ] );
+			buildContentType: function ( requestType, jsonArgs, params ) {
+				if ( Utilities.valueInList( requestType, 'POST', 'PUT' ) ) {
+					if ( Utilities.defined( jsonArgs.contentType ) ) {
+						if ( jsonArgs.contentType === 'json' ) {
+							params.contentType = 'application/json';
+						} else if ( jsonArgs.contentType === false ) {
+							params.contentType = false;
+						}
 					}
-
-					if ( statusDoesNotHaveACallback ) {
+				}
+			}
+			, buildErrorCallback: function ( params, jsonArgs ) {
+				params.error = function ( xhr, error ) {
+					if ( errorStatusCodes.indexOf( xhr.status ) < 0
+					|| !Utilities.defined( params.statusCode[ xhr.status ] ) ) {
 						LoggingService.getInstance().displayError( 'Unexpected response code returned from service.  Please see console for more details.' );
 						console.log( 'Service returned an unexpected response code of: '+ xhr.status );
 					}
@@ -36,28 +40,21 @@ var AjaxService = function () {
 					, statusCode: {}
 				};
 
-				if ( requestType === 'POST' || requestType === 'PUT' ) {
+				if ( Utilities.valueInList( requestType, 'POST', 'PUT' ) ) {
 					params.data = jsonArgs.input;
+				}
 
-					if ( typeof jsonArgs.contentType !== 'undefined' ) {
-						if ( jsonArgs.contentType === 'json' ) {
-							params.contentType = 'application/json';
-						} else if ( jsonArgs.contentType === false ) {
-							params.contentType = false;
-						}
-					}
+				if ( Utilities.defined( jsonArgs.processData ) ) {
+					params.processData = jsonArgs.processData;
 				}
 
 				for ( var i = 0; i < errorStatusCodes.length; i++ ) {
-					if ( typeof jsonArgs[ errorStatusCodes[ i ] ] != 'undefined' ) {
+					if ( Utilities.defined( jsonArgs[ errorStatusCodes[ i ] ] ) ) {
 						params.statusCode[ errorStatusCodes[ i ] ] = jsonArgs[ errorStatusCodes[ i ] ];
 					}
 				}
 
-				if ( typeof jsonArgs.processData !== 'undefined' ) {
-					params.processData = jsonArgs.processData;
-				}
-
+				functions.buildContentType( requestType, jsonArgs, params );
 				functions.buildErrorCallback( params, jsonArgs );
 
 				return params;

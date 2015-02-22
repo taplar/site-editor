@@ -8,14 +8,14 @@ var KeyService = function () {
 		};
 
 		var functions = {
-			keyTriggeredEvent: function ( keyCode, event ) { //TODO: TEST THIS
+			keyTriggeredEvent: function ( keyCode, event ) {
 				var code = event.which;
 
-				if ( typeof code == 'undefined' ) {
+				if ( !Utilities.defined( code ) ) {
 					code = event.keyCode;
 				}
 
-				return ( keyCode == code );
+				return ( keyCode === code );
 			}
 		};
 
@@ -24,7 +24,7 @@ var KeyService = function () {
 			, enter: function ( event ) {
 				return functions.keyTriggeredEvent( keyCodes.enter, event );
 			}
-			, tab: function ( event ) { //TODO: TEST THIS
+			, tab: function ( event ) {
 				return functions.keyTriggeredEvent( keyCodes.tab, event );
 			}
 		};

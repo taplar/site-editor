@@ -51,6 +51,75 @@ describe ( 'AjaxService', function () {
 	} );
 
 	describe ( 'PrivateFunctions', function () {
+		describe ( 'BuildContentType', function () {
+			beforeEach ( function () {
+				params = { };
+				jsonArgs = { };
+			} );
+
+			it ( 'Should do nothing for DELETE', function () {
+				spyOn( Utilities, 'defined' ).and.callThrough();
+
+				ajaxService.privateFunctions.buildContentType( 'DELETE', jsonArgs, params );
+
+				expect( Utilities.defined ).not.toHaveBeenCalled();
+				expect( Utilities.defined( params.contentType ) ).toBe( false );
+			} );
+
+			it ( 'Should do nothing for GET', function () {
+				spyOn( Utilities, 'defined' ).and.callThrough();
+
+				ajaxService.privateFunctions.buildContentType( 'GET', jsonArgs, params );
+
+				expect( Utilities.defined ).not.toHaveBeenCalled();
+				expect( Utilities.defined( params.contentType ) ).toBe( false );
+			} );
+
+			it ( 'Should handle json for POST', function () {
+				jsonArgs.contentType = 'json';
+
+				spyOn( Utilities, 'defined' ).and.callThrough();
+
+				ajaxService.privateFunctions.buildContentType( 'POST', jsonArgs, params );
+
+				expect( Utilities.defined ).toHaveBeenCalled();
+				expect( params.contentType ).toBe( 'application/json' );
+			} );
+
+			it ( 'Should handle false for POST', function () {
+				jsonArgs.contentType = false;
+
+				spyOn( Utilities, 'defined' ).and.callThrough();
+
+				ajaxService.privateFunctions.buildContentType( 'POST', jsonArgs, params );
+
+				expect( Utilities.defined ).toHaveBeenCalled();
+				expect( params.contentType ).toBe( false );
+			} );
+
+			it ( 'Should handle json for PUT', function () {
+				jsonArgs.contentType = 'json';
+
+				spyOn( Utilities, 'defined' ).and.callThrough();
+
+				ajaxService.privateFunctions.buildContentType( 'PUT', jsonArgs, params );
+
+				expect( Utilities.defined ).toHaveBeenCalled();
+				expect( params.contentType ).toBe( 'application/json' );
+			} );
+
+			it ( 'Should handle false for PUT', function () {
+				jsonArgs.contentType = false;
+
+				spyOn( Utilities, 'defined' ).and.callThrough();
+
+				ajaxService.privateFunctions.buildContentType( 'PUT', jsonArgs, params );
+
+				expect( Utilities.defined ).toHaveBeenCalled();
+				expect( params.contentType ).toBe( false );
+			} );
+		} );
+
 		describe ( 'BuildErrorCallback', function () {
 			beforeEach ( function () {
 				spyOn( loggingService, 'displayError' );
@@ -158,170 +227,144 @@ describe ( 'AjaxService', function () {
 		} );
 
 		describe ( 'BuildRequestParameters', function () {
-			var expectations = function ( jsonArgs, requestMethod ) {
-				expect( jsonArgs.type ).toEqual( requestMethod );
+			var expectations = function ( requestType, jsonArgs, params, assumptions ) {
+				expect( params.type ).toEqual( requestType );
+				expect( params.url ).toEqual( jsonArgs.url );
+				expect( params.success ).toEqual( jsonArgs.success );
+				expect( params.complete ).toEqual( ajaxService.privateFunctions.changeMouseStateToDefault );
 
-				if ( requestMethod === 'PUT' || requestMethod === 'POST' ) {
-					expect( jsonArgs.data ).toEqual( requestArgs.input );
+				if ( assumptions.valueInList ) {
+					expect( params.data ).toEqual( jsonArgs.input );
+				} else {
+					expect( Utilities.defined( params.data ) ).toBe( false );
 				}
 
-				expect( jsonArgs.url ).toEqual( requestArgs.url );
+				if ( assumptions.processData ) {
+					expect( params.processData ).toEqual( jsonArgs.processData );
+				} else {
+					expect( Utilities.defined( params.processData ) ).toBe( false );
+				}
 
-				expect( ajaxService.privateFunctions.changeMouseStateToDefault ).not.toHaveBeenCalled();
-				expect( requestArgs.success ).not.toHaveBeenCalled();
-				jsonArgs.success();
-				jsonArgs.complete();
-				expect( ajaxService.privateFunctions.changeMouseStateToDefault ).toHaveBeenCalled();
-				expect( requestArgs.success ).toHaveBeenCalled();
+				expect( ajaxService.privateFunctions.buildContentType ).toHaveBeenCalled();
+				expect( ajaxService.privateFunctions.buildErrorCallback ).toHaveBeenCalled();
 
-				ajaxService.privateFunctions.changeMouseStateToDefault.calls.reset();
+				var args = ajaxService.privateFunctions.buildContentType.calls.first().args;
+				
+				expect( args[ 0 ] ).toEqual( requestType );
+				expect( args[ 1 ] ).toEqual( jsonArgs );
+				expect( args[ 2 ] ).toEqual( params );
 
-				expect( ajaxService.privateFunctions.changeMouseStateToDefault ).not.toHaveBeenCalled();
-				expect( requestArgs.failure ).not.toHaveBeenCalled();
-				jsonArgs.error( { status: 500 } );
-				jsonArgs.complete();
-				expect( ajaxService.privateFunctions.changeMouseStateToDefault ).toHaveBeenCalled();
-				expect( requestArgs.failure ).toHaveBeenCalled();
+				args = ajaxService.privateFunctions.buildErrorCallback.calls.first().args;
+				expect( args[ 0 ] ).toEqual( params );
+				expect( args[ 1 ] ).toEqual( jsonArgs );
 			};
 
 			beforeEach ( function () {
 				requestArgs = {
 					url: '?someurl'
-					, input: {
-						userid: 'id',
-						password: 'password'
-					}
 					, success: function ( data ) { }
-					, failure: function ( data ) { }
 				};
 
-				spyOn( ajaxService.privateFunctions, 'changeMouseStateToDefault' );
-				spyOn( requestArgs, 'success' );
-				spyOn( requestArgs, 'failure' );
+				spyOn( ajaxService.privateFunctions, 'buildContentType' );
+				spyOn( ajaxService.privateFunctions, 'buildErrorCallback' );
 			} );
 
-			var genericBuildTest = function ( requestMethod ) {
-				var request = ajaxService.privateFunctions.buildRequestParameters( requestMethod, requestArgs );
+			it ( 'Should not set data', function () {
+				var requestType = 'IRREVELANT';
+				var assumptions = {
+					valueInList: false
+					, processData: false
+				};
 
-				expectations( request, requestMethod );
+				spyOn( Utilities, 'valueInList' ).and.returnValue( false );
+
+				var params = ajaxService.privateFunctions.buildRequestParameters( requestType, requestArgs );
+
+				expectations( requestType, requestArgs, params, assumptions );
+			});
+
+			it ( 'Should set data', function () {
+				var requestType = 'IRREVELANT';
+				var assumptions = {
+					valueInList: true
+					, processData: false
+				};
+
+				spyOn( Utilities, 'valueInList' ).and.returnValue( true );
+
+				var params = ajaxService.privateFunctions.buildRequestParameters( requestType, requestArgs );
+
+				expectations( requestType, requestArgs, params, assumptions );
+			});
+
+			it ( 'Should not set processData', function () {
+				var requestType = 'IRREVELANT';
+				var assumptions = {
+					valueInList: false
+					, processData: false
+				};
+
+				spyOn( Utilities, 'valueInList' ).and.returnValue( false );
+
+				var params = ajaxService.privateFunctions.buildRequestParameters( requestType, requestArgs );
+
+				expectations( requestType, requestArgs, params, assumptions );
+			});
+
+			it ( 'Should set processData', function () {
+				var requestType = 'IRREVELANT';
+				var assumptions = {
+					valueInList: false
+					, processData: true
+				};
+
+				requestArgs.processData = 'process that data';
+
+				spyOn( Utilities, 'valueInList' ).and.returnValue( false );
+
+				var params = ajaxService.privateFunctions.buildRequestParameters( requestType, requestArgs );
+
+				expectations( requestType, requestArgs, params, assumptions );
+			});
+
+			var genericStatusCodeHandlerTest = function ( statusCode ) {
+				requestArgs[ statusCode ] = function () { };
+
+				var params = ajaxService.privateFunctions.buildRequestParameters( 'IRREVELANT', requestArgs );
+
+				expect( params.statusCode[ statusCode ] ).toEqual( requestArgs[ statusCode ] );
 			};
 
-			it ( 'Should build DELETE request', function () {
-				genericBuildTest( 'DELETE' );
+			it ( 'Should allow handler for 301', function () {
+				genericStatusCodeHandlerTest( 301 );
 			} );
 
-			it ( 'Should build GET request', function () {
-				genericBuildTest( 'GET' );
+			it ( 'Should allow handler for 401', function () {
+				genericStatusCodeHandlerTest( 401 );
 			} );
 
-			it ( 'Should build POST request', function () {
-				genericBuildTest( 'POST' );
+			it ( 'Should allow handler for 404', function () {
+				genericStatusCodeHandlerTest( 404 );
 			} );
 
-			it ( 'Should build PUT request', function () {
-				genericBuildTest( 'PUT' );
+			it ( 'Should allow handler for 496', function () {
+				genericStatusCodeHandlerTest( 496 );
 			} );
 
-			it ( 'Should build request with unauthorized handler', function () {
-				requestArgs[ 401 ] = function () { return 'Unauthorized handler'; };
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'GET', requestArgs );
-				
-				expect( request.statusCode[ 401 ]() ).toEqual( 'Unauthorized handler' );
+			it ( 'Should allow handler for 497', function () {
+				genericStatusCodeHandlerTest( 497 );
 			} );
 
-			it ( 'Should build request with not found handler', function () {
-				requestArgs[ 404 ] = function () { return 'Not Found handler'; };
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'POST', requestArgs );
-				
-				expect( request.statusCode[ 404 ]() ).toEqual( 'Not Found handler' );
+			it ( 'Should allow handler for 498', function () {
+				genericStatusCodeHandlerTest( 498 );
 			} );
 
-			it ( 'Should build request with internal error handler', function () {
-				requestArgs[ 500 ] = function () { return 'Internal Error handler'; };
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
-				
-				expect( request.statusCode[ 500 ]() ).toEqual( 'Internal Error handler' );
+			it ( 'Should allow handler for 499', function () {
+				genericStatusCodeHandlerTest( 499 );
 			} );
 
-			it ( 'Should ignore content type for DELETE', function () {
-				requestArgs.contentType = 'json';
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'DELETE', requestArgs );
-				
-				expect( typeof request.contentType ).toEqual( 'undefined' );
-			} );
-
-			it ( 'Should ignore content type for GET', function () {
-				requestArgs.contentType = 'json';
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'GET', requestArgs );
-				
-				expect( typeof request.contentType ).toEqual( 'undefined' );
-			} );
-
-			it ( 'Should build POST request with json content type', function () {
-				requestArgs.contentType = 'json';
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'POST', requestArgs );
-				
-				expect( request.contentType ).toEqual( 'application/json' );
-			} );
-
-			it ( 'Should build POST request with false content type', function () {
-				requestArgs.contentType = false;
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'POST', requestArgs );
-				
-				expect( request.contentType ).toBe( false );
-			} );
-
-			it ( 'Should build POST request without content type', function () {
-				requestArgs.contentType = 'text';
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'POST', requestArgs );
-				
-				expect( typeof request.contentType ).toEqual( 'undefined' );
-			} );
-
-			it ( 'Should build PUT request with json content type', function () {
-				requestArgs.contentType = 'json';
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
-				
-				expect( request.contentType ).toEqual( 'application/json' );
-			} );
-
-			it ( 'Should build PUT request with false content type', function () {
-				requestArgs.contentType = false;
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
-				
-				expect( request.contentType ).toBe( false );
-			} );
-
-			it ( 'Should build PUT request without content type', function () {
-				requestArgs.contentType = 'text';
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
-				
-				expect( typeof request.contentType ).toEqual( 'undefined' );
-			} );
-
-			it ( 'Should not build request with process data', function () {
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
-				
-				expect( typeof request.processData ).toEqual( 'undefined' );
-			} );
-
-			it ( 'Should build request with process data', function () {
-				requestArgs.processData = 'something';
-
-				var request = ajaxService.privateFunctions.buildRequestParameters( 'PUT', requestArgs );
-				
-				expect( request.processData ).toEqual( requestArgs.processData );
+			it ( 'Should allow handler for 500', function () {
+				genericStatusCodeHandlerTest( 500 );
 			} );
 		} );
 
@@ -342,6 +385,10 @@ describe ( 'AjaxService', function () {
 				$body.addClass( 'busy' );
 			} );
 
+			afterEach ( function () {
+				$body.removeClass( 'busy' );
+			} );
+
 			it ( 'Should remove the busy class from the body', function () {
 				expect( $body.hasClass( 'busy' ) ).toBe( true );
 				ajaxService.privateFunctions.changeMouseStateToDefault();
@@ -357,55 +404,40 @@ describe ( 'AjaxService', function () {
 				spyOn( $, 'ajax' );
 
 				var requestArgs = { key: 'value' };
+				var requestType = 'IRREVELANT';
 
-				ajaxService.privateFunctions.generateAjaxRequest( 'GET', requestArgs );
+				ajaxService.privateFunctions.generateAjaxRequest( requestType, requestArgs );
 
 				expect( ajaxService.privateFunctions.requireRequestTypeInputs ).toHaveBeenCalled();
-				expect( ajaxService.privateFunctions.requireRequestTypeInputs.calls.argsFor( 0 ) )
-					.toEqual( [ 'GET', requestArgs ] );
+				expect( ajaxService.privateFunctions.requireRequestTypeInputs.calls.first().args )
+					.toEqual( [ requestType, requestArgs ] );
 				
 				expect( ajaxService.privateFunctions.changeMouseStateToBusy ).toHaveBeenCalled();
 				expect( ajaxService.privateFunctions.buildRequestParameters ).toHaveBeenCalled();
-				expect( ajaxService.privateFunctions.buildRequestParameters.calls.argsFor( 0 ) )
-					.toEqual( [ 'GET', requestArgs ] );
+				expect( ajaxService.privateFunctions.buildRequestParameters.calls.first().args )
+					.toEqual( [ requestType, requestArgs ] );
 
 				expect( $.ajax ).toHaveBeenCalled();
-				expect( $.ajax.calls.argsFor( 0 ) ).toEqual( [ 'fakeRequestParams' ] );
+				expect( $.ajax.calls.first().args ).toEqual( [ 'fakeRequestParams' ] );
 			} );
 		} );
 
 		describe ( 'RequireRequestTypeInputs', function () {
 			beforeEach ( function () {
-				jsonArgs = {
-					url: '?someurl'
-					, input : { iGotChaInputRightHea: 'pwned!' }
-					, success: function ( data ) { }
-					, failure: function ( data ) { }
-				};
+				jsonArgs = { };
 
 				spyOn( Require, 'all' );
-				valueInArraySpy = spyOn( Require, 'valueInArray' );
-			} );
-
-			it ( 'Should validate that the requestType is valid', function () {
-				valueInArraySpy.and.callFake( function () {
-					throw [ new Error( 'Missing Value' ) ];
-				} );
-
-				try {
-					ajaxService.privateFunctions.requireRequestTypeInputs( 'HEADER', jsonArgs );
-					fail();
-				} catch ( e ) {
-					expect( e[ 0 ].message ).toEqual( 'Missing Value' );
-				}
+				spyOn( Require, 'valueInArray' );
 			} );
 
 			var genericRequireTest = function ( requestMethod, expectedArgs ) {
 				ajaxService.privateFunctions.requireRequestTypeInputs( requestMethod, jsonArgs );
 
 				expect( Require.valueInArray ).toHaveBeenCalled();
+				expect( Require.valueInArray.calls.first().args ).toEqual( [ requestMethod, ['DELETE', 'GET', 'POST', 'PUT'] ] );
+				
 				expect( Require.all ).toHaveBeenCalled();
-				expect( Require.all.calls.argsFor( 0 ) ).toEqual( expectedArgs );
+				expect( Require.all.calls.first().args ).toEqual( expectedArgs );
 			};
 
 			it ( 'Should require only url, and success for DELETE', function () {
