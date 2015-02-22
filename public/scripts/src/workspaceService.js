@@ -60,6 +60,7 @@ var WorkspaceService = function () {
 				functions.removeMoveDown( $root );
 				$root.find( '> .new-directory' ).click( functions.displayNewDirectory );
 				$root.find( '> .new-file' ).click( functions.displayNewFile );
+				$root.find( '> .upload' ).click( functions.displayUploadFile );
 				$menu.find( '.search-container .pattern' ).trigger( 'keyup' );
 			}
 			, buildFileTreeArray: function ( $fileActionObject ) {

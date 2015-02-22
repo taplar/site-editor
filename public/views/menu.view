@@ -24,6 +24,7 @@
 					<i class="fa fa-plus plus"></i>
 				</span>
 
+				<i class="fa fa-upload upload" title="Upload File"></i>
 				<ul></ul>
 			</li>
 		</ul>
