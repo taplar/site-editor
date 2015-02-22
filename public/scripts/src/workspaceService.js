@@ -31,9 +31,14 @@ var WorkspaceService = function () {
 					$fragment.remove();
 				} );
 
+				$fragment.find( '.control-container, .content-container .content' ).click( function () {
+					functions.moveEditFileDisplayToTop( $fragment );
+				} );
+
 				var successCallback = function ( data ) {
 					var $jsonObject = $.parseJSON( data );
 					
+					functions.moveEditFileDisplayToTop( $fragment );
 					$fragment.find( '.content-container .content' ).text( $jsonObject.file );
 					$fragment.draggable();
 					$fragment.appendTo( $container );
@@ -643,6 +648,10 @@ var WorkspaceService = function () {
 			}
 			, moveDownFileSuccess: function ( data ) {
 				functions.closeMenuPromptWithSuccess( 'File moved' );
+			}
+			, moveEditFileDisplayToTop: function ( $fragment ) {
+				$container.find( '.file-container' ).css( 'z-index', 101 );
+				$fragment.css( 'z-index', 102 );
 			}
 			, moveUpDirectory: function () {
 				var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );

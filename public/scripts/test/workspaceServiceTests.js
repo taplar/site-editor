@@ -1978,6 +1978,25 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'MoveEditFileDisplayToTop', function () {
+			it ( 'Should move provided edit file to the top', function () {
+				var $container1 = $( '<div class="file-container"></div>' );
+				var $container2 = $( '<div class="file-container"></div>' );
+				var $container3 = $( '<div class="file-container"></div>' );
+
+				$container
+					.append( $container1 )
+					.append( $container2 )
+					.append( $container3 );
+
+				workspaceService.privateFunctions.moveEditFileDisplayToTop( $container2 );
+
+				expect( $container1.css( 'z-index' ) ).toEqual( '101' );
+				expect( $container2.css( 'z-index' ) ).toEqual( '102' );
+				expect( $container3.css( 'z-index' ) ).toEqual( '101' );
+			} );
+		} );
+
 		describe ( 'MoveUpDirectoryFailure', function () {
 			it ( 'Should use private function', function () {
 				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithError' );
