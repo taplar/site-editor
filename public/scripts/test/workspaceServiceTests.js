@@ -965,10 +965,15 @@ describe ( 'WorkspaceService', function () {
 		describe ( 'DisplayEditFile', function () {
 			it ( 'Should use private function with derived fileTree', function () {
 				var fileTreeArray = [ 'dir1', 'dir2' ];
+				var $openFile = $( [
+					'<div>'
+					, '</div>'
+				].join( '' ) );
 
 				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
 				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
 				spyOn( workspaceService.privateFunctions, 'buildEditFile' );
+				spyOn( workspaceService.privateFunctions, 'findOpenFile' ).and.returnValue( $openFile.find( '.file-container' ) );
 
 				workspaceService.privateFunctions.displayEditFile();
 
@@ -991,10 +996,15 @@ describe ( 'WorkspaceService', function () {
 
 			it ( 'Should use private function with provided derived fileTree', function () {
 				var fileTreeArray = [ 'dir1', 'dir2' ];
+				var $openFile = $( [
+					'<div>'
+					, '</div>'
+				].join( '' ) );
 
 				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
 				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
 				spyOn( workspaceService.privateFunctions, 'buildEditFile' );
+				spyOn( workspaceService.privateFunctions, 'findOpenFile' ).and.returnValue( $openFile.find( '.file-container' ) );
 
 				workspaceService.privateFunctions.displayEditFile( null, fileTreeArray );
 
@@ -1014,6 +1024,30 @@ describe ( 'WorkspaceService', function () {
 				args = workspaceService.privateFunctions.buildEditFile.calls.first().args;
 
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
+			} );
+
+			it ( 'Should refocus on previously opened file', function () {
+				var fileTreeArray = [ 'dir1', 'dir2' ];
+				var $openFile = $( [
+					'<div>'
+						, '<div class="file-container">'
+							, '<div class="control-container"></div>'
+						, '</div>'
+					, '</div>'
+				].join( '' ) );
+
+				spyOn( workspaceService.privateFunctions, 'buildFileTreeArray' ).and.returnValue( fileTreeArray );
+				spyOn( workspaceService.privateFunctions, 'displayStaticResource' );
+				spyOn( workspaceService.privateFunctions, 'buildEditFile' );
+				spyOn( workspaceService.privateFunctions, 'findOpenFile' ).and.returnValue( $openFile.find( '.file-container' ) );
+				spyOn( workspaceService.privateFunctions, 'moveEditFileDisplayToTop' );
+				$openFile.find( '.control-container' ).mousedown( workspaceService.privateFunctions.moveEditFileDisplayToTop );
+
+				workspaceService.privateFunctions.displayEditFile();
+
+				expect( workspaceService.privateFunctions.displayStaticResource ).not.toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.buildEditFile ).not.toHaveBeenCalled();
+				expect( workspaceService.privateFunctions.moveEditFileDisplayToTop ).toHaveBeenCalled();
 			} );
 		} );
 
@@ -1801,6 +1835,29 @@ describe ( 'WorkspaceService', function () {
 			} );
 		} );
 
+		describe ( 'FindOpenFile', function () {
+			beforeEach( function () {
+				var $fragment = $( '<div class="file-container" id="file1"></div>' );
+				$fragment.prop( 'fileTree', [ "dir1", "dir2" ] );
+				$fragment.appendTo( $container );
+
+				$fragment = $( '<div class="file-container" id="file2"></div>' );
+				$fragment.prop( 'fileTree', [ "dir1", "dir3" ] );
+				$fragment.appendTo( $container );
+			} );
+
+			it ( 'Should not find file', function () {
+				expect( workspaceService.privateFunctions.findOpenFile( [ 'dir1' ] ).length ).toEqual( 0 );
+			} );
+
+			it ( 'Should find file', function () {
+				var $openFile = workspaceService.privateFunctions.findOpenFile( [ 'dir1', 'dir3' ] );
+
+				expect( $openFile.length ).toEqual( 1 );
+				expect( $openFile.prop( 'id' ) ).toEqual( 'file2' );
+			} );
+		} );
+
 		describe ( 'InvalidReference', function () {
 			it ( 'Should use private function', function () {
 				spyOn( workspaceService.privateFunctions, 'closeMenuPromptWithError' );
@@ -1980,9 +2037,9 @@ describe ( 'WorkspaceService', function () {
 
 		describe ( 'MoveEditFileDisplayToTop', function () {
 			it ( 'Should move provided edit file to the top', function () {
-				var $container1 = $( '<div class="file-container"></div>' );
-				var $container2 = $( '<div class="file-container"></div>' );
-				var $container3 = $( '<div class="file-container"></div>' );
+				var $container1 = $( '<div class="file-container"><input type="text" class="content"></input></div>' );
+				var $container2 = $( '<div class="file-container"><input type="text" class="content"></input></div>' );
+				var $container3 = $( '<div class="file-container"><input type="text" class="content"></input></div>' );
 
 				$container
 					.append( $container1 )
@@ -1994,6 +2051,7 @@ describe ( 'WorkspaceService', function () {
 				expect( $container1.css( 'z-index' ) ).toEqual( '101' );
 				expect( $container2.css( 'z-index' ) ).toEqual( '102' );
 				expect( $container3.css( 'z-index' ) ).toEqual( '101' );
+				expect( $container2.find( '.content' ).is( ':focus' ) ).toBe( true );
 			} );
 		} );
 

@@ -338,12 +338,18 @@ var WorkspaceService = function () {
 					fileTree = functions.buildFileTreeArray( $( this ) );
 				}
 
-				var successCallback = function ( data ) {
-					functions.buildEditFile( data, fileTree );
-				};
+				var $openFile = functions.findOpenFile( fileTree );
 
-				functions.displayStaticResource( './public/views/editFile.view'
-					, successCallback );
+				if ( $openFile.length < 1 ) {
+					var successCallback = function ( data ) {
+						functions.buildEditFile( data, fileTree );
+					};
+
+					functions.displayStaticResource( './public/views/editFile.view'
+						, successCallback );
+				} else {
+					$openFile.find( '.control-container' ).trigger( 'mousedown' );
+				}
 			}
 			, displayFileInDirectory: function ( $filename, $directory ) { 
 				var $listItem = $( '<li class="menu-item">' );
@@ -596,6 +602,14 @@ var WorkspaceService = function () {
 					$menu.find( 'li' ).hide();
 				}
 			}
+			, findOpenFile: function ( fileTree ) {
+				var $fileContainers = $container.find( '.file-container' );
+				var fileTreeString = fileTree.join( '/' );
+
+				return $fileContainers.filter( function () {
+					return $( this ).prop( 'fileTree' ).join( '/' ) === fileTreeString;
+				} );
+			}
 			, invalidReference: function ( data ) {
 				functions.closeMenuPromptWithError( 'Parent directory no longer exists or has restricted access' );
 			}
@@ -652,6 +666,7 @@ var WorkspaceService = function () {
 			, moveEditFileDisplayToTop: function ( $fragment ) {
 				$container.find( '.file-container' ).css( 'z-index', 101 );
 				$fragment.css( 'z-index', 102 );
+				$fragment.find( '.content' ).focus();
 			}
 			, moveUpDirectory: function () {
 				var filepath = $container.find( '.prompt-container' ).prop( 'fileTree' ).join( '/' );
