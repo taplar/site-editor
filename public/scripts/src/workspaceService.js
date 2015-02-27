@@ -31,7 +31,7 @@ var WorkspaceService = function () {
 					$fragment.remove();
 				} );
 
-				$fragment.find( '.control-container, .content-container .content' ).click( function () {
+				$fragment.find( '.control-container, .content-container .content' ).mousedown( function () {
 					functions.moveEditFileDisplayToTop( $fragment );
 				} );
 
