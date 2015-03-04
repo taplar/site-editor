@@ -1,4 +1,8 @@
 <div class="draggable file-container">
-	<div class="control-container"><div class="file-path"></div><i class="fa fa-times close"></i></div>
+	<div class="control-container">
+		<i class="fa fa-check-circle save unmodified" title="Save"></i>
+		<div class="file-path"></div>
+		<i class="fa fa-times close"></i>
+	</div>
 	<div class="content-container"><textarea class="content"></textarea></div>
 </div>

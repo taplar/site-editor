@@ -35,11 +35,26 @@ var WorkspaceService = function () {
 					functions.moveEditFileDisplayToTop( $fragment );
 				} );
 
+				$fragment.find( '.content-container .content' ).keyup( function () { //TODO: TEST THIS
+					if ( $fragment.prop( 'originalContent' ) !== $( this ).val() ) {
+						$fragment.find( '.control-container .save' )
+							.removeClass( 'unmodified' )
+							.removeClass( 'fa-check-circle' )
+							.addClass( 'modified fa-exclamation-triangle' );
+					} else {
+						$fragment.find( '.control-container .save' )
+							.removeClass( 'modified' )
+							.removeClass( 'fa-exclamation-triangle' )
+							.addClass( 'unmodified fa-check-circle' );
+					}
+				});
+
 				var successCallback = function ( data ) {
 					var $jsonObject = $.parseJSON( data );
 					
 					functions.moveEditFileDisplayToTop( $fragment );
 					$fragment.find( '.content-container .content' ).text( $jsonObject.file );
+					$fragment.prop( 'originalContent', $jsonObject.file ); //TODO: TEST THIS
 					$fragment.draggable();
 					$fragment.appendTo( $container );
 					$fragment.find( '.content-container .content' ).focus();

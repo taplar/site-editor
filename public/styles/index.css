@@ -110,6 +110,20 @@ input:focus, select:focus, textarea:focus, button:focus {
 	margin-left: 6px;
 	margin-top: 4px;
 }
+.file-container > .control-container > .save {
+	cursor: pointer;
+	font-size: 12px;
+	margin-left: 8px;
+	margin-top: 4px;
+}
+.file-container > .control-container > .save.modified {
+	color: rgb(255, 255, 0);
+}
+.file-container > .control-container > .save.unmodified {
+	color: rgb(0, 255, 0);
+	padding-left: 1px;
+	padding-right: 1px;
+}
 
 /********** MENU **********/
 .menu {
