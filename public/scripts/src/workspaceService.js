@@ -26,6 +26,7 @@ var WorkspaceService = function () {
 				$fragment.prop( 'fileTree', fileTreeArray );
 				$fragment.find( '.control-container .file-path' ).html( fileTreeArray.join( '/' ) );
 				$fragment.find( '.content-container .content' ).keydown( functions.convertTabKeyToTabCharacter );
+				$fragment.find( '.content-container .content' ).keyup( functions.displayFileStatus );
 
 				$fragment.find( '.control-container .close' ).click( function () {
 					$fragment.remove();
@@ -35,26 +36,12 @@ var WorkspaceService = function () {
 					functions.moveEditFileDisplayToTop( $fragment );
 				} );
 
-				$fragment.find( '.content-container .content' ).keyup( function () { //TODO: TEST THIS
-					if ( $fragment.prop( 'originalContent' ) !== $( this ).val() ) {
-						$fragment.find( '.control-container .save' )
-							.removeClass( 'unmodified' )
-							.removeClass( 'fa-check-circle' )
-							.addClass( 'modified fa-exclamation-triangle' );
-					} else {
-						$fragment.find( '.control-container .save' )
-							.removeClass( 'modified' )
-							.removeClass( 'fa-exclamation-triangle' )
-							.addClass( 'unmodified fa-check-circle' );
-					}
-				});
-
 				var successCallback = function ( data ) {
 					var $jsonObject = $.parseJSON( data );
 					
 					functions.moveEditFileDisplayToTop( $fragment );
 					$fragment.find( '.content-container .content' ).text( $jsonObject.file );
-					$fragment.prop( 'originalContent', $jsonObject.file ); //TODO: TEST THIS
+					$fragment.prop( 'originalContent', $jsonObject.file );
 					$fragment.draggable();
 					$fragment.appendTo( $container );
 					$fragment.find( '.content-container .content' ).focus();
@@ -405,6 +392,21 @@ var WorkspaceService = function () {
 
 				for ( key in filenames ) {
 					functions.displayFileInDirectory( filenames[ key ], $directory );
+				}
+			}
+			, displayFileStatus: function () {
+				var $fragment = $( this ).parent().parent();
+
+				if ( $fragment.prop( 'originalContent' ) !== $( this ).val() ) {
+					$fragment.find( '.control-container .save' )
+						.removeClass( 'unmodified' )
+						.removeClass( 'fa-check-circle' )
+						.addClass( 'modified fa-exclamation-triangle' );
+				} else {
+					$fragment.find( '.control-container .save' )
+						.removeClass( 'modified' )
+						.removeClass( 'fa-exclamation-triangle' )
+						.addClass( 'unmodified fa-check-circle' );
 				}
 			}
 			, displayFilesystem: function () {

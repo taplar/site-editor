@@ -109,7 +109,8 @@ describe ( 'WorkspaceService', function () {
 				var $editor = $container.find( '.file-container' );
 
 				expect( $editor.length ).toEqual( 1 );
-				expect( $editor.prop( 'fileTree') ).toEqual( fileTreeArray );
+				expect( $editor.prop( 'fileTree' ) ).toEqual( fileTreeArray );
+				expect( $editor.prop( 'originalContent' ) ).toEqual( 'content data to edit' );
 				expect( $editor.find( '.control-container .file-path' ).html() ).toEqual( fileTreeArray.join( '/' ) );
 				expect( $editor.find( '.content-container .content' ).text() ).toEqual( 'content data to edit' );
 
@@ -1146,6 +1147,58 @@ describe ( 'WorkspaceService', function () {
 				args = workspaceService.privateFunctions.displayFileInDirectory.calls.argsFor( 1 );
 				expect( args[ 0 ] ).toEqual( 'file2.html' );
 				expect( args[ 1 ] ).toEqual( $directory );
+			} );
+		} );
+
+		describe ( 'DisplayFileStatus', function () {
+			it ( 'Should change the status to unsaved', function () {
+				var $fragment = $( [
+					'<div class="file-container">'
+						, '<div class="control-container">'
+							, '<i class="save fa-check-circle unmodified">'
+						, '</div>'
+						, '<div class="content-container">'
+							, '<textarea class="content">change me!</textarea>'
+						, '</div>'
+					, '</div>'
+				].join( '' ) );
+				var $content = $fragment.find( '.content-container .content' );
+				var $save = $fragment.find( '.control-container .save' );
+
+				$fragment.prop( 'originalContent', '' );
+				$content.change( workspaceService.privateFunctions.displayFileStatus );
+
+				$content.trigger( 'change' );
+
+				expect( $save.hasClass( 'fa-check-circle' ) ).toBe( false );
+				expect( $save.hasClass( 'fa-exclamation-triangle' ) ).toBe( true );
+				expect( $save.hasClass( 'unmodified' ) ).toBe( false );
+				expect( $save.hasClass( 'modified' ) ).toBe( true );
+			} );
+
+			it ( 'Should change the status to saved', function () {
+				var $fragment = $( [
+					'<div class="file-container">'
+						, '<div class="control-container">'
+							, '<i class="save fa-exclamation-triangle modified">'
+						, '</div>'
+						, '<div class="content-container">'
+							, '<textarea class="content">change me!!</textarea>'
+						, '</div>'
+					, '</div>'
+				].join( '' ) );
+				var $content = $fragment.find( '.content-container .content' );
+				var $save = $fragment.find( '.control-container .save' );
+
+				$fragment.prop( 'originalContent', 'change me!!' );
+				$content.change( workspaceService.privateFunctions.displayFileStatus );
+
+				$content.trigger( 'change' );
+
+				expect( $save.hasClass( 'fa-check-circle' ) ).toBe( true );
+				expect( $save.hasClass( 'fa-exclamation-triangle' ) ).toBe( false );
+				expect( $save.hasClass( 'unmodified' ) ).toBe( true );
+				expect( $save.hasClass( 'modified' ) ).toBe( false );
 			} );
 		} );
 
