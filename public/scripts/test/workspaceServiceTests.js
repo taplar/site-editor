@@ -83,6 +83,7 @@ describe ( 'WorkspaceService', function () {
 						, '<div class="control-container">'
 							, '<i class="save"></i>'
 							, '<div class="file-path"></div>'
+							, '<i class="word-wrap"></i>'
 							, '<i class="close"></i>'
 						,'</div>'
 						, '<div class="content-container">'
@@ -94,6 +95,7 @@ describe ( 'WorkspaceService', function () {
 
 				spyOn( ajaxService, 'GET' );
 				spyOn( workspaceService.privateFunctions, 'saveFile' );
+				spyOn( workspaceService.privateFunctions, 'toggleWordWrap' );
 
 				workspaceService.privateFunctions.buildEditFile( data, fileTreeArray );
 
@@ -119,6 +121,10 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.saveFile ).not.toHaveBeenCalled();
 				$editor.find( '.control-container .save' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.saveFile ).toHaveBeenCalled();
+
+				expect( workspaceService.privateFunctions.toggleWordWrap ).not.toHaveBeenCalled();
+				$editor.find( '.control-container .word-wrap' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.toggleWordWrap ).toHaveBeenCalled();
 
 				$editor.find( '.control-container .close' ).click();
 
@@ -2919,6 +2925,49 @@ describe ( 'WorkspaceService', function () {
 				expect( $tipSearch.is( ':visible' ) ).toBe( true );
 				$searchContainer.trigger( 'mouseout' );
 				expect( $tipSearch.is( ':visible' ) ).toBe( false );
+			} );
+		} );
+
+		describe ( 'ToggleWordWrap', function () {
+			beforeEach ( function () {
+				$fragment = $( [
+					'<div class="file-container">'
+						, '<div class="control-container">'
+							, '<i class="save"></i>'
+							, '<div class="file-path"></div>'
+							, '<i class="fa fa-exchange word-wrap" title="Word Wrap (on)"></i>'
+							, '<i class="close"></i>'
+						,'</div>'
+						, '<div class="content-container">'
+							, '<div class="content"></div>'
+						,'</div>'
+					, '<div>'
+				].join( '' ) );
+
+				$content = $fragment.find( '.content-container .content' );
+				$icon = $fragment.find( '.control-container .word-wrap' );
+				$icon.click( workspaceService.privateFunctions.toggleWordWrap );
+			} );
+
+			it ( 'Should toggle word-wrap', function () {
+				expect( $icon.hasClass( 'fa-exchange' ) ).toBe( true );
+				expect( $icon.hasClass( 'fa-long-arrow-right' ) ).toBe( false );
+				expect( $icon.prop( 'title' ) ).toEqual( 'Word Wrap (on)' );
+				expect( $content.hasClass( 'nowrap' ) ).toBe( false );
+
+				$icon.trigger( 'click' );
+
+				expect( $icon.hasClass( 'fa-exchange' ) ).toBe( false );
+				expect( $icon.hasClass( 'fa-long-arrow-right' ) ).toBe( true );
+				expect( $icon.prop( 'title' ) ).toEqual( 'Word Wrap (off)' );
+				expect( $content.hasClass( 'nowrap' ) ).toBe( true );
+
+				$icon.trigger( 'click' );
+
+				expect( $icon.hasClass( 'fa-exchange' ) ).toBe( true );
+				expect( $icon.hasClass( 'fa-long-arrow-right' ) ).toBe( false );
+				expect( $icon.prop( 'title' ) ).toEqual( 'Word Wrap (on)' );
+				expect( $content.hasClass( 'nowrap' ) ).toBe( false );
 			} );
 		} );
 

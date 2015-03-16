@@ -25,6 +25,7 @@ var WorkspaceService = function () {
 
 				$fragment.prop( 'fileTree', fileTreeArray );
 				$fragment.find( '.control-container .file-path' ).html( fileTreeArray.join( '/' ) );
+				$fragment.find( '.control-container .word-wrap' ).click( functions.toggleWordWrap );
 				$fragment.find( '.content-container .content' ).keydown( functions.convertTabKeyToTabCharacter );
 				$fragment.find( '.content-container .content' ).keyup( functions.displayFileStatus );
 
@@ -41,10 +42,10 @@ var WorkspaceService = function () {
 					
 					functions.moveEditFileDisplayToTop( $fragment );
 					$fragment.find( '.content-container .content' ).text( $jsonObject.file );
+					$fragment.find( '.control-container .save' ).click( functions.saveFile );
 					$fragment.prop( 'originalContent', $jsonObject.file );
 					$fragment.draggable();
 					$fragment.appendTo( $container );
-					$fragment.find( '.control-container .save' ).click( functions.saveFile );
 					$fragment.find( '.content-container .content' ).focus();
 				};
 				
@@ -896,6 +897,20 @@ var WorkspaceService = function () {
 				$container.find( '.menu .search-container .search' ).mouseout( function() {
 					$tipSearch.hide();
 				} );
+			}
+			, toggleWordWrap: function () {
+				var $icon = $( this );
+				var $content = $icon.parent().parent().find( '.content-container .content' );
+
+				if ( $content.hasClass( 'nowrap' ) ) {
+					$content.removeClass( 'nowrap' );
+					$icon.removeClass( 'fa-long-arrow-right' ).addClass( 'fa-exchange' );
+					$icon.prop( 'title', 'Word Wrap (on)' );
+				} else {
+					$content.addClass( 'nowrap' );
+					$icon.removeClass( 'fa-exchange' ).addClass( 'fa-long-arrow-right' );
+					$icon.prop( 'title', 'Word Wrap (off)' );
+				}
 			}
 			, uploadFile: function () {
 				if ( $( '#newfile' ).prop( 'files' ).length > 0 ) {

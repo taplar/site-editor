@@ -86,6 +86,9 @@ input:focus, select:focus, textarea:focus, button:focus {
 	tab-size: 4;
 	-moz-tab-size: 4;
 }
+.file-container > .content-container > .content.nowrap {
+	white-space: nowrap;
+}
 .file-container > .control-container {
 	min-height: 24px;
 
@@ -123,6 +126,15 @@ input:focus, select:focus, textarea:focus, button:focus {
 	color: rgb(0, 255, 0);
 	padding-left: 1px;
 	padding-right: 1px;
+}
+.file-container > .control-container > .word-wrap {
+	position: absolute;
+	right: 20px;
+	top: 6px;
+
+	color: rgb(255, 255, 255);
+	cursor: pointer;
+	font-size: 12px;
 }
 
 /********** MENU **********/
