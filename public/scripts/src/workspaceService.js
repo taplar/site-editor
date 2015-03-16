@@ -27,6 +27,7 @@ var WorkspaceService = function () {
 				$fragment.find( '.control-container .file-path' ).html( fileTreeArray.join( '/' ) );
 				$fragment.find( '.control-container .word-wrap' ).click( functions.toggleWordWrap );
 				$fragment.find( '.content-container .content' ).keydown( functions.convertTabKeyToTabCharacter );
+				$fragment.find( '.content-container .content' ).keyup( functions.preserveLeadingWhitespace ); //TODO: TEST THIS
 				$fragment.find( '.content-container .content' ).keyup( functions.displayFileStatus );
 
 				$fragment.find( '.control-container .close' ).click( function () {
@@ -751,6 +752,67 @@ var WorkspaceService = function () {
 
 				functions.closeMenuPromptWithSuccess( 'File created' );
 				functions.displayEditFile( null, fileTreeArray );
+			}
+			, preserveLeadingWhitespace: function ( event ) { //TODO: TEST THIS
+				if ( KeyService.getInstance().enter( event ) ) {
+					var $this = $( this );
+					var adjustment = 0;
+					var currentPosition = this.selectionStart;
+					var startPosition = currentPosition;
+					var tabs = '';
+
+					for ( var i = currentPosition - 1; i > -1 && startPosition == currentPosition; i-- ) {
+						if ( $( this ).val().charAt( i ) == '\n' ) {
+							startPosition = i + 1;
+						}
+					}
+
+					for ( ; $( this ).val().charAt( startPosition ) == '\t'; startPosition++ ) {
+						tabs += '\t';
+						adjustment++;
+					}
+
+					$this.val( $this.val().substring( 0, currentPosition ) + tabs + $this.val().substring( currentPosition ) );
+					this.selectionStart = this.selectionEnd = currentPosition + adjustment;
+				}
+
+
+
+
+
+
+
+
+
+
+
+			// if (myField.selectionStart || myField.selectionStart == '0'){
+			// 	var startPos = 0;
+			// 	var tabs = '\n';
+				
+			// 	for (var i = myField.selectionStart - 1; i > -1; i--){
+			// 		if (myField.value.charAt(i) == '\n'){
+			// 			startPos = i + 1;
+			// 			break;
+			// 		}
+			// 	}
+				
+			// 	while (myField.value.charAt(startPos) == '\t'){
+			// 		startPos++;
+			// 		tabs += '\t';
+			// 	}
+				
+			// 	THIS.insertAtCursor(myField, tabs);
+			// }
+
+
+
+
+
+
+
+
+
 			}
 			, removeMoveDown: function ( $directory ) {
 				$directory.find( 'ul' ).each( function () {
