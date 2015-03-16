@@ -96,6 +96,7 @@ describe ( 'WorkspaceService', function () {
 				spyOn( ajaxService, 'GET' );
 				spyOn( workspaceService.privateFunctions, 'saveFile' );
 				spyOn( workspaceService.privateFunctions, 'toggleWordWrap' );
+				spyOn( workspaceService.privateFunctions, 'preserveLeadingWhitespace' );
 
 				workspaceService.privateFunctions.buildEditFile( data, fileTreeArray );
 
@@ -125,6 +126,10 @@ describe ( 'WorkspaceService', function () {
 				expect( workspaceService.privateFunctions.toggleWordWrap ).not.toHaveBeenCalled();
 				$editor.find( '.control-container .word-wrap' ).trigger( 'click' );
 				expect( workspaceService.privateFunctions.toggleWordWrap ).toHaveBeenCalled();
+
+				expect( workspaceService.privateFunctions.preserveLeadingWhitespace ).not.toHaveBeenCalled();
+				$editor.find( '.content-container .content' ).trigger( 'keyup' );
+				expect( workspaceService.privateFunctions.preserveLeadingWhitespace ).toHaveBeenCalled();
 
 				$editor.find( '.control-container .close' ).click();
 
@@ -2305,6 +2310,28 @@ describe ( 'WorkspaceService', function () {
 
 				expect( args[ 0 ] ).toEqual( null );
 				expect( args[ 1 ] ).toEqual( fileTreeArray );
+			} );
+		} );
+
+		describe ( 'PreserveLeadingWhitespace', function () {
+			it ( 'Should insert leading tabs onto new line', function () {
+				var $fragment = $( '<textarea></textarea>' );
+
+				$fragment.keydown( function ( event ) {
+					var $this = $( this );
+					$this.val( $this.val().substring( 0, this.selectionStart ) +'\n'+ $this.val().substring( this.selectionStart ) );
+					this.selectionStart++;
+				} );
+
+				$fragment.keyup( workspaceService.privateFunctions.preserveLeadingWhitespace );
+				$fragment.val( 'abcd\n\t\tefgh' );
+				$fragment.focus();
+				$fragment.prop( 'selectionStart', 9 );
+
+				$fragment.trigger( $.Event( 'keydown', { keyCode: 13 } ) );
+				$fragment.trigger( $.Event( 'keyup', { keyCode: 13 } ) );
+
+				expect( JSON.stringify( $fragment.val() ) ).toEqual( JSON.stringify( 'abcd\n\t\tef\n\t\tgh' ) );
 			} );
 		} );
 
