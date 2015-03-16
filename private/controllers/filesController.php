@@ -70,6 +70,8 @@ final class FilesController {
 					$this->filesService->moveFileIntoSiblingDirectory( $path, $content );
 				} else if ( $content->action == "rename" ) {
 					$this->filesService->renameFile( $path, $content );
+				} else if ( $content->action == "save" ) {
+					$this->filesService->saveFile( $path, $content );
 				} else {
 					Http::getInstance()->badRequest();
 				}

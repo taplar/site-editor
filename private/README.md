@@ -331,3 +331,24 @@ URL: ~/private/?p=files/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /ex
 * DATA
 { file: < string > }
 ```
+
+### Save file
+
+Purpose: Save file changes
+
+##### Request
+```
+Method: PUT
+URL: ~/private/?p=files/root [ /sub-directory1 [ /sub-directory2 [ ... ] ] ] /existing-file
+Content-Type: "application/json"
+'{ "action" : "save", "file" : "< string >" }'
+```
+##### Response
+```
+* HTTP Response Codes
+	* 200 - File Saved
+	* 401 - Inactive Session
+	* 498 - File not saved
+	* 499 - File not saved due to invalid path
+	* 500 - Internal Error
+```

@@ -81,6 +81,7 @@ describe ( 'WorkspaceService', function () {
 				var data = [
 					'<div class="file-container">'
 						, '<div class="control-container">'
+							, '<i class="save"></i>'
 							, '<div class="file-path"></div>'
 							, '<i class="close"></i>'
 						,'</div>'
@@ -92,6 +93,7 @@ describe ( 'WorkspaceService', function () {
 				var fileTreeArray = [ 'dir1', 'dir2', 'dir3' ];
 
 				spyOn( ajaxService, 'GET' );
+				spyOn( workspaceService.privateFunctions, 'saveFile' );
 
 				workspaceService.privateFunctions.buildEditFile( data, fileTreeArray );
 
@@ -113,6 +115,10 @@ describe ( 'WorkspaceService', function () {
 				expect( $editor.prop( 'originalContent' ) ).toEqual( 'content data to edit' );
 				expect( $editor.find( '.control-container .file-path' ).html() ).toEqual( fileTreeArray.join( '/' ) );
 				expect( $editor.find( '.content-container .content' ).text() ).toEqual( 'content data to edit' );
+
+				expect( workspaceService.privateFunctions.saveFile ).not.toHaveBeenCalled();
+				$editor.find( '.control-container .save' ).trigger( 'click' );
+				expect( workspaceService.privateFunctions.saveFile ).toHaveBeenCalled();
 
 				$editor.find( '.control-container .close' ).click();
 
@@ -2487,6 +2493,91 @@ describe ( 'WorkspaceService', function () {
 				expect( args[ 0 ] ).toEqual( 'File renamed' );
 			} );
 		} );
+
+		describe ( 'SaveFile', function () {
+			beforeEach (function () {
+				$fragment = $( [
+					'<div class="file-container">'
+						, '<div class="control-container">'
+							, '<i class="save unmodified"></i>'
+						, '</div>'
+						, '<div class="content-container">'
+							, '<textarea class="content">The roof is on fire!</textarea>'
+						, '</div>'
+					, '</div>'
+				].join( '' ) );
+
+				$fragment.prop( 'fileTree', [ 'root', 'dir1', 'dir2', 'index.html' ] );
+				$fragment.prop( 'originalContent', $fragment.find( '.content-container .content' ).val() );
+				$fragment.find( '.control-container .save' ).click( workspaceService.privateFunctions.saveFile );
+				$fragment.appendTo( $container );
+			});
+
+			it ( 'Should do nothing if not modified', function () {
+				spyOn( ajaxService, 'PUT' );
+
+				$fragment.find( '.control-container .save' ).trigger( 'click' );
+
+				expect( ajaxService.PUT ).not.toHaveBeenCalled();
+			});
+
+			it ( 'Should PUT new content to filesystem', function () {
+				spyOn( ajaxService, 'PUT' );
+				spyOn( workspaceService.privateFunctions, 'saveFileSuccess' );
+
+				$fragment.find( '.content-container .content' ).val( 'This is the new content' );
+				$fragment.find( '.control-container .save' )
+					.removeClass( 'unmodified' )
+					.addClass( 'modified' );
+
+				$fragment.find( '.control-container .save' ).trigger( 'click' );
+
+				expect( ajaxService.PUT ).toHaveBeenCalled();
+
+				var args = ajaxService.PUT.calls.first().args[ 0 ];
+
+				expect( args.url ).toEqual( './private/?p=files/root/dir1/dir2/index.html' );
+				expect( args.contentType ).toEqual( 'json' );
+				expect( args.input ).toEqual( JSON.stringify({ action: 'save', file: 'This is the new content' }) );
+				expect( args[ 401 ] ).toEqual( workspaceService.privateFunctions.displayLogin );
+				expect( args[ 498 ] ).toEqual( workspaceService.privateFunctions.saveFileFailure );
+				expect( args[ 499 ] ).toEqual( workspaceService.privateFunctions.invalidReference );
+				expect( args[ 500 ] ).toEqual( ajaxService.logInternalError );
+
+				expect( workspaceService.privateFunctions.saveFileSuccess ).not.toHaveBeenCalled();
+				args.success( 'some data' );
+				expect( workspaceService.privateFunctions.saveFileSuccess ).toHaveBeenCalled();
+				expect( $fragment.prop( 'originalContent' ) ).toEqual( 'This is the new content' );
+			});
+		});
+
+		describe ( 'SaveFileFailure', function () {
+			it ( 'Should display error message and reload filesystem', function () {
+				spyOn( loggingService, 'displayError' );
+				spyOn( workspaceService.privateFunctions, 'displayFilesystem' );
+
+				workspaceService.privateFunctions.saveFileFailure();
+
+				expect( workspaceService.privateFunctions.displayFilesystem ).toHaveBeenCalled();
+				expect( loggingService.displayError ).toHaveBeenCalled();
+
+				var args = loggingService.displayError.calls.first().args[ 0 ];
+
+				expect( args ).toEqual( 'File not saved' );
+			});
+
+			it ( 'Should display success message', function () {
+				spyOn( loggingService, 'displaySuccess' );
+
+				workspaceService.privateFunctions.saveFileSuccess();
+
+				expect( loggingService.displaySuccess ).toHaveBeenCalled();
+
+				var args = loggingService.displaySuccess.calls.first().args[ 0 ];
+
+				expect( args ).toEqual( 'File saved' );
+			});
+		});
 
 		describe ( 'SubmitNewDirectoryOnEnter', function () {
 			it ( 'Should use private function on enter', function () {

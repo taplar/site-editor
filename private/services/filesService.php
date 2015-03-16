@@ -330,6 +330,24 @@ final class FilesService {
 		}
 	}
 
+	public function saveFile ( $pathArray, $content ) {
+		$filename = array_pop( $pathArray );
+		$pathString = $this->pathExists( $pathArray );
+		$pathString = $this->editorIsNotParentOfPath( $pathString );
+
+		if ( $pathString != NULL ) {
+			if ( isset( $content->file ) && $this->isAValidFilename( $filename ) && file_exists( $pathString . $filename ) ) {
+				$file = fopen( $pathString . $filename, "w" );
+				fwrite( $file, $content->file );
+				fclose( $file );
+			} else {
+				Http::getInstance()->invalidName();
+			}
+		} else {
+			Http::getInstance()->invalidPath();
+		}
+	}
+
 	private function stringDoesNotContainInvalidCharacters ( $string ) {
 		return ( preg_match( "/^[A-Za-z0-9 ._-]+$/", $string ) == 1 );
 	}

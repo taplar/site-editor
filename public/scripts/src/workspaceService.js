@@ -44,6 +44,7 @@ var WorkspaceService = function () {
 					$fragment.prop( 'originalContent', $jsonObject.file );
 					$fragment.draggable();
 					$fragment.appendTo( $container );
+					$fragment.find( '.control-container .save' ).click( functions.saveFile );
 					$fragment.find( '.content-container .content' ).focus();
 				};
 				
@@ -767,6 +768,41 @@ var WorkspaceService = function () {
 			, renameFileSuccess: function ( data ) {
 				functions.closeMenuPromptWithSuccess( 'File renamed' );
 			}
+			, saveFile: function () {
+				var $icon = $( this );
+				var $fileContainer = $icon.parent().parent();
+				var filepath = $fileContainer.prop( 'fileTree' ).join( '/' );
+				var fileData = $fileContainer.find( '.content-container .content' ).val();
+
+				var successCallback = function ( data ) {
+					$fileContainer.prop( 'originalContent', fileData );
+					$fileContainer.find( '.content-container .content' ).trigger( 'keyup' );
+					functions.saveFileSuccess( data );
+				};
+
+				if ( $icon.hasClass( 'modified' ) ) {
+					AjaxService.getInstance().PUT({
+						url: './private/?p=files/'+ filepath
+						, contentType: 'json'
+						, input: JSON.stringify({
+							action: 'save'
+							, file: fileData
+						})
+						, success: successCallback
+						, 401: functions.displayLogin
+						, 498: functions.saveFileFailure
+						, 499: functions.invalidReference
+						, 500: AjaxService.getInstance().logInternalError
+					});
+				}
+			}
+			, saveFileFailure: function ( data ) {
+				LoggingService.getInstance().displayError( 'File not saved' );
+				functions.displayFilesystem();
+			}
+			, saveFileSuccess: function ( data ) {
+				LoggingService.getInstance().displaySuccess( 'File saved' );
+			}
 			, submitNewDirectoryOnEnter: function ( event ) {
 				if ( KeyService.getInstance().enter( event ) ) {
 					var input = { };
@@ -807,10 +843,10 @@ var WorkspaceService = function () {
 					AjaxService.getInstance().PUT({
 						url: url + filepath
 						, contentType: 'json'
-						, input: JSON.stringify( {
+						, input: JSON.stringify({
 							action: 'rename'
 							, name: input
-						} )
+						})
 						, success: successCallback
 						, 401: functions.displayLogin
 						, 498: failureCallback
