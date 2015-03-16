@@ -1,6 +1,6 @@
 <div class="draggable file-container">
 	<div class="control-container">
-		<i class="fa fa-check-circle save unmodified" title="Save"></i>
+		<i class="fa fa-check-circle save unmodified" title="Save (or Ctrl+s)"></i>
 		<div class="file-path"></div>
 		<i class="fa fa-times close"></i>
 	</div>

@@ -727,6 +727,7 @@ describe ( 'WorkspaceService', function () {
 			it ( 'Should replace container html and bind events', function () {
 				spyOn( sessionService, 'logout' );
 				spyOn( workspaceService.privateFunctions, 'displayMenu' );
+				spyOn( workspaceService.privateFunctions, 'captureControlS' );
 
 				$container.html( 'existing data to be replaced' );
 
@@ -743,6 +744,36 @@ describe ( 'WorkspaceService', function () {
 				expect( sessionService.logout ).not.toHaveBeenCalled();
 				$container.find( '.logout' ).click();
 				expect( sessionService.logout ).toHaveBeenCalled();
+
+				expect( workspaceService.privateFunctions.captureControlS ).toHaveBeenCalled();
+			} );
+		} );
+
+		describe ( 'CaptureControlS', function () {
+			it ( 'Should execute save when Ctrl+S is keyed', function () {
+				var $fragment = $( [
+					'<div class="file-container">'
+						, '<div class="control-container">'
+							, '<i class="save"></i>'
+						, '</div>'
+						, '<div class="content-container">'
+							, '<textarea class="content"></textarea>'
+						, '</div>'
+					, '</div>'
+				].join( '' ) );
+
+				spyOn( workspaceService.privateFunctions, 'saveFile' );
+
+				$fragment.find( '.control-container .save' ).click( workspaceService.privateFunctions.saveFile );
+				$fragment.appendTo( $container );
+
+				workspaceService.privateFunctions.captureControlS();
+
+				var event = $.Event( 'keydown', { keyCode: 83, ctrlKey: true, metaKey: true } );
+
+				expect( workspaceService.privateFunctions.saveFile ).not.toHaveBeenCalled();
+				$fragment.find( '.content-container .content' ).trigger( event );
+				expect( workspaceService.privateFunctions.saveFile ).toHaveBeenCalled();
 			} );
 		} );
 

@@ -8,6 +8,30 @@ describe ( 'KeyService', function () {
 			spyOn( keyService.privateFunctions, 'keyTriggeredEvent' ).and.returnValue( 'invoked' );
 		} );
 
+		describe ( 'Character S', function () {
+			it ( 'Should use private function', function () {
+				var event = { };
+
+				expect( keyService.s( event ) ).toEqual( 'invoked' );
+				expect( keyService.privateFunctions.keyTriggeredEvent ).toHaveBeenCalled();
+
+				var args = keyService.privateFunctions.keyTriggeredEvent.calls.first().args;
+				expect( args[ 0 ] ).toEqual( 83, event );
+			} );
+		} );
+
+		describe ( 'Control', function () {
+			it ( 'Should use private function', function () {
+				var event = { };
+
+				expect( keyService.control( event ) ).toEqual( 'invoked' );
+				expect( keyService.privateFunctions.keyTriggeredEvent ).toHaveBeenCalled();
+
+				var args = keyService.privateFunctions.keyTriggeredEvent.calls.first().args;
+				expect( args[ 0 ] ).toEqual( 17, event );
+			} );
+		} );
+
 		describe ( 'Enter', function () {
 			it ( 'Should use private function', function () {
 				var event = { };

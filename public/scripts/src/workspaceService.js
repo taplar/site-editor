@@ -258,6 +258,15 @@ var WorkspaceService = function () {
 				$container.find( '.menuIndicator' ).mouseover( functions.displayMenu );
 				$container.find( '.logout' ).click( SessionService.getInstance().logout );
 				$container.find( '.menuIndicator' ).trigger( 'mouseover' );
+				functions.captureControlS();
+			}
+			, captureControlS: function () {
+				$container.on( 'keydown', '.file-container .content-container .content', function ( event ) {
+					if ( ( event.ctrlKey || event.metaKey ) && KeyService.getInstance().s( event ) ) {
+						event.preventDefault();
+						$( this ).parent().parent().find( '.control-container .save' ).trigger( 'click' );
+					}
+				} );
 			}
 			, closeMenuPromptWithError: function ( message ) {
 				LoggingService.getInstance().displayError( message );

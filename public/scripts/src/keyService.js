@@ -3,8 +3,10 @@ var KeyService = function () {
 
 	var buildApi = function () {
 		var keyCodes = {
-			enter: 13
+			ctrl: 17
+			, enter: 13
 			, tab: 9
+			, s: 83
 		};
 
 		var functions = {
@@ -21,11 +23,17 @@ var KeyService = function () {
 
 		var api = {
 			privateFunctions: functions
+			, control: function ( event ) {
+				return functions.keyTriggeredEvent( keyCodes.ctrl, event );
+			}
 			, enter: function ( event ) {
 				return functions.keyTriggeredEvent( keyCodes.enter, event );
 			}
 			, tab: function ( event ) {
 				return functions.keyTriggeredEvent( keyCodes.tab, event );
+			}
+			, s: function ( event ) {
+				return functions.keyTriggeredEvent( keyCodes.s, event );
 			}
 		};
 
