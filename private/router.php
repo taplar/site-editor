@@ -2,14 +2,12 @@
 
 final class Router {
 	private static $instance;
-	private $http;
 
 
 	private function __clone () {
 	}
 
 	private function __construct () {
-		$this->http = Http::getInstance();
 	}
 
 	public static function getInstance () {
@@ -40,7 +38,7 @@ final class Router {
 				$controller->update( $path, $content );
 				break;
 			default:
-				$this->http->badRequest();
+				Http::getInstance()->badRequest();
 				break;
 		}
 	}
@@ -121,10 +119,10 @@ final class Router {
 			} else if ( Router::loginAttempt( $requestPath ) ) {
 				$sessionsController->save( $requestPath );
 			} else {
-				$this->http->unauthorized();
+				Http::getInstance()->unauthorized();
 			}
 		} else {
-			$this->http->badRequest();
+			Http::getInstance()->badRequest();
 		}
 	}
 }
