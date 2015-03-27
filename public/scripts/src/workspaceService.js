@@ -390,6 +390,7 @@ var WorkspaceService = function () {
 				$listItem.find( '> .rename-file' ).click( functions.displayRenameFile );
 				$listItem.find( '> .move-up-file' ).click( functions.displayMoveUpFile );
 				$listItem.find( '> .move-down-file' ).click( functions.displayMoveDownFile );
+				$listItem.on( 'applyFilter', functions.filterFile ); //TODO: TEST THIS
 			}
 			, displayFilesInDirectory: function ( $directory, $files ) {
 				var filenames = [];
@@ -558,6 +559,8 @@ var WorkspaceService = function () {
 				$listItem.find( '> .move-down-directory' ).click( functions.displayMoveDownDirectory );
 				$listItem.find( '> .new-file' ).click( functions.displayNewFile );
 				$listItem.find( '> .upload' ).click( functions.displayUploadFile );
+				$listItem.on( 'applyFilter', functions.filterFile ); //TODO: TEST THIS
+				$listItem.on( 'applyFilterMatch', functions.filterFileSuccess ); //TODO: TEST THIS
 			}
 			, displayUploadFile: function () {
 				var fileTree = functions.buildFileTreeArray( $( this ) );
@@ -576,59 +579,42 @@ var WorkspaceService = function () {
 					$newFile.html( '' );
 				}
 			}
-			, filterMenu: function ( event ) {
-				var $filter = $( this );
-				var pattern = $filter.val().trim().replace( /[%]/g, "[\\S]*" ).replace( /[_]/g, "[\\S]" );
-				var $menu = $container.find( '.menu .content-container .content .root > ul' );
+			, filterFile: function ( event, matcher ) { //TODO: TEST THIS
+				event.preventDefault();
+
+				var $this = $( this );
+
+				if ( matcher.test( $this.find( '.file-name' ).html() ) ) {
+					$this.trigger( 'applyFilterMatch' );
+					$this.show();
+
+					if ( $this.find( '> .subdirectory' ).length > 0 ) {
+						$this.find( '.menu-item' ).show();
+					}
+				}
+			}
+			, filterFileSuccess: function ( event ) { //TODO: TEST THIS
+				$( this ).show();
+			}
+			, filterMenu: function ( event ) { //TODO: TEST THIS
+				var pattern = $( this ).val().trim().replace( /[%]/g, "[\\S]*" ).replace( /[_]/g, "[\\S]" );
+				var $files = $container.find( '.menu .content-container .content .root .root-list .menu-item' );
+
+				if ( pattern.length > 0 ) {
+					if ( pattern.charAt( 0 ) != '^' ) {
+						pattern = '^'+ pattern;
+					}
+
+					if ( pattern.charAt( pattern.length - 1 ) != '$' ) {
+						pattern += '$';
+					}
+				}
 
 				try {
-					$menu.find( 'li' ).show();
-
-					if ( pattern.length > 0 ) {
-						if ( pattern.charAt( 0 ) != '^' ) {
-							pattern = '^'+ pattern;
-						}
-
-						if ( pattern.charAt( pattern.length - 1 ) != '$' ) {
-							pattern += '$';
-						}
-
-						var matcher = new RegExp( pattern );
-
-						$menu.find( 'li' ).hide();
-
-						$menu.find( '.file' ).next().each( function() {
-							var $thiz = $( this );
-
-							if ( matcher.test( $thiz.html() ) ) {
-								var $parent = $thiz.parent();
-
-								do {
-									$parent.show();
-
-									$parent = $parent.parent().parent();
-								} while ( $parent.prop( 'tagName' ) == 'LI' );
-							}
-						} );
-
-						$menu.find( '.folder' ).next().each( function() {
-							var $thiz = $( this );
-
-							if ( matcher.test( $thiz.html() ) ) {
-								var $parent = $thiz.parent();
-
-								$parent.find( 'li' ).show();
-
-								do {
-									$parent.show();
-
-									$parent = $parent.parent().parent();
-								} while ( $parent.prop( 'tagName' ) == 'LI' );
-							}
-						} );
-					}
+					$files.hide();
+					$files.trigger( 'applyFilter', [ new RegExp( pattern ) ] );
 				} catch ( e ) {
-					$menu.find( 'li' ).hide();
+					$files.show();
 				}
 			}
 			, findOpenFile: function ( fileTree ) {
